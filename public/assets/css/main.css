@@ -130,6 +130,9 @@ img { max-width: 100%; display: block; }
 }
 /* Must also outrank `.site-nav a:hover` (blue) so the fill reads paper-on-ink. */
 .site-nav a.nav-contact:hover { background: var(--ink); color: var(--paper); }
+/* The desktop Contact is a button, so no index number there; the drawer shows
+   it (05) so Contact reads as an ordinary nav row on mobile. */
+.site-nav a.nav-contact .nav-idx { display: none; }
 
 /* Hamburger toggle: hidden on desktop; bars morph into an X when open. */
 .nav-toggle {
@@ -215,8 +218,11 @@ img { max-width: 100%; display: block; }
   .site-nav > * + * { border-top: 1px solid var(--rule); }
   .site-nav a[aria-current="page"] { color: var(--accent); }
   .nav-home { display: block; }
-  .nav-contact { border: 0; padding: 14px 24px !important; border-radius: 0; }
-  .nav-contact:hover { background: none; color: var(--accent); }
+  /* Full selector on purpose: must outrank the desktop `.site-nav a.nav-contact`
+     button styling (border + fill hover) so Contact reads as a plain row here. */
+  .site-nav a.nav-contact { border: 0; padding: 14px 24px !important; border-radius: 0; }
+  .site-nav a.nav-contact:hover { background: none; color: var(--accent); }
+  .site-nav a.nav-contact .nav-idx { display: inline; }
 }
 
 /* =========================== Hero ====================================== */

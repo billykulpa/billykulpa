@@ -50,7 +50,7 @@
         <a href="/notes" <?= $nav === 'notes' ? 'aria-current="page"' : '' ?>><span class="nav-idx">02</span>Notes</a>
         <a href="/about" <?= $nav === 'about' ? 'aria-current="page"' : '' ?>><span class="nav-idx">03</span>About</a>
         <a href="/resume" <?= $nav === 'resume' ? 'aria-current="page"' : '' ?>><span class="nav-idx">04</span>Resume</a>
-        <a href="/contact" class="nav-contact" <?= $nav === 'contact' ? 'aria-current="page"' : '' ?>>Contact</a>
+        <a href="/contact" class="nav-contact" <?= $nav === 'contact' ? 'aria-current="page"' : '' ?>><span class="nav-idx">05</span>Contact</a>
         <span class="nav-social" aria-label="Social profiles">
           <?php foreach ($social_links as $s): ?>
           <a class="social-icon" href="<?= esc($s['url']) ?>" target="_blank" rel="noopener"

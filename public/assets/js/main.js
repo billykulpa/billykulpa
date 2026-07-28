@@ -53,6 +53,14 @@
     }
   });
 
-  // If the viewport grows back to desktop while open, reset to the inline nav.
-  window.addEventListener('resize', () => { if (window.innerWidth > 820 && isOpen()) close(false); });
+  // On resize: suppress the drawer's slide transition (crossing the breakpoint
+  // would otherwise animate it), and if the viewport grows back to desktop
+  // while open, reset to the inline nav. 960 matches the CSS breakpoint.
+  let resizeSettle;
+  window.addEventListener('resize', () => {
+    nav.classList.add('resizing');
+    clearTimeout(resizeSettle);
+    resizeSettle = setTimeout(() => nav.classList.remove('resizing'), 150);
+    if (window.innerWidth > 960 && isOpen()) close(false);
+  });
 })();

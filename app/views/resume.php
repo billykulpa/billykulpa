@@ -22,7 +22,7 @@ $highlights = [
 ];
 
 $experience = [
-    ['title' => 'Head of Creative', 'dates' => 'November 2023–Present',
+    ['title' => 'Senior Manager, Creative', 'dates' => 'November 2023–Present',
      'org' => 'Fabricators and Manufacturers Association', 'org_url' => 'https://www.fmamfg.org', 'loc' => 'Elgin, Illinois',
      'points' => [
         'Own all creative output for FMA and its family of brands (The Fabricator, SparkForce, and a full calendar of event subbrands) following the 2023 corporate rebrand: creative quality, brand integrity, and asset standards.',

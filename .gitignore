@@ -1,0 +1,5 @@
+# Real credentials live only on the machines that need them.
+app/config.php
+app/cache/
+# OS noise
+.DS_Store

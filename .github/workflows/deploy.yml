@@ -1,0 +1,41 @@
+# Deploys billykulpa.com to Hostinger on every push to main.
+# public/ in the repo -> public_html/ on the server; app/ -> app/ beside it.
+# The server's app/config.php is excluded so production credentials
+# never leave the server (and never enter this repo).
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync public/ to public_html/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: public/
+          server-dir: public_html/
+
+      - name: Sync app/ to app/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: app/
+          server-dir: app/
+          exclude: |
+            config.php
+            cache/**

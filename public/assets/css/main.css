@@ -1,0 +1,763 @@
+/* =========================================================================
+   billykulpa.com — main stylesheet
+   Direction: Swiss grid, engineering restraint. Two-tier blue accent:
+   text-safe azure (#0a70c2) for links/small type, true baby blue (#35b9ff)
+   for large surfaces (button fills with ink text, underlines, dark-bg accents).
+   Violet secondary (#6b35ff — Billy's orange #ff6b35, rearranged) for hovers.
+   Type: Archivo (variable) for everything, IBM Plex Mono for labels/indices.
+   ========================================================================= */
+
+:root {
+  --ink:        #16150f;
+  --ink-soft:   #4c4a40;
+  --paper:      #faf9f5;
+  --paper-deep: #f1efe8;
+  --rule:       #dcd9cf;
+  --accent:      #0a70c2;  /* text-safe azure — 4.85:1 on paper (AA) */
+  --accent-soft: #35b9ff;  /* true baby blue — large/decorative only; ink text on it is 8.3:1 */
+  --accent-2:    #6b35ff;  /* violet hover accent — 5.57:1 on paper */
+  --accent-ink: #ffffff;
+
+  --font-sans: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+  --wrap: 1180px;
+  --gutter: clamp(20px, 4vw, 48px);
+  --baseline: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  font-variation-settings: "wdth" 100;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.5;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+a { color: inherit; text-decoration: none; }
+.prose a, .footer-line a, .hero-lede a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+img { max-width: 100%; display: block; }
+
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--ink); color: var(--paper); padding: 8px 16px;
+}
+.skip:focus { left: 0; z-index: 100; }
+
+/* Mono labels — the connective tissue of the system */
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.nav-idx {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-right: 8px;
+  vertical-align: 2px;
+}
+
+/* =========================== Header ==================================== */
+
+.site-header {
+  border-bottom: 1px solid var(--rule);
+  position: sticky; top: 0; z-index: 50;
+  /* Solid background on purpose: backdrop-filter would create a containing
+     block and trap the fixed-position mobile drawer inside the header. */
+  background: var(--paper);
+}
+
+.header-grid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.wordmark {
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.wordmark-rule { color: var(--accent); font-weight: 400; }
+.wordmark-name { font-weight: 500; color: var(--ink-soft); font-size: 15px; }
+
+/* Nav — Restreak pattern: one element, inline on desktop, drawer on mobile. */
+.site-nav { display: flex; gap: 32px; align-items: center; }
+.site-nav a {
+  font-size: 15px;
+  font-weight: 500;
+  padding-block: 4px;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.site-nav a[aria-current="page"] { border-bottom-color: var(--accent-soft); }
+.site-nav a:hover { color: var(--accent); }
+/* "Home" link lives only in the mobile drawer (the wordmark covers desktop). */
+.nav-home { display: none; }
+/* Extra specificity (a.nav-contact) on purpose: `.site-nav a`'s border-bottom
+   (the current-page underline slot) would otherwise swallow this button's
+   bottom edge — and the solid hover fill needs all four edges to contain it. */
+.site-nav a.nav-contact {
+  border: 1px solid var(--ink);
+  padding: 8px 18px !important;
+  border-radius: 2px;
+}
+/* Must also outrank `.site-nav a:hover` (blue) so the fill reads paper-on-ink. */
+.site-nav a.nav-contact:hover { background: var(--ink); color: var(--paper); }
+
+/* Hamburger toggle: hidden on desktop; bars morph into an X when open. */
+.nav-toggle {
+  display: none;
+  width: 44px; height: 44px;
+  align-items: center; justify-content: center;
+  margin-right: -8px;
+  background: none; border: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+.nav-toggle-bars { position: relative; }
+.nav-toggle-bars,
+.nav-toggle-bars::before,
+.nav-toggle-bars::after {
+  display: block;
+  width: 22px; height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.nav-toggle-bars::before,
+.nav-toggle-bars::after { content: ''; position: absolute; left: 0; }
+.nav-toggle-bars::before { top: -7px; }
+.nav-toggle-bars::after  { top: 7px; }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars { background: transparent; }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars::before { top: 0; transform: rotate(45deg); }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars::after  { top: 0; transform: rotate(-45deg); }
+
+/* Dimmed page behind the open drawer; starts below the 64px header + border
+   so the wordmark and the X stay visible. */
+.nav-overlay {
+  position: fixed;
+  top: 65px;
+  left: 0; right: 0; bottom: 0;
+  background: rgba(22, 21, 15, 0.4);
+  z-index: 90;
+}
+
+/* Keyboard-only focus rings (mouse taps shouldn't leave a glow). */
+.nav-toggle:focus, .site-nav a:focus { outline: none; }
+.site-nav:focus { outline: none; }
+.nav-toggle:focus-visible, .site-nav a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 820px) {
+  .wordmark-name { display: none; }
+  .nav-toggle { display: inline-flex; }
+
+  /* The inline nav becomes a slide-in drawer from the right. */
+  .site-nav {
+    position: fixed;
+    top: 65px;
+    right: 0; bottom: 0;
+    width: min(78vw, 300px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--paper);
+    border-left: 1px solid var(--rule);
+    padding: 4px 0;
+    transform: translateX(100%);
+    transition: transform 0.22s ease;
+    z-index: 95;
+    overflow-y: auto;
+  }
+  .site-nav.open { transform: translateX(0); }
+  .site-nav a {
+    font-size: 17px;
+    font-weight: 600;
+    padding: 14px 24px;
+    width: 100%;
+    text-align: left;
+    border-bottom: 0;
+  }
+  .site-nav > * + * { border-top: 1px solid var(--rule); }
+  .site-nav a[aria-current="page"] { color: var(--accent); }
+  .nav-home { display: block; }
+  .nav-contact { border: 0; padding: 14px 24px !important; border-radius: 0; }
+  .nav-contact:hover { background: none; color: var(--accent); }
+}
+
+/* =========================== Hero ====================================== */
+
+.hero { padding: clamp(56px, 10vw, 128px) 0 clamp(40px, 6vw, 80px); }
+.hero--inner { padding-block: clamp(40px, 7vw, 88px) clamp(16px, 3vw, 40px); }
+
+.hero-kicker { margin-bottom: 20px; display: block; }
+
+.hero-h1 {
+  font-size: clamp(38px, 6.5vw, 76px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  max-width: 15ch;
+  text-wrap: balance;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  gap: clamp(24px, 5vw, 80px);
+  margin-top: clamp(28px, 4vw, 48px);
+  align-items: start;
+}
+
+.hero-lede {
+  font-size: clamp(17px, 1.6vw, 20px);
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 56ch;
+  margin-top: 16px;
+}
+.hero .hero-grid .hero-lede { margin-top: 0; }
+
+.hero-facts { border-top: 1px solid var(--rule); }
+.hero-facts > div, .fact-stack > div {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+}
+.fact-stack > div { grid-template-columns: 1fr; gap: 4px; }
+.hero-facts dd, .fact-stack dd { color: var(--ink); }
+
+@media (max-width: 820px) {
+  .hero-grid { grid-template-columns: 1fr; }
+}
+
+/* =========================== Sections ================================== */
+
+.section { padding: clamp(40px, 6vw, 88px) 0; border-top: 1px solid var(--rule); }
+
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: clamp(24px, 3vw, 40px);
+}
+.section-head h2 {
+  font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.section-more {
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.06em; color: var(--accent);
+}
+.section-more:hover { text-decoration: underline; }
+
+/* =========================== Work grid ================================= */
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(16px, 2.5vw, 32px);
+}
+.work-card--lead { grid-column: 1 / -1; }
+
+.work-card {
+  display: block;
+  border: 1px solid var(--rule);
+  background: #fff;
+  transition: border-color .15s ease, transform .15s ease;
+}
+a.work-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+.work-card-media {
+  position: relative; /* anchors the absolutely-placed img so every card's media box keeps the same aspect */
+  aspect-ratio: 16 / 7;
+  background:
+    repeating-linear-gradient(0deg,  transparent, transparent 31px, var(--rule) 31px, var(--rule) 32px),
+    repeating-linear-gradient(90deg, transparent, transparent 31px, var(--rule) 31px, var(--rule) 32px),
+    var(--paper-deep);
+  display: grid; place-items: center;
+}
+.work-card--lead .work-card-media { aspect-ratio: 21 / 8; }
+.work-card-media--restreak { background-color: #0a0a0a; }
+.work-card-media--restreak .ph-note { color: rgba(250,249,245,.5); border-color: rgba(250,249,245,.25); }
+
+.ph-note {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border: 1px dashed var(--rule);
+  padding: 6px 12px;
+  background: color-mix(in srgb, var(--paper) 60%, transparent);
+}
+
+.work-card-body { padding: 20px 24px 24px; }
+.work-card-body h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.work-card-body p { margin-top: 6px; color: var(--ink-soft); font-size: 15px; }
+/* p.mono-label needed: `.work-card-body p` would otherwise out-rank
+   .mono-label and inflate these to 15px. */
+.work-card-body p.mono-label { margin-top: 14px; font-size: 11px; }
+
+@media (max-width: 680px) {
+  .work-grid { grid-template-columns: 1fr; }
+}
+
+/* =========================== Notes ===================================== */
+
+/* No border-top: the section rule above it already draws a line, and two
+   rules stacked read as a mistake. Row border-bottoms carry the rhythm. */
+.notes-list { border-top: 0; }
+.note-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: baseline;
+}
+.note-title { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+.note-row:hover .note-title { color: var(--accent); }
+.note-desc { grid-column: 2; color: var(--ink-soft); font-size: 15px; }
+
+@media (max-width: 680px) {
+  .note-row { grid-template-columns: 1fr; }
+  .note-desc { grid-column: 1; }
+}
+
+/* Work archive listing: client | year | title */
+.archive-list .note-row { grid-template-columns: 110px 56px 1fr; }
+@media (max-width: 680px) {
+  .archive-list .note-row { grid-template-columns: 110px 56px; }
+  .archive-list .note-title { grid-column: 1 / -1; }
+}
+
+/* =========================== Case study ================================ */
+
+.case-meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 20px 0;
+  border-block: 1px solid var(--rule);
+  margin-bottom: clamp(24px, 4vw, 48px);
+}
+.case-meta dd { font-size: 15px; margin-top: 4px; }
+@media (max-width: 680px) { .case-meta { grid-template-columns: repeat(2, 1fr); } }
+
+.case-fig { margin-bottom: clamp(24px, 4vw, 48px); }
+.case-fig img { width: 100%; height: auto; border: 1px solid var(--rule); }
+.case-fig figcaption { margin-top: 8px; }
+/* Captions are sentence case site-wide: keep the mono voice, drop the
+   uppercase that .mono-label would otherwise impose. */
+figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
+/* Two-up figure row (e.g. paired mobile screenshots) */
+.fig-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px, 2.5vw, 32px);
+  align-items: start;
+}
+@media (max-width: 560px) { .fig-row { grid-template-columns: 1fr; } }
+.video-embed { margin: 32px 0; border: 1px solid var(--rule); }
+/* Absolute so the image can never stretch the media box past its aspect
+   ratio — otherwise tall images (ALAW, Joie) make their cards taller. */
+.work-card-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.ph-block {
+  aspect-ratio: 16 / 8;
+  background:
+    repeating-linear-gradient(0deg,  transparent, transparent 31px, var(--rule) 31px, var(--rule) 32px),
+    repeating-linear-gradient(90deg, transparent, transparent 31px, var(--rule) 31px, var(--rule) 32px),
+    var(--paper-deep);
+  display: grid; place-items: center;
+  border: 1px solid var(--rule);
+}
+.ph-block--sm { aspect-ratio: 4 / 3; }
+
+/* =========================== Prose ===================================== */
+
+.prose-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  gap: clamp(24px, 5vw, 80px);
+  align-items: start;
+}
+@media (max-width: 820px) { .prose-grid { grid-template-columns: 1fr; } }
+
+.prose { max-width: 68ch; }
+.prose p, .prose ul, .prose ol, .prose blockquote, .prose pre { margin-bottom: 20px; }
+.prose h2, .prose h3, .prose h4 {
+  margin: 40px 0 12px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.prose h2 { font-size: 26px; }
+.prose h3 { font-size: 21px; }
+.prose h4 { font-size: 18px; }
+.prose > h2:first-child { margin-top: 0; }
+.prose ul, .prose ol { padding-left: 24px; }
+.prose li { margin-bottom: 6px; }
+.prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 20px;
+  color: var(--ink-soft);
+}
+.prose pre {
+  background: var(--ink); color: var(--paper);
+  padding: 20px; overflow-x: auto;
+  font-size: 14px; line-height: 1.55;
+}
+.prose code { font-family: var(--font-mono); font-size: 0.9em; }
+.prose :not(pre) > code {
+  background: var(--paper-deep);
+  padding: 2px 6px; border-radius: 2px;
+}
+.prose hr { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+/* height:auto so the old markup's width/height attributes scale, not stretch */
+.prose img { border: 1px solid var(--rule); height: auto; }
+
+/* Figures with cutlines: caption pairs tightly with the photo, then the
+   figure as a whole gets clear air before body copy resumes. */
+.prose figure { margin: 32px 0 40px; }
+.prose figcaption {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* Embeds (video, SoundCloud, Spotify): same rhythm as figures — the embed
+   block gets the figure's 40px of air before body copy resumes. */
+.prose .video-container,
+.prose .audio-container,
+.prose .spotify-container,
+.prose .video-embed {
+  margin: 32px 0 40px;
+}
+.prose .video-container iframe,
+.prose .video-embed iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border: 0;
+}
+.prose .audio-container iframe,
+.prose .spotify-container iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+}
+
+/* SoundCloud's stock credit line, restyled as a standard cutline:
+   tight to the player, caption font, then the block's usual air below. */
+.prose .embed-credit {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.prose .embed-credit a { color: var(--ink-soft); text-decoration: underline; text-underline-offset: 2px; }
+.prose .embed-credit a:hover { color: var(--accent); }
+
+/* Longform quoted material (e.g. a short story set inside a post):
+   a quiet manuscript block instead of the accent-bar pull quote. */
+.prose blockquote.longform {
+  border-left: 0;
+  background: var(--paper-deep);
+  border: 1px solid var(--rule);
+  padding: clamp(24px, 4vw, 40px);
+  margin: 32px 0 40px;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.7;
+}
+.prose blockquote.longform p { margin-bottom: 16px; }
+.prose blockquote.longform p:last-child { margin-bottom: 0; }
+.prose blockquote.longform h2 { margin-top: 0; }
+
+/* Migrated meta/byline rows (ul.meta with inline svg icons): the old site
+   sized these icons in CSS; without a cap the svg fills the column. */
+.prose ul.meta {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.prose ul.meta li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.prose ul.meta svg { width: 14px; height: 14px; fill: var(--ink-soft); flex: none; }
+
+.prose--post { font-size: 18px; line-height: 1.65; }
+.post-back { margin-top: 48px; }
+.post-back a { font-family: var(--font-mono); font-size: 13px; color: var(--accent); }
+
+/* =========================== CTA / footer ============================== */
+
+/* CTA band: same paper family as the rest of the site — a quiet deep-paper
+   panel rather than a reversed black box (nothing else on the site is dark). */
+.section--cta { text-align: center; background: var(--paper-deep); }
+.cta-h2 {
+  font-size: clamp(24px, 3.6vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+  text-wrap: balance;
+}
+.cta-h2 em { font-style: italic; color: var(--accent); }
+
+.btn {
+  display: inline-block;
+  background: none;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-weight: 600; font-size: 16px;
+  padding: 13px 31px;   /* 1px less than before: the border takes it back */
+  border-radius: 2px;
+}
+.btn:hover { background: var(--ink); color: var(--paper); }
+
+.site-footer { border-top: 1px solid var(--rule); padding: 48px 0 64px; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+.footer-line { margin-top: 8px; font-size: 14px; color: var(--ink-soft); }
+@media (max-width: 680px) { .footer-grid { grid-template-columns: 1fr; } }
+
+/* =========================== Social links ============================== */
+
+.nav-social { display: flex; align-items: center; gap: 14px; margin-left: 8px; }
+.social-icon { display: inline-flex; padding-block: 0 !important; border-bottom: 0 !important; }
+.social-icon svg { width: 17px; height: 17px; fill: var(--ink-soft); transition: fill .15s ease; }
+.social-icon:hover svg { fill: var(--accent); }
+.social-name { position: absolute; left: -9999px; } /* visually hidden label */
+.footer-social a { white-space: nowrap; }
+
+@media (max-width: 820px) {
+  /* In the drawer, social links become labeled rows with icons. */
+  .nav-social {
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0;
+    gap: 0;
+  }
+  .social-icon {
+    padding: 12px 24px !important;
+    gap: 12px;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .social-icon svg { width: 18px; height: 18px; }
+  .social-name { position: static; left: auto; }
+}
+
+/* =========================== Archive case pages ======================== */
+
+.case-meta--archive { grid-template-columns: repeat(2, 1fr); max-width: 640px; }
+
+.prose--archive { max-width: none; }
+.prose--archive p { max-width: 68ch; }
+.prose--archive figure { margin: 32px 0; }
+/* width:auto — small assets (business cards, logo markups) render at their
+   natural size instead of inflating to the column; big captures still cap
+   at 100%. The gallery track overrides this to fill its slides. */
+.prose--archive figure img { border: 1px solid var(--rule); height: auto; width: auto; max-width: 100%; }
+.prose--archive .gallery-track figure img { width: 100%; }
+.prose--archive figcaption {
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--ink-soft); margin-top: 8px; letter-spacing: 0.02em;
+}
+.prose--archive .jump-link {
+  font-family: var(--font-mono); font-size: 13px; color: var(--accent);
+}
+
+/* Horizontal scroll gallery (replaces the old Glider carousels — no JS). */
+.gallery-scroll { margin: 32px 0; }
+.gallery-track {
+  display: flex; gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 12px;
+}
+.gallery-track figure {
+  flex: 0 0 min(70vw, 480px);
+  scroll-snap-align: start;
+  margin: 0;
+}
+.gallery-track img { width: 100%; height: auto; border: 1px solid var(--rule); }
+.fig-link { display: block; }
+.fig-link:hover img { border-color: var(--accent); }
+
+/* =========================== Resume ==================================== */
+
+.resume-jump { margin-top: 20px; }
+.resume-jump a { color: var(--accent); }
+.resume-jump a:hover { text-decoration: underline; }
+
+.resume-entry {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+  max-width: 72ch;
+}
+.resume-entry:last-child { border-bottom: 0; }
+.resume-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 16px; flex-wrap: wrap;
+}
+.resume-head h3 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+.resume-org { margin-top: 4px; font-size: 15px; color: var(--ink-soft); }
+.resume-org a { color: var(--accent); }
+.resume-org a:hover { text-decoration: underline; }
+.resume-points { margin-top: 12px; padding-left: 20px; }
+.resume-points li { margin-bottom: 6px; font-size: 15px; line-height: 1.55; }
+
+/* =========================== Testimonials ============================== */
+
+.testimonial-card {
+  border: 1px solid var(--rule);
+  background: #fff;
+  padding: 24px;
+  margin: 0 0 20px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.testimonial-card p { margin-bottom: 12px; }
+.testimonial-headshot {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 16px;
+  border: 1px solid var(--rule);
+}
+.testimonial-card footer { margin-top: 16px; }
+.testimonial-card footer a { color: var(--accent); }
+
+/* =========================== Contact form ============================== */
+
+.contact-form { max-width: 640px; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+@media (max-width: 560px) { .contact-grid { grid-template-columns: 1fr; } }
+.contact-form label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 20px 0 6px;
+}
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form textarea {
+  width: 100%;
+  font: inherit; font-size: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule); border-radius: 2px;
+  background: #fff; color: var(--ink);
+}
+.contact-form textarea { min-height: 180px; resize: vertical; }
+.contact-form input:focus, .contact-form textarea:focus {
+  outline: 2px solid var(--accent); outline-offset: -1px;
+}
+.contact-form .btn { cursor: pointer; font: inherit; font-weight: 600; margin-top: 24px; }
+.contact-turnstile { margin-top: 20px; }
+/* Honeypot: hidden from humans, tempting to bots. */
+.contact-form .cf-website { position: absolute; left: -9999px; }
+.form-notice { padding: 14px 16px; border-radius: 2px; margin-bottom: 24px; font-size: 15px; max-width: 640px; }
+.form-notice--ok  { background: #e6f4ea; color: #1a7f37; border: 1px solid #b7dfc2; }
+.form-notice--err { background: #fdecea; color: #b42318; border: 1px solid #f5c6c0; }
+
+/* =========================== Lightbox ================================== */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(22, 21, 15, 0.92);
+  display: none;
+}
+.lightbox.open { display: block; }
+
+.lightbox-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;           /* tall full-page captures scroll here */
+  padding: 48px clamp(16px, 4vw, 64px);
+  text-align: center;
+}
+.lightbox-img {
+  max-width: min(1400px, 100%);
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid rgba(250, 249, 245, 0.2);
+}
+.lightbox-close {
+  position: fixed;
+  top: 12px; right: 16px;
+  z-index: 210;
+  width: 44px; height: 44px;
+  background: none; border: none;
+  color: var(--paper);
+  font-size: 32px; line-height: 1;
+  cursor: pointer;
+}
+.lightbox-close:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 2px; }
+
+.lightbox-zoomable, .fig-link { cursor: zoom-in; }
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  html { scroll-behavior: auto; }
+}

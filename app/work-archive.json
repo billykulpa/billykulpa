@@ -1,0 +1,58 @@
+{
+  "alaw-rebrand": {
+    "title": "Advanced Laser Application Workshop Rebrand",
+    "meta_title": "Advanced Laser Application Workshop Rebrand",
+    "meta_description": "A rebrand of the Advanced Laser Application Workshop conference.",
+    "client": "FMA",
+    "completed": "2024"
+  },
+  "cleo-jetsonic": {
+    "title": "Cleo Jetsonic Animated Video",
+    "meta_title": "Cleo Jetsonic Animated Video",
+    "meta_description": "An animated video I created while working at Cleo to promote the launch of our Cleo Jetsonic product.",
+    "client": "Cleo",
+    "completed": "2017"
+  },
+  "cleo-managed-b2b-cloud": {
+    "title": "Cleo Managed B2B Cloud Animated Video",
+    "meta_title": "Cleo Managed B2B Cloud Animated Video",
+    "meta_description": "An animated video I created while working at Cleo to promote the launch of our Cleo Managed B2B Cloud product.",
+    "client": "Cleo",
+    "completed": "2017"
+  },
+  "cleo-recruitment-video": {
+    "title": "Cleo Recruitment Video",
+    "meta_title": "Cleo Recruitment Video",
+    "meta_description": "A marketing video I created for Cleo to help recruit sales development representatives.",
+    "client": "Cleo",
+    "completed": "2019"
+  },
+  "cleo-website-and-brand-development": {
+    "title": "Cleo Website and Brand Development",
+    "meta_title": "Cleo Website and Brand Development",
+    "meta_description": "A rebrand of Cleo, a software company based in Rockford, Illinois.",
+    "client": "Cleo",
+    "completed": "2018"
+  },
+  "meshiq-website-development-and-brand-rebuild": {
+    "title": "MeshIQ Website and Brand Development",
+    "meta_title": "MeshIQ Website and Brand Development",
+    "meta_description": "A rebrand of MeshIQ, a software company based in Plainview, New York.",
+    "client": "MeshIQ",
+    "completed": "2023"
+  },
+  "netreo-website-development-and-brand-rebuild": {
+    "title": "Netreo Website Development and Brand Rebuild",
+    "meta_title": "Netreo Website Development and Brand Rebuild",
+    "meta_description": "A rebrand of Netreo, a software company based in Bakersfield, California.",
+    "client": "Netreo",
+    "completed": "2020"
+  },
+  "rosecrance-healing-garden-video": {
+    "title": "Rosecrance Healing Garden Video",
+    "meta_title": "Rosecrance Healing Garden Video",
+    "meta_description": "A marketing video I created for Rosecrance to showcase the healing garden at the Rosecrance Griffin Williamson Campus.",
+    "client": "Rosecrance",
+    "completed": "2012"
+  }
+}

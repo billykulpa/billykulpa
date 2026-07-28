@@ -65,8 +65,8 @@ ON DUPLICATE KEY UPDATE title=VALUES(title), meta_title=VALUES(meta_title),
 INSERT INTO posts (slug, title, meta_title, meta_description, body_md, body_html, status, published_at)
 VALUES ('new-superhero-center-for-autism-website-launched', 'New Superhero Center for Autism Website Launched', 'New Superhero Center for Autism Website Launched', 'I launched a new website for the Superhero Center for Autism', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/homepage-superhero-center-for-autism-launch-540x330.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/homepage-superhero-center-for-autism-launch-720x441.webp"/>
+
+
 <img alt="The new website of the Superhero Center for Autism" height="1175" src="/assets/img/homepage-superhero-center-for-autism-launch-1920x1175.webp" width="1920"/>
 </picture>
 <figcaption>The new website of the Superhero Center for Autism at the time of launch.</figcaption>
@@ -88,8 +88,8 @@ My immediate next steps are getting the old site taken down and the domain forwa
 
 But it\'s hard to stay mad. I feel great about getting the project launched. Onward!', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/homepage-superhero-center-for-autism-launch-540x330.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/homepage-superhero-center-for-autism-launch-720x441.webp"/>
+
+
 <img alt="The new website of the Superhero Center for Autism" height="1175" src="/assets/img/homepage-superhero-center-for-autism-launch-1920x1175.webp" width="1920"/>
 </picture>
 <figcaption>The new website of the Superhero Center for Autism at the time of launch.</figcaption>
@@ -111,8 +111,8 @@ VALUES ('my-1994-appearance-in-the-weekly-world-news', 'My 1994 Appearance in th
 
 <figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/weekly-world-news-ole-lykke-billy-kulpa-540x606.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/weekly-world-news-ole-lykke-billy-kulpa-720x808.webp"/>
+
+
 <img alt="My appearance in the Weekly World News, where I was listed as Ole Lykke" height="1280" src="/assets/img/weekly-world-news-ole-lykke-billy-kulpa-1280x1436.webp" width="1436"/>
 </picture>
 <figcaption>That\'s me, Ole Lykke, in the top left of the page. The rest of the missing kids are my siblings and cousins. The (terrible) seeker, Jon Delgren, is actually my step-brother, Adam Reum.</figcaption>
@@ -141,8 +141,8 @@ So that\'s the story of how I ended up in the Weekly World News as a missing 10 
 Happy reading.', '<p>So this story is 100% true as my memory will permit.</p>
 <figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/weekly-world-news-ole-lykke-billy-kulpa-540x606.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/weekly-world-news-ole-lykke-billy-kulpa-720x808.webp"/>
+
+
 <img alt="My appearance in the Weekly World News, where I was listed as Ole Lykke" height="1280" src="/assets/img/weekly-world-news-ole-lykke-billy-kulpa-1280x1436.webp" width="1436"/>
 </picture>
 <figcaption>That\'s me, Ole Lykke, in the top left of the page. The rest of the missing kids are my siblings and cousins. The (terrible) seeker, Jon Delgren, is actually my step-brother, Adam Reum.</figcaption>
@@ -165,8 +165,8 @@ ON DUPLICATE KEY UPDATE title=VALUES(title), meta_title=VALUES(meta_title),
 INSERT INTO posts (slug, title, meta_title, meta_description, body_md, body_html, status, published_at)
 VALUES ('superhero-center-featured-in-northwest-quarterly-magazine', 'Superhero Center Featured in the Northwest Quarterly', 'Superhero Center Featured in the Northwest Quarterly', 'The Superhero Center for Autism was featured in a Northwest Quarterly article.', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/jude-kulpa-superhero-center-540x432.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/jude-kulpa-superhero-center-720x576.webp"/>
+
+
 <img alt="Jude and his friend Hannah playing a Kirby video game at the Superhero Center for Autism" height="576" src="/assets/img/jude-kulpa-superhero-center-1000x800.webp" width="720"/>
 </picture>
 <figcaption>My youngest son, Jude, playing Kirby with his friend at the Superhero Center for Autism.</figcaption>
@@ -180,8 +180,8 @@ Plus there were a couple of really neat photos of my kids published. Check out J
 
 <figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/grant-kulpa-superhero-center-540x432.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/grant-kulpa-superhero-center-720x576.webp"/>
+
+
 <img alt="My oldest son, Grant, hanging from the industrial swings at the Superhero Center for Autism" height="576" src="/assets/img/grant-kulpa-superhero-center-1000x800.webp" width="720"/>
 </picture>
 <figcaption>My oldest son, Grant, hanging from the industrial swings at the Superhero Center for Autism.</figcaption>
@@ -189,8 +189,8 @@ Plus there were a couple of really neat photos of my kids published. Check out J
 
 The center is run entirely by volunteers, and all of our funds are raised through donations and fundraisers. If you\'d like to help with either, visit our website at [superherocenter.org](https://www.superherocenter.org "Visit the website of the Superhero Center for Autism").', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/jude-kulpa-superhero-center-540x432.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/jude-kulpa-superhero-center-720x576.webp"/>
+
+
 <img alt="Jude and his friend Hannah playing a Kirby video game at the Superhero Center for Autism" height="576" src="/assets/img/jude-kulpa-superhero-center-1000x800.webp" width="720"/>
 </picture>
 <figcaption>My youngest son, Jude, playing Kirby with his friend at the Superhero Center for Autism.</figcaption>
@@ -200,8 +200,8 @@ The center is run entirely by volunteers, and all of our funds are raised throug
 <p>Plus there were a couple of really neat photos of my kids published. Check out Jude, above, playing Kirby for the Super Nintendo, or the photo of Grant, below, playing on the center\'s swings.</p>
 <figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/grant-kulpa-superhero-center-540x432.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/grant-kulpa-superhero-center-720x576.webp"/>
+
+
 <img alt="My oldest son, Grant, hanging from the industrial swings at the Superhero Center for Autism" height="576" src="/assets/img/grant-kulpa-superhero-center-1000x800.webp" width="720"/>
 </picture>
 <figcaption>My oldest son, Grant, hanging from the industrial swings at the Superhero Center for Autism.</figcaption>
@@ -214,8 +214,8 @@ ON DUPLICATE KEY UPDATE title=VALUES(title), meta_title=VALUES(meta_title),
 INSERT INTO posts (slug, title, meta_title, meta_description, body_md, body_html, status, published_at)
 VALUES ('explaining-walter-matthau-disease', 'Explaining Walter Matthau Disease', 'Explaining Walter Matthau Disease', 'A blog post discussing the origins of Walter Matthau Disease.', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/walter-matthau-the-taking-of-pelham-one-two-three-540x304.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/walter-matthau-the-taking-of-pelham-one-two-three-720x405.webp"/>
+
+
 <img alt="Walter Matthau, the star of 1974\'s The Taking of Pelham One Two Three" height="1080" src="/assets/img/walter-matthau-the-taking-of-pelham-one-two-three.webp" width="1920"/>
 </picture>
 <figcaption>Walter Matthau, tragically seen here at just 22 years old.</figcaption>
@@ -233,8 +233,8 @@ Once we started talking about the concept, we realized there are many other peop
 
 Once you\'re aware of this serious and unfortunate condition, you\'ll see it everywhere. Please do what you can to spread awareness.', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/walter-matthau-the-taking-of-pelham-one-two-three-540x304.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/walter-matthau-the-taking-of-pelham-one-two-three-720x405.webp"/>
+
+
 <img alt="Walter Matthau, the star of 1974\'s The Taking of Pelham One Two Three" height="1080" src="/assets/img/walter-matthau-the-taking-of-pelham-one-two-three.webp" width="1920"/>
 </picture>
 <figcaption>Walter Matthau, tragically seen here at just 22 years old.</figcaption>
@@ -406,8 +406,8 @@ ON DUPLICATE KEY UPDATE title=VALUES(title), meta_title=VALUES(meta_title),
 INSERT INTO posts (slug, title, meta_title, meta_description, body_md, body_html, status, published_at)
 VALUES ('home-recording-with-logic-pro-x', 'Recording Music at Home with Logic Pro X', 'Recording Music at Home with Logic Pro X', 'I\'ve been working on recording music at home with Logic Pro X.', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/careering-logic-pro-x-540x280.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/careering-logic-pro-x-720x373.webp"/>
+
+
 <img alt="The project file for Careering, as seen in Logic Pro X" height="995" src="/assets/img/careering-logic-pro-x.webp" width="1920"/>
 </picture>
 <figcaption>My Logic Pro X project file for "Careering". I\'m a lousy singer, so you can see the many, many times I re-recorded individual phrases within the vocals.</figcaption>
@@ -453,8 +453,8 @@ But as a starting point? I\'m happy. It feels like I can get a little better eac
 
 E-mail me. Let\'s start a band.', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/careering-logic-pro-x-540x280.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/careering-logic-pro-x-720x373.webp"/>
+
+
 <img alt="The project file for Careering, as seen in Logic Pro X" height="995" src="/assets/img/careering-logic-pro-x.webp" width="1920"/>
 </picture>
 <figcaption>My Logic Pro X project file for "Careering". I\'m a lousy singer, so you can see the many, many times I re-recorded individual phrases within the vocals.</figcaption>
@@ -490,8 +490,8 @@ ON DUPLICATE KEY UPDATE title=VALUES(title), meta_title=VALUES(meta_title),
 INSERT INTO posts (slug, title, meta_title, meta_description, body_md, body_html, status, published_at)
 VALUES ('back-on-stage-after-20-years', 'Back on Stage (After More Than 20 Years)', 'Back on Stage After More Than 20 Years', 'I am performing a Jawbreaker cover set on Oct. 25, 2025', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/jawbreaker-cover-set-first-practice-540x304.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/jawbreaker-cover-set-first-practice-720x405.webp"/>
+
+
 <img alt="Our first Jawbreaker cover set practice" height="1080" src="/assets/img/jawbreaker-cover-set-first-practice-1920x1080.webp" width="1920"/>
 </picture>
 <figcaption>First Jawbreaker cover set practice.</figcaption>
@@ -511,8 +511,8 @@ If you\'re anywhere near Rockford that weekend, come hang out. Wear a costume, y
 
 See you at Mary\'s.', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/jawbreaker-cover-set-first-practice-540x304.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/jawbreaker-cover-set-first-practice-720x405.webp"/>
+
+
 <img alt="Our first Jawbreaker cover set practice" height="1080" src="/assets/img/jawbreaker-cover-set-first-practice-1920x1080.webp" width="1920"/>
 </picture>
 <figcaption>First Jawbreaker cover set practice.</figcaption>
@@ -531,16 +531,16 @@ ON DUPLICATE KEY UPDATE title=VALUES(title), meta_title=VALUES(meta_title),
 INSERT INTO posts (slug, title, meta_title, meta_description, body_md, body_html, status, published_at)
 VALUES ('video-from-jawbreaker-cover-set', 'Video from the Jawbreaker Cover Set at Mary\'s Place', 'Video from the Jawbreaker Cover Set at Mary\'s Place', 'I got video of the October 25, 2025, Jawbreaker cover set posted to YouTube.', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/jawbreaker-cover-set-540x360.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/jawbreaker-cover-set-1080x720.webp"/>
+
+
 <img alt="Jack Barnett, Brandon Lutmer, Stewart Oakes, and Billy Kulpa performing as Jawbreaker at Mary\'s Place on October 25, 2025." height="720" src="/assets/img/jawbreaker-cover-set-1080x720.webp" width="1080"/>
 </picture>
 <figcaption>Jack Barnett, Brandon Lutmer, Stewart Oakes, and Billy Kulpa performing as Jawbreaker at Mary\'s Place on October 25, 2025.</figcaption>
 </figure>
 <figure class="float-width-50-md">
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/jawbreaker-cover-set-poster-540x700.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/jawbreaker-cover-set-poster-440x570.webp"/>
+
+
 <img alt="The Jawbreaker cover set concert poster, created by Will Pfeifer" height="1584" src="/assets/img/jawbreaker-cover-set-poster-1224x1584.webp" width="1224"/>
 </picture>
 <figcaption>The Jawbreaker cover set concert poster, created by <a href="https://www.pfeiferland.com/" target="_blank" title="The website of Will Pfeifer">Will Pfeifer</a>, my good friend and colleague.</figcaption>
@@ -586,16 +586,16 @@ I sang lead on two of the songs. I\'ve embedded those below.
 </figure>
 </div>', '<figure>
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/jawbreaker-cover-set-540x360.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/jawbreaker-cover-set-1080x720.webp"/>
+
+
 <img alt="Jack Barnett, Brandon Lutmer, Stewart Oakes, and Billy Kulpa performing as Jawbreaker at Mary\'s Place on October 25, 2025." height="720" src="/assets/img/jawbreaker-cover-set-1080x720.webp" width="1080"/>
 </picture>
 <figcaption>Jack Barnett, Brandon Lutmer, Stewart Oakes, and Billy Kulpa performing as Jawbreaker at Mary\'s Place on October 25, 2025.</figcaption>
 </figure>
 <figure class="float-width-50-md">
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/jawbreaker-cover-set-poster-540x700.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/jawbreaker-cover-set-poster-440x570.webp"/>
+
+
 <img alt="The Jawbreaker cover set concert poster, created by Will Pfeifer" height="1584" src="/assets/img/jawbreaker-cover-set-poster-1224x1584.webp" width="1224"/>
 </picture>
 <figcaption>The Jawbreaker cover set concert poster, created by <a href="https://www.pfeiferland.com/" target="_blank" title="The website of Will Pfeifer">Will Pfeifer</a>, my good friend and colleague.</figcaption>

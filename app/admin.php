@@ -50,6 +50,7 @@ function admin_route(string $route): void
                     header('Location: /admin');
                     exit;
                 }
+                sleep(2); // flat cost per failed attempt — cheap, effective brute-force friction
                 $error = 'Wrong email or password.';
             }
             render_admin('login', ['error' => $error, 'title' => 'Sign in']);
@@ -59,6 +60,35 @@ function admin_route(string $route): void
             verify_csrf();
             session_destroy();
             header('Location: /admin/login');
+            break;
+
+        /* ------------------------- Change password ------------------------ */
+        // Requires an authenticated session AND the current password, plus the
+        // CSRF token every admin POST carries. A failed current-password check
+        // pays the same 2-second cost as a failed login.
+        case $route === 'password':
+            $user = require_login();
+            $error = $ok = '';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                verify_csrf();
+                $current = $_POST['current_password'] ?? '';
+                $new     = $_POST['new_password'] ?? '';
+                $confirm = $_POST['confirm_password'] ?? '';
+                if (!password_verify($current, $user['password_hash'])) {
+                    sleep(2);
+                    $error = 'Current password is incorrect.';
+                } elseif (strlen($new) < 12) {
+                    $error = 'Use at least 12 characters for the new password.';
+                } elseif ($new !== $confirm) {
+                    $error = 'New passwords do not match.';
+                } else {
+                    $stmt = db()->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
+                    $stmt->execute([password_hash($new, PASSWORD_DEFAULT), $user['id']]);
+                    session_regenerate_id(true);
+                    $ok = 'Password updated.';
+                }
+            }
+            render_admin('password', ['error' => $error, 'ok' => $ok, 'title' => 'Change password']);
             break;
 
         /* --------------------------- Dashboard ---------------------------- */

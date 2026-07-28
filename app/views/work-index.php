@@ -55,7 +55,7 @@
           <img src="/assets/img/joie-de-vivre/jdv-facebook.webp" alt="The Joie de Vivre poster art" width="3840" height="2010" loading="lazy">
         </div>
         <div class="work-card-body">
-          <h3>Local music scene work</h3>
+          <h3>Supporting Local Music</h3>
           <p>Gig posters, cassette packaging, and a hand-drawn logotype from the Rockford music scene.</p>
           <p class="mono-label">Poster &middot; Packaging &middot; Illustration</p>
         </div>

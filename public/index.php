@@ -94,47 +94,51 @@ switch (true) {
         break;
 
     case $path === 'work/fma-email':
-        render('work-fma-email', [
-            'pg' => [
-                'h1' => 'Email Design at Scale',
-                'meta_title' => 'Email Design at Scale — Billy Kulpa',
-                'meta_description' => 'Rebuilding a national association\'s email program on a new platform: a template system, staff training, and the governance rules behind two million sends a year.',
-            ],
-            'nav' => 'work',
-        ]);
+        // Hero and meta are editable in /admin (pages table); these literals
+        // are the fallback until the page row exists.
+        $pg = page('work/fma-email');
+        if ($pg['h1'] === '') $pg = [
+            'h1' => 'Email Design at Scale',
+            'meta_title' => 'Email Design at Scale — Billy Kulpa',
+            'meta_description' => 'Rebuilding a national association\'s email program on a new platform: a template system, staff training, and the governance rules behind two million sends a year.',
+        ];
+        render('work-fma-email', ['pg' => $pg, 'nav' => 'work']);
         break;
 
     case $path === 'work/fma-social':
-        render('work-fma-social', [
-            'pg' => [
-                'h1' => 'FMA Social Brand Management',
-                'meta_title' => 'FMA Social Brand Management — Billy Kulpa',
-                'meta_description' => 'Managing one parent brand and two overlapping subbrands — FMA, The Fabricator, and SparkForce — across a constant cadence of social content.',
-            ],
-            'nav' => 'work',
-        ]);
+        // Hero and meta are editable in /admin (pages table); these literals
+        // are the fallback until the page row exists.
+        $pg = page('work/fma-social');
+        if ($pg['h1'] === '') $pg = [
+            'h1' => 'FMA Social Brand Management',
+            'meta_title' => 'FMA Social Brand Management — Billy Kulpa',
+            'meta_description' => 'Managing one parent brand and two overlapping subbrands — FMA, The Fabricator, and SparkForce — across a constant cadence of social content.',
+        ];
+        render('work-fma-social', ['pg' => $pg, 'nav' => 'work']);
         break;
 
     case $path === 'work/supporting-local-music':
-        render('work-supporting-local-music', [
-            'pg' => [
-                'h1' => 'Supporting Local Music',
-                'meta_title' => 'Supporting Local Music — Billy Kulpa',
-                'meta_description' => 'Concert posters, cassette packaging, and other work from the Rockford, Illinois music scene.',
-            ],
-            'nav' => 'work',
-        ]);
+        // Hero and meta are editable in /admin (pages table); these literals
+        // are the fallback until the page row exists.
+        $pg = page('work/supporting-local-music');
+        if ($pg['h1'] === '') $pg = [
+            'h1' => 'Supporting Local Music',
+            'meta_title' => 'Supporting Local Music — Billy Kulpa',
+            'meta_description' => 'Concert posters, cassette packaging, and other work from the Rockford, Illinois music scene.',
+        ];
+        render('work-supporting-local-music', ['pg' => $pg, 'nav' => 'work']);
         break;
 
     case $path === 'work/restreak':
-        render('work-restreak', [
-            'pg' => [
-                'h1' => 'Restreak',
-                'meta_title' => 'Restreak — daily sports trivia — Billy Kulpa',
-                'meta_description' => 'Case study: designing, building, and shipping Restreak, a daily sports trivia game — product design, brand, and front-end engineering by one person.',
-            ],
-            'nav' => 'work',
-        ]);
+        // Hero and meta are editable in /admin (pages table); these literals
+        // are the fallback until the page row exists.
+        $pg = page('work/restreak');
+        if ($pg['h1'] === '') $pg = [
+            'h1' => 'Restreak',
+            'meta_title' => 'Restreak — daily sports trivia — Billy Kulpa',
+            'meta_description' => 'Case study: designing, building, and shipping Restreak, a daily sports trivia game — product design, brand, and front-end engineering by one person.',
+        ];
+        render('work-restreak', ['pg' => $pg, 'nav' => 'work']);
         break;
 
     case $path === 'notes':

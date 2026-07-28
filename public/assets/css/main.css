@@ -266,6 +266,7 @@ img { max-width: 100%; display: block; }
   padding: 12px 0;
   border-bottom: 1px solid var(--rule);
   font-size: 15px;
+  align-items: baseline; /* label and value share a baseline, like .note-row */
 }
 .fact-stack > div { grid-template-columns: 1fr; gap: 4px; }
 .hero-facts dd, .fact-stack dd { color: var(--ink); }

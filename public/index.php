@@ -84,6 +84,7 @@ switch (true) {
                 'meta_title' => "Billy Kulpa's Resume",
                 'meta_description' => 'The resume of Billy Kulpa, a creative director, designer, developer, and musician in Roscoe, Illinois',
             ],
+            'noindex' => true, // linked in the nav, but kept out of search by request
             'nav' => 'resume',
         ]);
         break;

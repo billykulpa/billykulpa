@@ -6,8 +6,12 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../app/db.php';
-require __DIR__ . '/../app/helpers.php';
+/* app/ sits beside the web root locally, but inside it on Hostinger
+   (their FTP accounts can't deploy above public_html). Support both. */
+define('APP_DIR', is_dir(__DIR__ . '/../app') ? __DIR__ . '/../app' : __DIR__ . '/app');
+
+require APP_DIR . '/db.php';
+require APP_DIR . '/helpers.php';
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 $path = trim($path, '/');
@@ -15,7 +19,7 @@ $path = trim($path, '/');
 /* ----------------------------- Admin routes ----------------------------- */
 
 if ($path === 'admin' || str_starts_with($path, 'admin/')) {
-    require __DIR__ . '/../app/admin.php';
+    require APP_DIR . '/admin.php';
     admin_route(substr($path, 5) ? trim(substr($path, 6), '/') : '');
     exit;
 }
@@ -35,7 +39,7 @@ switch (true) {
         break;
 
     case $path === 'contact':
-        require __DIR__ . '/../app/contact.php';
+        require APP_DIR . '/contact.php';
         contact_route();
         break;
 
@@ -50,7 +54,7 @@ switch (true) {
     // Migrated portfolio archive: /work/{slug} (was /portfolio/{slug}).
     case (bool) preg_match('#^work/([a-z0-9-]+)$#', $path, $wm)
         && $path !== 'work/restreak'
-        && ($archive = json_decode(file_get_contents(__DIR__ . '/../app/work-archive.json'), true))
+        && ($archive = json_decode(file_get_contents(APP_DIR . '/work-archive.json'), true))
         && isset($archive[$wm[1]]):
         $a = $archive[$wm[1]];
         render('work-archive-' . $wm[1], [

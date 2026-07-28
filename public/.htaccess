@@ -2,6 +2,9 @@ Options -Indexes
 
 RewriteEngine On
 
+# On hosts where app/ must live inside the web root, block all direct access.
+RewriteRule ^app/ - [F,L]
+
 # Serve real files (assets) directly; route everything else through index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

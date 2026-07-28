@@ -77,7 +77,6 @@ switch (true) {
         header('Location: /notes/' . $bm[1], true, 301);
         break;
 
-    // Published but unlinked, like the previous site. noindex via layout.
     case $path === 'resume':
         render('resume', [
             'pg' => [
@@ -85,8 +84,7 @@ switch (true) {
                 'meta_title' => "Billy Kulpa's Resume",
                 'meta_description' => 'The resume of Billy Kulpa, a creative director, designer, developer, and musician in Roscoe, Illinois',
             ],
-            'noindex' => true,
-            'nav' => '',
+            'nav' => 'resume',
         ]);
         break;
 

@@ -16,11 +16,12 @@
       that, a designer who couldn't stop viewing source. The two halves never
       separated: I design like an engineer and build like a designer.</p>
 
-      <p>Today I lead the creative team at the Fabricators and Manufacturers
-      Association, where I own brand systems for a national trade show and a
-      family of conferences and sub-brands, from partner pitches and executive
-      presentations down to the email templates and programmatic ads that ship
-      every week. My team closes about 500 design tickets a year, and that
+      <p>Today I lead a three-person creative team at the Fabricators and
+      Manufacturers Association: two designers report to me, and I still work
+      plenty of tickets myself. I own brand systems for a national trade show
+      and a family of conferences and sub-brands, from partner pitches and
+      executive presentations down to the email templates and programmatic ads
+      that ship every week. We close about 500 design tickets a year, and that
       undercounts it: a healthy share of the real work arrives as
       "Hey, Billy, could you do me a quick favor?"</p>
 

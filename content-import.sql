@@ -539,9 +539,9 @@ VALUES ('video-from-jawbreaker-cover-set', 'Video from the Jawbreaker Cover Set 
 </figure>
 <figure class="float-width-50-md">
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/jawbreaker-cover-set-poster jawbreaker-cover-set-poster-540x700.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/jawbreaker-cover-set-poster jawbreaker-cover-set-poster-440x570.webp"/>
-<img alt="The Jawbreaker cover set concert poster, created by Will Pfeifer" height="1584" src="/assets/img/jawbreaker-cover-set-poster jawbreaker-cover-set-poster-1224x1584.webp" width="1224"/>
+<source media="(max-width: 767px)" srcset="/assets/img/jawbreaker-cover-set-poster-540x700.webp"/>
+<source media="(min-width: 768px)" srcset="/assets/img/jawbreaker-cover-set-poster-440x570.webp"/>
+<img alt="The Jawbreaker cover set concert poster, created by Will Pfeifer" height="1584" src="/assets/img/jawbreaker-cover-set-poster-1224x1584.webp" width="1224"/>
 </picture>
 <figcaption>The Jawbreaker cover set concert poster, created by <a href="https://www.pfeiferland.com/" target="_blank" title="The website of Will Pfeifer">Will Pfeifer</a>, my good friend and colleague.</figcaption>
 </figure>
@@ -594,9 +594,9 @@ I sang lead on two of the songs. I\'ve embedded those below.
 </figure>
 <figure class="float-width-50-md">
 <picture>
-<source media="(max-width: 767px)" srcset="/assets/img/jawbreaker-cover-set-poster jawbreaker-cover-set-poster-540x700.webp"/>
-<source media="(min-width: 768px)" srcset="/assets/img/jawbreaker-cover-set-poster jawbreaker-cover-set-poster-440x570.webp"/>
-<img alt="The Jawbreaker cover set concert poster, created by Will Pfeifer" height="1584" src="/assets/img/jawbreaker-cover-set-poster jawbreaker-cover-set-poster-1224x1584.webp" width="1224"/>
+<source media="(max-width: 767px)" srcset="/assets/img/jawbreaker-cover-set-poster-540x700.webp"/>
+<source media="(min-width: 768px)" srcset="/assets/img/jawbreaker-cover-set-poster-440x570.webp"/>
+<img alt="The Jawbreaker cover set concert poster, created by Will Pfeifer" height="1584" src="/assets/img/jawbreaker-cover-set-poster-1224x1584.webp" width="1224"/>
 </picture>
 <figcaption>The Jawbreaker cover set concert poster, created by <a href="https://www.pfeiferland.com/" target="_blank" title="The website of Will Pfeifer">Will Pfeifer</a>, my good friend and colleague.</figcaption>
 </figure>

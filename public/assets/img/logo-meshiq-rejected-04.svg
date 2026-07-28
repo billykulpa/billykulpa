@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 400 300">
+  <defs>
+    <style>
+      .meshiq-rejected-04-1 {
+        fill: url(#linear-gradient);
+      }
+
+      .meshiq-rejected-04-1, .meshiq-rejected-04-2, .meshiq-rejected-04-3 {
+        stroke-width: 0px;
+      }
+
+      .meshiq-rejected-04-3 {
+        fill: #fff;
+      }
+    </style>
+    <linearGradient id="linear-gradient" x1="294.82" y1="129.45" x2="361.13" y2="185.09" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0d72b9"/>
+      <stop offset="1" stop-color="#662f8e"/>
+    </linearGradient>
+  </defs>
+  <g id="Logo">
+    <rect class="meshiq-rejected-04-3" width="400" height="300"/>
+    <g>
+      <rect class="meshiq-rejected-04-2" x="35" y="138.11" width="6.73" height="33.67"/>
+      <rect class="meshiq-rejected-04-2" x="75.41" y="138.11" width="20.2" height="33.67"/>
+      <rect class="meshiq-rejected-04-2" x="260.61" y="138.11" width="20.2" height="33.67"/>
+      <rect class="meshiq-rejected-04-2" x="220.2" y="138.11" width="20.2" height="33.67"/>
+      <polygon class="meshiq-rejected-04-2" points="61.37 138.11 35 138.11 35 149.28 53.89 171.79 55.94 171.79 72.79 151.71 61.37 138.11"/>
+      <polygon class="meshiq-rejected-04-2" points="73.07 151.38 61.94 138.11 61.37 138.11 72.79 151.71 73.07 151.38"/>
+      <polygon class="meshiq-rejected-04-2" points="75.41 138.11 50.52 167.77 53.89 171.79 55.94 171.79 84.2 138.11 75.41 138.11"/>
+      <polygon class="meshiq-rejected-04-2" points="102.35 138.11 102.35 144.85 155.06 144.85 153.87 138.11 102.35 138.11"/>
+      <polygon class="meshiq-rejected-04-2" points="102.35 165.05 102.35 171.79 155.06 171.79 153.87 165.05 102.35 165.05"/>
+      <polygon class="meshiq-rejected-04-2" points="102.35 151.58 102.35 158.32 148.33 158.32 147.14 151.58 102.35 151.58"/>
+      <path class="meshiq-rejected-04-2" d="M210.1,151.58h-28.62c-.93,0-1.68-.75-1.68-1.68v-3.37c0-.93.75-1.68,1.68-1.68h31.99l-1.19-6.73h-49.32c-1.86,0-3.37,1.51-3.37,3.37v13.47c0,1.86,1.51,3.37,3.37,3.37h28.62c.93,0,1.68.75,1.68,1.68v3.37c0,.93-.75,1.68-1.68,1.68h-31.99l1.19,6.73h49.32c1.86,0,3.37-1.51,3.37-3.37v-13.47c0-1.86-1.51-3.37-3.37-3.37Z"/>
+      <rect class="meshiq-rejected-04-2" x="240.41" y="151.58" width="20.2" height="6.73"/>
+      <path class="meshiq-rejected-04-1" d="M307.76,171.79h-20.2v-33.67h20.2v33.67ZM341.36,171.79c2.9,2.17,6.44,3.37,10.08,3.37h13.56l-1.19,6.73h-12.38c-5.5,0-10.86-1.94-15.09-5.46l-.88-.74c-3.02-2.52-6.85-3.9-10.78-3.9h-10.2c-1.86,0-3.37-1.51-3.37-3.37v-26.94c0-1.86,1.51-3.37,3.37-3.37h47.14c1.86,0,3.37,1.51,3.37,3.37v26.94c0,1.86-1.51,3.37-3.37,3.37h-20.27ZM333.01,165.05h10.1c.93,0,1.68-.75,1.68-1.68v-16.84c0-.93-.75-1.68-1.68-1.68h-10.1c-.93,0-1.68.75-1.68,1.68v16.84c0,.93.75,1.68,1.68,1.68Z"/>
+    </g>
+  </g>
+</svg>

@@ -41,7 +41,7 @@ INSERT INTO pages (slug, label, h1, meta_title, meta_description) VALUES
  'Billy Kulpa — Creative Director, Designer & Developer',
  'Billy Kulpa is a creative leader in Roscoe, Illinois who runs brand systems from first pitch to final pixel — and writes the code that ships them.'),
 ('about', 'About',
- 'A designer who counts.',
+ 'A designer who counts. And reads.',
  'About — Billy Kulpa',
  'Creative manager, brand-systems designer, and front-end developer. More than twenty years across design, code, and creative leadership.'),
 ('work',  'Work',

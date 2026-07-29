@@ -95,3 +95,13 @@ td a.a-rowlink:hover { color: var(--accent); }
 
 .a-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
 @media (max-width: 720px) { .a-grid-2, .a-cards { grid-template-columns: 1fr; } }
+
+/* Grouping inside the page editor: on-page content vs SEO. */
+.a-section-head {
+  margin: 28px 0 2px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule, #dcd9cf);
+  font-size: 15px;
+  font-weight: 700;
+}
+form .a-section-head:first-of-type { margin-top: 12px; border-top: 0; padding-top: 0; }

@@ -118,10 +118,11 @@ function admin_route(string $route): void
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 verify_csrf();
                 $stmt = db()->prepare(
-                    'UPDATE pages SET h1 = ?, meta_title = ?, meta_description = ? WHERE id = ?'
+                    'UPDATE pages SET h1 = ?, lede = ?, meta_title = ?, meta_description = ? WHERE id = ?'
                 );
                 $stmt->execute([
                     trim($_POST['h1'] ?? ''),
+                    trim($_POST['lede'] ?? ''),
                     trim($_POST['meta_title'] ?? ''),
                     trim($_POST['meta_description'] ?? ''),
                     $id,

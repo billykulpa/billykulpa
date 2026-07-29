@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS pages (
   slug VARCHAR(190) NOT NULL UNIQUE,      -- '' = home, 'about', 'work', 'notes'
   label VARCHAR(190) NOT NULL,            -- shown in admin list
   h1 VARCHAR(255) NOT NULL DEFAULT '',
+  lede TEXT NULL,
   meta_title VARCHAR(255) NOT NULL DEFAULT '',
   meta_description VARCHAR(500) NOT NULL DEFAULT '',
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -37,7 +38,7 @@ CREATE TABLE IF NOT EXISTS posts (
 -- Seed the editable pages with starter copy (all editable in /admin).
 INSERT INTO pages (slug, label, h1, meta_title, meta_description) VALUES
 ('',      'Home',
- 'Design leadership, measured in shipped work.',
+ 'A designer who leads, listens, and codes.',
  'Billy Kulpa — Creative Director, Designer & Developer',
  'Billy Kulpa is a creative leader in Roscoe, Illinois who runs brand systems from first pitch to final pixel — and writes the code that ships them.'),
 ('about', 'About',

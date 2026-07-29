@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title><?= esc($title ?? 'Admin') ?> — billykulpa.com</title>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/admin.css">
+  <link rel="stylesheet" href="/assets/css/admin.css?v=<?= filemtime(__DIR__ . '/../../../public/assets/css/admin.css') ?>">
 </head>
 <body>
   <header class="a-header">

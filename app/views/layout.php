@@ -23,7 +23,7 @@ if (!empty($_COOKIE[config()['session_name']])) { $qa_user = current_user(); }
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/main.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/main.css') ?>">
   <?php // Google Analytics — skipped on local dev so test traffic stays out of the numbers.
         $ga_host = $_SERVER['HTTP_HOST'] ?? '';
         if (!str_starts_with($ga_host, '127.0.0.1') && !str_starts_with($ga_host, 'localhost')): ?>
@@ -98,7 +98,7 @@ if (!empty($_COOKIE[config()['session_name']])) { $qa_user = current_user(); }
     <form method="post" action="/admin/logout"><?= csrf_field() ?><button class="admin-quick-btn" type="submit">Sign out</button></form>
   </div>
   <?php endif; ?>
-  <script src="/assets/js/main.js"></script>
-  <script src="/assets/js/lightbox.js" defer></script>
+  <script src="/assets/js/main.js?v=<?= filemtime(__DIR__ . '/../../public/assets/js/main.js') ?>"></script>
+  <script src="/assets/js/lightbox.js?v=<?= filemtime(__DIR__ . '/../../public/assets/js/lightbox.js') ?>" defer></script>
 </body>
 </html>

@@ -98,8 +98,8 @@ td a.a-rowlink:hover { color: var(--accent); }
 
 /* Grouping inside the page editor: on-page content vs SEO. */
 .a-section-head {
-  margin: 28px 0 2px;
-  padding-top: 18px;
+  margin: 48px 0 2px;
+  padding-top: 28px;
   border-top: 1px solid var(--rule, #dcd9cf);
   font-size: 15px;
   font-weight: 700;

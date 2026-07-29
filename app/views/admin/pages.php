@@ -1,5 +1,5 @@
 <?php /** @var array $pages */ ?>
-<h1>Pages</h1>
+<h1><?= esc($heading ?? 'Pages') ?></h1>
 <table>
   <thead><tr><th>Page</th><th>H1</th><th>Meta title</th><th>Updated</th></tr></thead>
   <tbody>

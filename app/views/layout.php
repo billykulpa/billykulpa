@@ -1,4 +1,10 @@
-<?php /** @var array $pg */ /** @var string $content */ /** @var string $nav */ ?>
+<?php /** @var array $pg */ /** @var string $content */ /** @var string $nav */
+// Admin-only quick links (rendered near </body>): the session must be probed
+// HERE, before any output, or session_start() fails silently. Only probe when
+// the admin cookie already exists so ordinary visitors never get a session.
+$qa_user = null;
+if (!empty($_COOKIE[config()['session_name']])) { $qa_user = current_user(); }
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -86,6 +92,12 @@
     </div>
   </footer>
 
+  <?php if ($qa_user): ?>
+  <div class="admin-quick">
+    <a class="admin-quick-btn" href="/admin">Admin</a>
+    <form method="post" action="/admin/logout"><?= csrf_field() ?><button class="admin-quick-btn" type="submit">Sign out</button></form>
+  </div>
+  <?php endif; ?>
   <script src="/assets/js/main.js"></script>
   <script src="/assets/js/lightbox.js" defer></script>
 </body>

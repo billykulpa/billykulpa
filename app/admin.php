@@ -103,8 +103,16 @@ function admin_route(string $route): void
         /* ----------------------------- Pages ------------------------------ */
         case $route === 'pages':
             require_login();
-            $pages = db()->query('SELECT * FROM pages ORDER BY id')->fetchAll();
-            render_admin('pages', ['pages' => $pages, 'title' => 'Pages']);
+            $pages = db()->query("SELECT * FROM pages WHERE slug NOT LIKE 'work/%' ORDER BY id")->fetchAll();
+            render_admin('pages', ['pages' => $pages, 'title' => 'Pages', 'heading' => 'Pages']);
+            break;
+
+        // Case studies are pages rows under work/, surfaced as their own
+        // content type in the admin. Same editor, separate shelf.
+        case $route === 'case-studies':
+            require_login();
+            $pages = db()->query("SELECT * FROM pages WHERE slug LIKE 'work/%' ORDER BY id")->fetchAll();
+            render_admin('pages', ['pages' => $pages, 'title' => 'Case Studies', 'heading' => 'Case Studies']);
             break;
 
         case $route === 'pages/edit':

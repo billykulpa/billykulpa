@@ -4,6 +4,11 @@
 # app/ lives inside the docroot, blocked from the web by .htaccess.
 # The server's app/config.php is excluded so production credentials
 # never leave the server (and never enter this repo).
+#
+# Hostinger's FTP endpoint is occasionally slow to answer the initial
+# connection ("Timeout (control socket)"), which used to fail roughly a
+# third of deploys. Each sync step now waits up to 2 minutes to connect
+# and gets one automatic retry before the run counts as failed.
 name: Deploy to Hostinger
 
 on:
@@ -22,11 +27,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Sync public/ to public_html/
+        id: sync_public
+        continue-on-error: true
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          timeout: 120000
           local-dir: public/
           server-dir: ./
           # Admin uploads (the About portrait) live only on the server —
@@ -37,12 +45,45 @@ jobs:
             **/node_modules/**
             assets/uploads/**
 
-      - name: Sync app/ to app/
+      - name: Sync public/ to public_html/ (retry)
+        if: steps.sync_public.outcome == 'failure'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          timeout: 120000
+          local-dir: public/
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            assets/uploads/**
+
+      - name: Sync app/ to app/
+        id: sync_app
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          timeout: 120000
+          local-dir: app/
+          server-dir: app/
+          exclude: |
+            config.php
+            cache/**
+
+      - name: Sync app/ to app/ (retry)
+        if: steps.sync_app.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          timeout: 120000
           local-dir: app/
           server-dir: app/
           exclude: |

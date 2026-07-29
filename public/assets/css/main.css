@@ -799,7 +799,19 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 .admin-quick-btn:hover { background: var(--ink); color: var(--paper); }
 
 /* ==================== About portrait =================================== */
-/* Square on purpose — the whole site is squared. */
+/* Square on purpose — the whole site is squared. The frame is always 1:1
+   and the image covers it, so any upload (portrait, landscape, whatever)
+   still renders as a square. */
 .about-portrait { margin: 0 0 24px; }
-.about-portrait img { width: 100%; height: auto; border: 1px solid var(--rule); }
+.about-portrait .about-portrait-frame {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+}
+.about-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .about-portrait figcaption { margin-top: 8px; }

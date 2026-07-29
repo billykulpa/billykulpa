@@ -16,4 +16,5 @@
 <p class="a-sub">Signed in as <?= esc($user['email']) ?>. Edit page headlines and meta under
 <a href="/admin/pages" style="text-decoration: underline">Pages</a>; case-study heroes under
 <a href="/admin/case-studies" style="text-decoration: underline">Case Studies</a>; write under
-<a href="/admin/posts" style="text-decoration: underline">Posts</a>.</p>
+<a href="/admin/posts" style="text-decoration: underline">Posts</a>; swap the About photo under
+<a href="/admin/portrait" style="text-decoration: underline">Portrait</a>.</p>

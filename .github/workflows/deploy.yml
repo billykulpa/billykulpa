@@ -29,6 +29,13 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: public/
           server-dir: ./
+          # Admin uploads (the About portrait) live only on the server —
+          # never in git, never overwritten or deleted by a deploy.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            assets/uploads/**
 
       - name: Sync app/ to app/
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

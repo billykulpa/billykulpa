@@ -91,6 +91,20 @@ function admin_route(string $route): void
             render_admin('password', ['error' => $error, 'ok' => $ok, 'title' => 'Change password']);
             break;
 
+        /* ------------------------ Portrait upload ------------------------- */
+        // Saves to assets/uploads/portrait.webp — a path the deploy workflow
+        // excludes, so an uploaded portrait survives every push. The About
+        // page falls back to the committed photo until an upload exists.
+        case $route === 'portrait':
+            require_login();
+            $error = $ok = '';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                verify_csrf();
+                [$ok, $error] = save_portrait($_FILES['portrait'] ?? null);
+            }
+            render_admin('portrait', ['error' => $error, 'ok' => $ok, 'title' => 'Portrait']);
+            break;
+
         /* --------------------------- Dashboard ---------------------------- */
         case $route === '':
             $user = require_login();
@@ -238,4 +252,86 @@ function admin_route(string $route): void
             http_response_code(404);
             exit('Not found.');
     }
+}
+
+/**
+ * Validate an uploaded image, center-crop it square, and save it as the
+ * About portrait. Returns [okMessage, errorMessage] — exactly one is ''.
+ *
+ * The CSS already forces a square frame with object-fit: cover, so the
+ * server-side crop is belt and braces: it keeps the stored file small and
+ * square even if it's ever used somewhere without that CSS.
+ */
+function save_portrait(?array $file): array
+{
+    if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return ['', 'Choose an image file first.'];
+    }
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return ['', 'The upload failed (code ' . (int) $file['error'] . '). Try again, or try a smaller file.'];
+    }
+    if ($file['size'] > 15 * 1024 * 1024) {
+        return ['', 'That file is over 15 MB. Export a smaller version and try again.'];
+    }
+
+    $info = @getimagesize($file['tmp_name']);
+    $allowed = [IMAGETYPE_JPEG => 1, IMAGETYPE_PNG => 1, IMAGETYPE_WEBP => 1, IMAGETYPE_GIF => 1];
+    if (!$info || !isset($allowed[$info[2]])) {
+        return ['', 'That doesn\'t look like an image. JPEG, PNG, WEBP, or GIF, please.'];
+    }
+
+    $src = @imagecreatefromstring((string) file_get_contents($file['tmp_name']));
+    if (!$src) {
+        return ['', 'Couldn\'t read that image. Try re-exporting it as a JPEG or PNG.'];
+    }
+
+    // Phone JPEGs often carry their rotation in EXIF, which GD ignores —
+    // honor it so portraits don't arrive sideways.
+    if ($info[2] === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
+        $exif = @exif_read_data($file['tmp_name']);
+        $src = match ((int) ($exif['Orientation'] ?? 1)) {
+            3       => imagerotate($src, 180, 0),
+            6       => imagerotate($src, -90, 0),
+            8       => imagerotate($src, 90, 0),
+            default => $src,
+        };
+    }
+
+    // Center-crop to a square, capped at 1600px.
+    $w = imagesx($src);
+    $h = imagesy($src);
+    $side = min($w, $h);
+    $out = (int) min($side, 1600);
+    $dst = imagecreatetruecolor($out, $out);
+    imagealphablending($dst, false);
+    imagesavealpha($dst, true);
+    imagecopyresampled(
+        $dst, $src,
+        0, 0,
+        (int) (($w - $side) / 2), (int) (($h - $side) / 2),
+        $out, $out, $side, $side
+    );
+    imagedestroy($src);
+
+    $dir = public_dir() . '/assets/uploads';
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+        imagedestroy($dst);
+        return ['', 'Couldn\'t create the uploads folder on the server.'];
+    }
+
+    // Prefer WEBP; fall back to JPEG if this PHP build lacks webp support.
+    if (function_exists('imagewebp')) {
+        $saved = imagewebp($dst, $dir . '/portrait.webp', 85);
+        if ($saved) @unlink($dir . '/portrait.jpg'); // don't let an old jpg shadow anything
+    } else {
+        imagealphablending($dst, true); // flatten alpha for jpeg
+        $saved = imagejpeg($dst, $dir . '/portrait.jpg', 85);
+        if ($saved) @unlink($dir . '/portrait.webp');
+    }
+    imagedestroy($dst);
+
+    if (!$saved) {
+        return ['', 'The server couldn\'t save the image. Check that assets/uploads is writable.'];
+    }
+    return ["Portrait updated. It's live on the About page now ({$out}\u{00d7}{$out}).", ''];
 }

@@ -51,6 +51,37 @@ function nice_date(?string $dt): string
 }
 
 /* ---------------------------------------------------------------------------
+ * Uploads (the About portrait)
+ * ------------------------------------------------------------------------- */
+
+/**
+ * The web root on disk. Locally that's public/ beside app/; on Hostinger
+ * app/ lives inside the docroot, so the docroot itself is the web root.
+ */
+function public_dir(): string
+{
+    $beside = dirname(APP_DIR) . '/public';
+    return is_dir($beside) ? $beside : dirname(APP_DIR);
+}
+
+/**
+ * URL for the About portrait. Prefers the admin-uploaded file (which lives
+ * in assets/uploads/, a path the deploy never touches, so it survives every
+ * push) and falls back to the committed photo. Cache-busted by mtime so a
+ * new upload shows up immediately, Cloudflare and all.
+ */
+function portrait_url(): string
+{
+    foreach (['portrait.webp', 'portrait.jpg'] as $f) {
+        $path = public_dir() . '/assets/uploads/' . $f;
+        if (is_file($path)) {
+            return '/assets/uploads/' . $f . '?v=' . filemtime($path);
+        }
+    }
+    return '/assets/img/billy-kulpa-2026.webp';
+}
+
+/* ---------------------------------------------------------------------------
  * Sessions / auth / CSRF
  * ------------------------------------------------------------------------- */
 

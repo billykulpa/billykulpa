@@ -108,3 +108,15 @@ form .a-section-head:first-of-type { margin-top: 12px; border-top: 0; padding-to
 
 /* Dashboard groupings: the first section head sits flush under the H1. */
 .a-section-head.a-first { border-top: 0; margin-top: 16px; padding-top: 0; }
+
+/* Portrait uploader: same square-frame treatment as the About page. */
+.a-portrait-preview { margin: 20px 0 28px; }
+.a-portrait-frame {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  max-width: 260px;
+  border: 1px solid var(--rule, #dcd9cf);
+}
+.a-portrait-frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.a-portrait-preview figcaption { margin-top: 6px; }
+input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }

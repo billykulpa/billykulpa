@@ -17,6 +17,7 @@
       <a href="/admin/pages">Pages</a>
       <a href="/admin/case-studies">Case Studies</a>
       <a href="/admin/posts">Posts</a>
+      <a href="/admin/portrait">Portrait</a>
       <a href="/admin/password">Password</a>
       <a href="/" target="_blank" rel="noopener">View site &nearr;</a>
       <form method="post" action="/admin/logout" class="a-logout"><?= csrf_field() ?>

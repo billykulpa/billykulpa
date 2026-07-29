@@ -44,7 +44,9 @@
     </div>
     <aside class="prose-aside">
       <figure class="about-portrait">
-        <img src="/assets/img/billy-kulpa-2026.webp" alt="Billy Kulpa" width="800" height="800">
+        <div class="about-portrait-frame">
+          <img src="<?= esc(portrait_url()) ?>" alt="Billy Kulpa" width="800" height="800">
+        </div>
         <figcaption class="mono-label">Roscoe, Illinois</figcaption>
       </figure>
       <dl class="fact-stack">

@@ -1,5 +1,7 @@
 # Real credentials live only on the machines that need them.
 app/config.php
 app/cache/
+# Admin uploads (the About portrait) live only on the server.
+public/assets/uploads/
 # OS noise
 .DS_Store

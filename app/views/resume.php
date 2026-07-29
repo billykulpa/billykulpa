@@ -6,12 +6,11 @@
  * older roles trimmed. DRAFT — Billy: give it a voice pass.
  * Edit the arrays below; the markup renders itself.
  */
-$profile = 'Creative leader who came up through code. I direct brand systems
-for a national trade association (the strategy decks, the identity, the
-templates, and the code that ships them) and I build products on the side.
-Twenty-plus years across design, development, and journalism, with a track
-record of building systems that let teams ship fast without breaking the
-brand.';
+$profile = 'Art direction is the job. Design, code, video, and copy are how
+I do it. For twenty-plus years I have led brands, teams, and campaigns across
+design, development, and journalism; today I direct creative for a national
+trade association (the strategy decks, the identity, the templates, and the
+systems that ship them) and build products on the side.';
 
 $highlights = [
     'Lead a multidisciplinary creative team closing roughly 500 design tickets a year across a parent brand, two publications, a foundation, and dozens of event subbrands.',
@@ -102,9 +101,9 @@ $education = [
      'org' => 'Rock Valley College', 'org_url' => 'https://www.rockvalleycollege.edu/', 'loc' => 'Rockford, Illinois', 'points' => []],
 ];
 $skills = [
-    'Web' => 'PHP, MySQL, CSS, JavaScript, WordPress, Laravel, Vue.js',
+    'Craft' => 'Brand Development, Design Systems, Creative Operations, Print Design, Typography, Illustration, Infographics, Photography, Videography, Motion Graphics, AP Style, Talent Development',
     'Software' => 'Adobe Creative Cloud, Figma, Final Cut Pro, Avid Media Composer, Claude and generative-AI tooling',
-    'General' => 'Brand Development, Design Systems, Creative Operations, Print Design, Typography, Illustration, Infographics, Photography, Videography, Motion Graphics, AP Style, Talent Development',
+    'Code' => 'PHP, MySQL, CSS, JavaScript, WordPress, Laravel, Vue.js',
 ];
 
 function resume_entries(array $entries): void { foreach ($entries as $e): ?>
@@ -127,7 +126,7 @@ function resume_entries(array $entries): void { foreach ($entries as $e): ?>
   <div class="wrap">
     <p class="mono-label hero-kicker">Billy Kulpa / Roscoe, Illinois</p>
     <h1 class="hero-h1"><?= esc($pg['h1']) ?></h1>
-    <p class="hero-lede"><?= esc($profile) ?></p>
+    <p class="hero-lede"><?= ($pg['lede'] ?? '') !== '' ? md_inline($pg['lede']) : esc($profile) ?></p>
     <nav class="resume-jump mono-label" aria-label="Resume sections">
       Jump to:
       <a href="#highlights">Highlights</a> /

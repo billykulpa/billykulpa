@@ -82,12 +82,17 @@ switch (true) {
         break;
 
     case $path === 'resume':
+        // H1, lede, and meta are editable in /admin (pages table); these
+        // literals are the fallback until the page row exists.
+        $pg = page('resume');
+        if ($pg['h1'] === '') $pg = [
+            'h1' => 'Resume',
+            'lede' => '',
+            'meta_title' => "Billy Kulpa's Resume",
+            'meta_description' => 'The resume of Billy Kulpa, a creative director, designer, developer, and musician in Roscoe, Illinois',
+        ];
         render('resume', [
-            'pg' => [
-                'h1' => 'Resume',
-                'meta_title' => "Billy Kulpa's Resume",
-                'meta_description' => 'The resume of Billy Kulpa, a creative director, designer, developer, and musician in Roscoe, Illinois',
-            ],
+            'pg' => $pg,
             'noindex' => true, // linked in the nav, but kept out of search by request
             'nav' => 'resume',
         ]);

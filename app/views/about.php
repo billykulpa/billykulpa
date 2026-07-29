@@ -11,6 +11,9 @@
 <section class="section">
   <div class="wrap prose-grid">
     <div class="prose">
+      <?php if (!empty($pg['body_html'])): ?>
+      <?= $pg['body_html'] ?>
+      <?php else: ?>
       <p>I'm a creative manager who came up through code. Before I led designers,
       I was a senior UI developer (PHP, CSS, vanilla JavaScript), and before
       that, a designer who couldn't stop viewing source. The two halves never
@@ -37,6 +40,7 @@
       I'm married, raising two boys with special needs, and I spent two years
       as president of The Superhero Center for Autism, a nonprofit community
       center here in northern Illinois.</p>
+      <?php endif; ?>
     </div>
     <aside class="prose-aside">
       <dl class="fact-stack">

@@ -15,6 +15,10 @@
   <textarea id="lede" name="lede" maxlength="1000"><?= esc($pg['lede'] ?? '') ?></textarea>
   <p class="a-hint">Used on pages with an intro paragraph (currently the home hero). Inline markdown works: [links](https://example.com), **bold**, *italics*. Leave blank to fall back to the built-in copy.</p>
 
+  <label class="a-label" for="body_md">Body (markdown)</label>
+  <textarea id="body_md" name="body_md" rows="14"><?= esc($pg['body_md'] ?? '') ?></textarea>
+  <p class="a-hint">Currently rendered on the About page's main column. Full markdown: paragraphs, [links](url), **bold**, *italics*. Other pages ignore this field for now. Leave blank to fall back to the built-in copy.</p>
+
   <h2 class="a-section-head">Search and social</h2>
   <p class="a-hint">What Google and link previews show. Invisible on the page itself.</p>
 

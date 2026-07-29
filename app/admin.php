@@ -126,12 +126,15 @@ function admin_route(string $route): void
             $saved = false;
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 verify_csrf();
+                $bodyMd = trim($_POST['body_md'] ?? '');
                 $stmt = db()->prepare(
-                    'UPDATE pages SET h1 = ?, lede = ?, meta_title = ?, meta_description = ? WHERE id = ?'
+                    'UPDATE pages SET h1 = ?, lede = ?, body_md = ?, body_html = ?, meta_title = ?, meta_description = ? WHERE id = ?'
                 );
                 $stmt->execute([
                     trim($_POST['h1'] ?? ''),
                     trim($_POST['lede'] ?? ''),
+                    $bodyMd,
+                    $bodyMd === '' ? '' : markdown_to_html($bodyMd),
                     trim($_POST['meta_title'] ?? ''),
                     trim($_POST['meta_description'] ?? ''),
                     $id,

@@ -13,7 +13,7 @@
 
   <label class="a-label" for="lede">Lede (the opening text block under the headline)</label>
   <textarea id="lede" name="lede" maxlength="1000"><?= esc($pg['lede'] ?? '') ?></textarea>
-  <p class="a-hint">Used on pages with an intro paragraph (currently the home hero). Leave blank to fall back to the built-in copy.</p>
+  <p class="a-hint">Used on pages with an intro paragraph (currently the home hero). Inline markdown works: [links](https://example.com), **bold**, *italics*. Leave blank to fall back to the built-in copy.</p>
 
   <h2 class="a-section-head">Search and social</h2>
   <p class="a-hint">What Google and link previews show. Invisible on the page itself.</p>

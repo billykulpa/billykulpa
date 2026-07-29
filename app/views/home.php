@@ -5,7 +5,7 @@
     <p class="mono-label hero-kicker">Creative direction / Brand systems / Front-end code</p>
     <h1 class="hero-h1"><?= esc($pg['h1']) ?></h1>
     <div class="hero-grid">
-      <p class="hero-lede"><?= esc($pg['lede'] ?? '') !== '' ? esc($pg['lede'])
+      <p class="hero-lede"><?= ($pg['lede'] ?? '') !== '' ? md_inline($pg['lede'])
         : 'Art direction is the job. Design, code, video, and copy are how I do it. More than twenty years across design and development; currently leading creative for a national trade association and building products on the side.' ?></p>
       <dl class="hero-facts">
         <div><dt class="mono-label">Currently</dt><dd>Senior Creative Manager, FMA</dd></div>

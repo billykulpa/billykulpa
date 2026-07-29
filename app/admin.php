@@ -94,10 +94,11 @@ function admin_route(string $route): void
         /* --------------------------- Dashboard ---------------------------- */
         case $route === '':
             $user = require_login();
-            $pageCount = (int) db()->query('SELECT COUNT(*) FROM pages')->fetchColumn();
+            $pageCount = (int) db()->query("SELECT COUNT(*) FROM pages WHERE slug NOT LIKE 'work/%'")->fetchColumn();
+            $caseCount = (int) db()->query("SELECT COUNT(*) FROM pages WHERE slug LIKE 'work/%'")->fetchColumn();
             $postCount = (int) db()->query('SELECT COUNT(*) FROM posts')->fetchColumn();
             $drafts    = (int) db()->query("SELECT COUNT(*) FROM posts WHERE status='draft'")->fetchColumn();
-            render_admin('dashboard', compact('user', 'pageCount', 'postCount', 'drafts') + ['title' => 'Dashboard']);
+            render_admin('dashboard', compact('user', 'pageCount', 'caseCount', 'postCount', 'drafts') + ['title' => 'Dashboard']);
             break;
 
         /* ----------------------------- Pages ------------------------------ */

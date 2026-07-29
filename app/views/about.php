@@ -43,6 +43,10 @@
       <?php endif; ?>
     </div>
     <aside class="prose-aside">
+      <figure class="about-portrait">
+        <img src="/assets/img/billy-kulpa-2026.webp" alt="Billy Kulpa" width="800" height="800">
+        <figcaption class="mono-label">Roscoe, Illinois</figcaption>
+      </figure>
       <dl class="fact-stack">
         <div><dt class="mono-label">Discipline</dt><dd>Creative direction, brand systems, design ops, front-end development</dd></div>
         <div><dt class="mono-label">Tools</dt><dd>Adobe Creative Cloud, Figma, Claude (Cowork, Code, and Design), ChatGPT, PHP, MySQL, WordPress, Laravel, CSS, vanilla JavaScript, Omeda</dd></div>

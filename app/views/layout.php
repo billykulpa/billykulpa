@@ -20,9 +20,11 @@ if (!empty($_COOKIE[config()['session_name']])) { $qa_user = current_user(); }
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicons/favicon-16x16.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <?php /* Fonts are self-hosted (see @font-face at the top of main.css) so
+           nothing render-blocks on a third party. Preload the two files
+           almost every page paints with. */ ?>
+  <link rel="preload" href="/assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/main.css?v=<?= @filemtime(public_dir() . '/assets/css/main.css') ?: 0 ?>">
   <?php // Google Analytics — skipped on local dev so test traffic stays out of the numbers.
         $ga_host = $_SERVER['HTTP_HOST'] ?? '';

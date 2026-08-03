@@ -24,7 +24,10 @@
     <div class="work-grid">
       <a class="work-card work-card--lead" href="/work/restreak">
         <div class="work-card-media work-card-media--restreak">
-          <img src="/assets/img/restreak/restreak-home-dark.webp" alt="Restreak's daily game screen" width="2880" height="1800" loading="lazy">
+          <img src="/assets/img/restreak/restreak-home-dark.webp"
+               srcset="/assets/img/restreak/restreak-home-dark-900w.webp 900w, /assets/img/restreak/restreak-home-dark-1800w.webp 1800w, /assets/img/restreak/restreak-home-dark.webp 2880w"
+               sizes="(min-width: 1180px) 1084px, 100vw"
+               alt="Restreak's daily game screen" width="2880" height="1800" loading="lazy">
         </div>
         <div class="work-card-body">
           <h3>Restreak</h3>
@@ -34,7 +37,10 @@
       </a>
       <a class="work-card" href="/work/fma-social">
         <div class="work-card-media">
-          <img src="/assets/img/fma-social/fma-three-brands.webp" alt="The same social template across the FMA, Fabricator, and SparkForce brands" width="2328" height="760" loading="lazy">
+          <img src="/assets/img/fma-social/fma-three-brands.webp"
+               srcset="/assets/img/fma-social/fma-three-brands-800w.webp 800w, /assets/img/fma-social/fma-three-brands-1400w.webp 1400w, /assets/img/fma-social/fma-three-brands.webp 2328w"
+               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw"
+               alt="The same social template across the FMA, Fabricator, and SparkForce brands" width="2328" height="760" loading="lazy">
         </div>
         <div class="work-card-body">
           <h3>FMA Social Brand Management</h3>
@@ -54,7 +60,10 @@
       </a>
       <a class="work-card" href="/work/fma-email">
         <div class="work-card-media">
-          <img src="/assets/img/email/email-templates-trio.webp" alt="Three email templates from the FMA library: SparkForce Top Five, Pub Promo, and Fabrinomics" width="3654" height="1200" loading="lazy">
+          <img src="/assets/img/email/email-templates-trio.webp"
+               srcset="/assets/img/email/email-templates-trio-800w.webp 800w, /assets/img/email/email-templates-trio-1400w.webp 1400w, /assets/img/email/email-templates-trio.webp 3654w"
+               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw"
+               alt="Three email templates from the FMA library: SparkForce Top Five, Pub Promo, and Fabrinomics" width="3654" height="1200" loading="lazy">
         </div>
         <div class="work-card-body">
           <h3>Email Design at Scale</h3>
@@ -64,7 +73,10 @@
       </a>
       <a class="work-card" href="/work/supporting-local-music">
         <div class="work-card-media">
-          <img src="/assets/img/joie-de-vivre/jdv-facebook.webp" alt="The Joie de Vivre poster art" width="3840" height="2010" loading="lazy">
+          <img src="/assets/img/joie-de-vivre/jdv-facebook.webp"
+               srcset="/assets/img/joie-de-vivre/jdv-facebook-800w.webp 800w, /assets/img/joie-de-vivre/jdv-facebook-1400w.webp 1400w, /assets/img/joie-de-vivre/jdv-facebook.webp 3840w"
+               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw"
+               alt="The Joie de Vivre poster art" width="3840" height="2010" loading="lazy">
         </div>
         <div class="work-card-body">
           <h3>Supporting Local Music</h3>

@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title><?= esc($title ?? 'Admin') ?> — billykulpa.com</title>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/admin.css?v=<?= @filemtime(public_dir() . '/assets/css/admin.css') ?: 0 ?>">
 </head>
 <body>

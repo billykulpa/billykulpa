@@ -161,6 +161,64 @@ function admin_route(string $route): void
             render_admin('page-edit', ['pg' => $pg, 'saved' => $saved, 'title' => 'Edit: ' . $pg['label']]);
             break;
 
+        /* ------------------------- Job tracker ----------------------------- */
+        // Private to the admin: the job-search pipeline. Nothing here is
+        // linked from, or visible on, the public site.
+        case $route === 'jobs':
+            require_login();
+            $apps = db()->query("SELECT * FROM applications ORDER BY FIELD(status,'offer','interview','callback','applied','found','denied','abandoned'), COALESCE(applied_on, created_at) DESC")->fetchAll();
+            render_admin('jobs', ['apps' => $apps, 'title' => 'Job tracker']);
+            break;
+
+        case $route === 'jobs/edit':
+        case $route === 'jobs/new':
+            require_login();
+            $app = ['id' => 0, 'company' => '', 'role' => '', 'comp' => '', 'remote' => '',
+                    'url' => '', 'status' => 'found', 'applied_on' => null, 'notes' => ''];
+            if ($route === 'jobs/edit') {
+                $stmt = db()->prepare('SELECT * FROM applications WHERE id = ?');
+                $stmt->execute([(int) ($_GET['id'] ?? 0)]);
+                $app = $stmt->fetch();
+                if (!$app) { http_response_code(404); exit('Not found.'); }
+            }
+            $saved = false;
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                verify_csrf();
+                $fields = [
+                    trim($_POST['company'] ?? ''), trim($_POST['role'] ?? ''),
+                    trim($_POST['comp'] ?? ''), trim($_POST['remote'] ?? ''),
+                    trim($_POST['url'] ?? ''),
+                    in_array($_POST['status'] ?? '', ['found','applied','callback','interview','offer','denied','abandoned'], true) ? $_POST['status'] : 'found',
+                    ($_POST['applied_on'] ?? '') !== '' ? $_POST['applied_on'] : null,
+                    trim($_POST['notes'] ?? ''),
+                ];
+                if ($app['id']) {
+                    $stmt = db()->prepare('UPDATE applications SET company=?, role=?, comp=?, remote=?, url=?, status=?, applied_on=?, notes=? WHERE id=?');
+                    $stmt->execute([...$fields, $app['id']]);
+                } else {
+                    $stmt = db()->prepare('INSERT INTO applications (company, role, comp, remote, url, status, applied_on, notes) VALUES (?,?,?,?,?,?,?,?)');
+                    $stmt->execute($fields);
+                    $app['id'] = (int) db()->lastInsertId();
+                }
+                $stmt = db()->prepare('SELECT * FROM applications WHERE id = ?');
+                $stmt->execute([$app['id']]);
+                $app = $stmt->fetch();
+                $saved = true;
+            }
+            render_admin('job-edit', ['app' => $app, 'saved' => $saved,
+                'title' => $app['id'] ? 'Edit application' : 'New application']);
+            break;
+
+        case $route === 'jobs/delete':
+            require_login();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                verify_csrf();
+                $stmt = db()->prepare('DELETE FROM applications WHERE id = ?');
+                $stmt->execute([(int) ($_POST['id'] ?? 0)]);
+            }
+            header('Location: /admin/jobs');
+            break;
+
         /* ----------------------------- Posts ------------------------------ */
         case $route === 'posts':
             require_login();

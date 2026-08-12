@@ -1,0 +1,51 @@
+<?php /** @var array $app */ /** @var bool $saved */ ?>
+<h1><?= $app['id'] ? 'Edit application' : 'New application' ?></h1>
+<?php if ($saved): ?><div class="a-flash a-flash--ok">Saved.</div><?php endif; ?>
+
+<form method="post" action="/admin/jobs/<?= $app['id'] ? 'edit?id=' . (int) $app['id'] : 'new' ?>">
+  <?= csrf_field() ?>
+  <div class="a-grid-2">
+    <div>
+      <label class="a-label" for="company">Company</label>
+      <input type="text" id="company" name="company" required value="<?= esc($app['company']) ?>">
+    </div>
+    <div>
+      <label class="a-label" for="role">Role</label>
+      <input type="text" id="role" name="role" required value="<?= esc($app['role']) ?>">
+    </div>
+    <div>
+      <label class="a-label" for="comp">Compensation</label>
+      <input type="text" id="comp" name="comp" value="<?= esc($app['comp']) ?>">
+    </div>
+    <div>
+      <label class="a-label" for="remote">Location / remote</label>
+      <input type="text" id="remote" name="remote" value="<?= esc($app['remote']) ?>">
+    </div>
+    <div>
+      <label class="a-label" for="status">Status</label>
+      <select id="status" name="status">
+        <?php foreach (['found','applied','callback','interview','offer','denied','abandoned'] as $s): ?>
+        <option value="<?= $s ?>" <?= $app['status'] === $s ? 'selected' : '' ?>><?= ucfirst($s) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+    <div>
+      <label class="a-label" for="applied_on">Applied on</label>
+      <input type="date" id="applied_on" name="applied_on" value="<?= esc($app['applied_on'] ?? '') ?>">
+    </div>
+  </div>
+  <label class="a-label" for="url">Posting URL</label>
+  <input type="text" id="url" name="url" value="<?= esc($app['url']) ?>">
+  <label class="a-label" for="notes">Notes</label>
+  <textarea id="notes" name="notes"><?= esc($app['notes'] ?? '') ?></textarea>
+  <button class="a-btn" type="submit">Save</button>
+</form>
+
+<?php if ($app['id']): ?>
+<form method="post" action="/admin/jobs/delete" style="margin-top: 20px"
+      onsubmit="return confirm('Delete this application?');">
+  <?= csrf_field() ?>
+  <input type="hidden" name="id" value="<?= (int) $app['id'] ?>">
+  <button class="a-btn a-btn--danger" type="submit">Delete</button>
+</form>
+<?php endif; ?>

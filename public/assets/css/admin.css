@@ -157,3 +157,8 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
 
 /* Job tracker: denied/abandoned pill */
 .a-pill--denied { background: #fdecea; color: var(--err, #b42318); }
+
+/* Back link on detail/edit pages */
+.a-back { margin: -6px 0 14px; }
+.a-back a { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+.a-back a:hover { color: var(--accent); }

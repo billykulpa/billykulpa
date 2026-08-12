@@ -1,4 +1,5 @@
 <?php /** @var array $app */ /** @var bool $saved */ ?>
+<p class="a-back"><a href="/admin/jobs">&larr; Back to jobs</a></p>
 <h1><?= $app['id'] ? 'Edit application' : 'New application' ?></h1>
 <?php if ($saved): ?><div class="a-flash a-flash--ok">Saved.</div><?php endif; ?>
 

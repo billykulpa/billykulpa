@@ -12,7 +12,11 @@
   <header class="a-header">
     <a class="a-wordmark" href="/admin">BK<span>/admin</span></a>
     <?php if ($u): ?>
-    <nav class="a-nav">
+    <button type="button" class="a-nav-toggle" id="a-nav-toggle"
+            aria-label="Open menu" aria-expanded="false" aria-controls="a-nav">
+      <span class="a-nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+    <nav class="a-nav" id="a-nav">
       <a href="/admin/pages">Pages</a>
       <a href="/admin/case-studies">Case Studies</a>
       <a href="/admin/posts">Posts</a>
@@ -24,10 +28,12 @@
         <button type="submit">Sign out</button>
       </form>
     </nav>
+    <div class="a-nav-overlay" id="a-nav-overlay" hidden></div>
     <?php endif; ?>
   </header>
   <main class="a-main">
     <?= $content ?>
   </main>
+  <script src="/assets/js/admin.js?v=<?= @filemtime(public_dir() . '/assets/js/admin.js') ?: 0 ?>"></script>
 </body>
 </html>

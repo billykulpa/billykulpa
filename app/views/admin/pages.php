@@ -1,5 +1,6 @@
 <?php /** @var array $pages */ ?>
 <h1><?= esc($heading ?? 'Pages') ?></h1>
+<div class="a-table-scroll">
 <table>
   <thead><tr><th>Page</th><th>H1</th><th>Meta title</th><th>Updated</th></tr></thead>
   <tbody>
@@ -13,3 +14,4 @@
     <?php endforeach; ?>
   </tbody>
 </table>
+</div>

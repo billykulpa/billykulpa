@@ -6,6 +6,7 @@
 <?php if (!$posts): ?>
   <p class="a-sub">No posts yet.</p>
 <?php else: ?>
+<div class="a-table-scroll">
 <table>
   <thead><tr><th>Title</th><th>Status</th><th>Published</th><th></th></tr></thead>
   <tbody>
@@ -26,4 +27,5 @@
     <?php endforeach; ?>
   </tbody>
 </table>
+</div>
 <?php endif; ?>

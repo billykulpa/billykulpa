@@ -162,3 +162,108 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
 .a-back { margin: -6px 0 14px; }
 .a-back a { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
 .a-back a:hover { color: var(--accent); }
+
+/* ==================== Mobile admin ===================================== */
+
+/* Inline status pill next to the company name exists only in stacked view. */
+.a-job-status-inline { display: none; }
+
+/* Tables scroll sideways rather than wrap weirdly on middling widths. */
+.a-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.a-table-scroll table { min-width: 640px; }
+
+/* Drawer toggle (hidden on desktop) — same bars as the public site nav. */
+.a-nav-toggle {
+  display: none;
+  width: 44px; height: 44px;
+  align-items: center; justify-content: center;
+  margin-right: -8px;
+  background: none; border: none;
+  color: var(--paper);
+  cursor: pointer;
+}
+.a-nav-toggle-bars { position: relative; }
+.a-nav-toggle-bars,
+.a-nav-toggle-bars::before,
+.a-nav-toggle-bars::after {
+  display: block;
+  width: 22px; height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.a-nav-toggle-bars::before,
+.a-nav-toggle-bars::after { content: ''; position: absolute; left: 0; }
+.a-nav-toggle-bars::before { top: -7px; }
+.a-nav-toggle-bars::after  { top: 7px; }
+.a-nav-toggle[aria-expanded="true"] .a-nav-toggle-bars { background: transparent; }
+.a-nav-toggle[aria-expanded="true"] .a-nav-toggle-bars::before { top: 0; transform: rotate(45deg); }
+.a-nav-toggle[aria-expanded="true"] .a-nav-toggle-bars::after  { top: 0; transform: rotate(-45deg); }
+
+@media (max-width: 880px) {
+  .a-nav-toggle { display: flex; }
+
+  /* The nav becomes a right-side drawer, mirroring the public site. */
+  .a-nav {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: min(300px, 82vw);
+    background: var(--ink);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+    padding: 84px 28px 28px;
+    font-size: 17px;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    z-index: 70;
+    box-shadow: -12px 0 32px rgba(0,0,0,0.25);
+  }
+  body.a-nav-open .a-nav { transform: none; }
+  body.a-nav-resizing .a-nav { transition: none; }
+  .a-nav a { color: var(--paper); }
+  .a-logout { margin-top: 8px; }
+
+  .a-nav-overlay {
+    position: fixed; inset: 0;
+    background: rgba(22, 21, 15, 0.5);
+    z-index: 65;
+  }
+  /* Toggle needs to sit above the drawer so the X can close it. */
+  .a-nav-toggle { position: relative; z-index: 80; }
+
+  .a-main { padding: 28px 18px 60px; }
+}
+
+/* Job tracker stacks into cards on phones. */
+@media (max-width: 680px) {
+  .a-table-scroll:has(.a-jobs-table) { overflow: visible; }
+  .a-table-scroll .a-jobs-table { min-width: 0; width: 100%; }
+  .a-jobs-table thead { display: none; }
+  .a-jobs-table, .a-jobs-table tbody, .a-jobs-table tr, .a-jobs-table td { display: block; }
+  .a-jobs-table tr {
+    border: 1px solid var(--rule);
+    background: #fff;
+    border-radius: 2px;
+    padding: 14px 16px 12px;
+    margin-bottom: 12px;
+  }
+  .a-jobs-table td { border: 0; padding: 0; font-size: 14px; }
+  .a-job-company { font-size: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .a-job-status-inline { display: inline; }
+  .a-job-role { color: var(--ink-soft); margin: 2px 0 8px; }
+  .a-jobs-table td[data-label] { display: inline-block; margin-right: 18px; }
+  .a-jobs-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 1px;
+  }
+  .a-jobs-table td[data-label]:empty { display: none; }
+  .a-job-status { display: none !important; } /* pill already shown beside the company */
+  .a-job-link { margin-top: 8px; }
+}

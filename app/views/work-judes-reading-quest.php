@@ -16,7 +16,7 @@
       <div><dt class="mono-label">Client</dt><dd>Jude, my youngest</dd></div>
       <div><dt class="mono-label">Role</dt><dd>Design, development, quiz writing, parenting</dd></div>
       <div><dt class="mono-label">Users</dt><dd>One reader, two subscribed parents</dd></div>
-      <div><dt class="mono-label">Status</dt><dd>Live since summer 2026 &middot; <a href="https://read.judekulpa.com" target="_blank" rel="noopener">read.judekulpa.com</a></dd></div>
+      <div><dt class="mono-label">Status</dt><dd>Live since summer 2026, at a private address only our family uses</dd></div>
     </dl>
 
     <div class="prose-grid">

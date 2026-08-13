@@ -79,14 +79,26 @@ function fetch_all(array $requests, int $batchSize = 20): array
         foreach ($handles as $slug => $ch) {
             $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
             $body = curl_multi_getcontent($ch);
-            $data = ($code === 200 && $body !== false) ? json_decode($body, true) : null;
-            $results[$slug] = is_array($data) ? $data : null;
+            $results[$slug] = ($code === 200 && is_string($body) && $body !== '') ? $body : null;
             curl_multi_remove_handle($mh, $ch);
             curl_close($ch);
         }
         curl_multi_close($mh);
     }
     return $results;
+}
+
+/* ---- Long-tail aggregators: live feeds spanning thousands of small
+        companies, no slug enumeration needed. ---- */
+$aggregators = [
+    'remotive' => 'https://remotive.com/api/remote-jobs?search=creative%20director',
+    'remoteok' => 'https://remoteok.com/api',
+    'jobicy' => 'https://jobicy.com/api/v2/remote-jobs?count=50&tag=creative',
+    'wwr-design' => 'https://weworkremotely.com/categories/remote-design-jobs.rss',
+    'wwr-management' => 'https://weworkremotely.com/categories/remote-management-and-finance-jobs.rss',
+];
+foreach ($aggregators as $name => $url) {
+    $requests['agg:' . $name] = ['aggregator:' . $name, $url];
 }
 
 $responses = fetch_all($requests);
@@ -96,8 +108,20 @@ $jobs = [];
 $errors = [];
 
 foreach ($requests as $slug => [$ats, $url]) {
-    $data = $responses[$slug] ?? null;
-    if ($data === null) { $errors[] = "{$slug} ({$ats})"; continue; }
+    $raw = $responses[$slug] ?? null;
+    if ($raw === null) { $errors[] = "{$slug} ({$ats})"; continue; }
+
+    /* Long-tail aggregators get their own parsers. */
+    if (str_starts_with($ats, 'aggregator:')) {
+        foreach (parse_aggregator(substr($ats, 11), $raw) as $f) {
+            $f['ats'] = 'aggregator';
+            $jobs[] = $f;
+        }
+        continue;
+    }
+
+    $data = json_decode($raw, true);
+    if (!is_array($data)) { $errors[] = "{$slug} ({$ats})"; continue; }
 
     $found = [];
     if ($ats === 'greenhouse') {
@@ -165,3 +189,74 @@ $out = json_encode([
 if (!is_dir($cacheDir)) @mkdir($cacheDir);
 @file_put_contents($cacheFile, $out, LOCK_EX);
 echo $out;
+
+/**
+ * Parse an aggregator feed (JSON or RSS) into the common match shape.
+ * Aggregators cover the long tail: thousands of small companies that
+ * would never be on a hand-built watchlist.
+ */
+function parse_aggregator(string $name, string $raw): array
+{
+    $out = [];
+    if ($name === 'remotive') {
+        $data = json_decode($raw, true);
+        foreach ($data['jobs'] ?? [] as $j) {
+            if (!preg_match(TITLE_RX, $j['title'] ?? '')) continue;
+            $out[] = [
+                'title' => $j['title'],
+                'company' => $j['company_name'] ?? '',
+                'location' => $j['candidate_required_location'] ?? '',
+                'url' => $j['url'] ?? '',
+                'posted' => substr($j['publication_date'] ?? '', 0, 10),
+                'salary' => $j['salary'] ?? '',
+            ];
+        }
+    } elseif ($name === 'remoteok') {
+        $data = json_decode($raw, true);
+        foreach (is_array($data) ? $data : [] as $j) {
+            if (!is_array($j) || !preg_match(TITLE_RX, $j['position'] ?? '')) continue;
+            $out[] = [
+                'title' => $j['position'],
+                'company' => $j['company'] ?? '',
+                'location' => $j['location'] ?? 'Remote',
+                'url' => $j['url'] ?? '',
+                'posted' => substr($j['date'] ?? '', 0, 10),
+                'salary' => ((int) ($j['salary_min'] ?? 0) > 0)
+                    ? '$' . number_format((int) $j['salary_min']) . '-$' . number_format((int) ($j['salary_max'] ?? 0)) : '',
+            ];
+        }
+    } elseif ($name === 'jobicy') {
+        $data = json_decode($raw, true);
+        foreach ($data['jobs'] ?? [] as $j) {
+            if (!preg_match(TITLE_RX, $j['jobTitle'] ?? '')) continue;
+            $out[] = [
+                'title' => $j['jobTitle'],
+                'company' => $j['companyName'] ?? '',
+                'location' => $j['jobGeo'] ?? 'Remote',
+                'url' => $j['url'] ?? '',
+                'posted' => substr($j['pubDate'] ?? '', 0, 10),
+                'salary' => ((int) ($j['annualSalaryMin'] ?? 0) > 0)
+                    ? '$' . number_format((int) $j['annualSalaryMin']) . '-$' . number_format((int) ($j['annualSalaryMax'] ?? 0)) : '',
+            ];
+        }
+    } elseif (str_starts_with($name, 'wwr')) {
+        // RSS: <item><title>Company: Job Title</title><link/><pubDate/>
+        $xml = @simplexml_load_string($raw);
+        if ($xml !== false) {
+            foreach ($xml->channel->item ?? [] as $item) {
+                $t = (string) $item->title;
+                if (!preg_match(TITLE_RX, $t)) continue;
+                $parts = explode(':', $t, 2);
+                $out[] = [
+                    'title' => trim($parts[1] ?? $t),
+                    'company' => trim($parts[0] ?? ''),
+                    'location' => 'Remote',
+                    'url' => (string) $item->link,
+                    'posted' => date('Y-m-d', strtotime((string) $item->pubDate) ?: time()),
+                    'salary' => '',
+                ];
+            }
+        }
+    }
+    return $out;
+}

@@ -34,8 +34,18 @@ if (empty($_GET['fresh']) && is_file($cacheFile) && (time() - filemtime($cacheFi
     exit;
 }
 
-@set_time_limit(120);
+@set_time_limit(180);
 $companies = require APP_DIR . '/jobwatch-companies.php';
+
+/* ---- Self-healing slug fixes: previously discovered ATS corrections
+        override the hand-written watchlist, and slugs that repeatedly
+        probe dead get skipped and reported as prune candidates. ---- */
+$fixFile = APP_DIR . '/cache/jobwatch-fixes.json';
+$fixes = is_file($fixFile) ? (json_decode((string) @file_get_contents($fixFile), true) ?: []) : [];
+$fixes += ['fixed' => [], 'dead' => []];
+foreach ($fixes['fixed'] as $slug => $ats) {
+    if (isset($companies[$slug])) $companies[$slug] = $ats;
+}
 
 /* ---- Build one URL per company ---- */
 $requests = []; // slug => [ats, url]
@@ -123,6 +133,105 @@ foreach ($requests as $slug => [$ats, $url]) {
     $data = json_decode($raw, true);
     if (!is_array($data)) { $errors[] = "{$slug} ({$ats})"; continue; }
 
+    foreach (parse_board($ats, $slug, $data) as $f) {
+        $f['company'] = $slug;
+        $f['ats'] = $ats;
+        $jobs[] = $f;
+    }
+}
+
+/* ---- Probe failed slugs against the other ATS providers. A wrong
+        watchlist guess ("netflix is on Lever" when it moved) heals
+        itself: the working provider gets cached and used from then on.
+        Slugs that probe dead twice become prune candidates and stop
+        being probed. Capped per run to keep response times sane. ---- */
+const PROBE_SLUGS_PER_RUN = 20;
+$allAts = ['greenhouse', 'lever', 'ashby', 'smartrecruiters'];
+$probeSlugs = [];
+/* If most of the run failed, the network (not the slugs) is the problem:
+   skip probing so transient outages don't poison the dead counts. */
+$networkOk = count($errors) < count($requests) * 0.6;
+foreach ($networkOk ? $errors : [] as $err) {
+    $slug = explode(' ', $err)[0];
+    if (isset($companies[$slug]) && (int) ($fixes['dead'][$slug] ?? 0) < 2) {
+        $probeSlugs[] = $slug;
+        if (count($probeSlugs) >= PROBE_SLUGS_PER_RUN) break;
+    }
+}
+
+if ($probeSlugs) {
+    $probeReqs = [];
+    foreach ($probeSlugs as $slug) {
+        foreach ($allAts as $ats) {
+            if ($ats === $companies[$slug]) continue; // already failed there
+            $url = match ($ats) {
+                'greenhouse' => "https://boards-api.greenhouse.io/v1/boards/{$slug}/jobs",
+                'lever' => "https://api.lever.co/v0/postings/{$slug}?mode=json",
+                'ashby' => "https://api.ashbyhq.com/posting-api/job-board/{$slug}",
+                'smartrecruiters' => "https://api.smartrecruiters.com/v1/companies/{$slug}/postings?limit=100",
+            };
+            $probeReqs["{$slug}|{$ats}"] = [$ats, $url];
+        }
+    }
+    $probeResponses = fetch_all($probeReqs);
+
+    $healed = [];
+    foreach ($probeResponses as $key => $raw) {
+        if ($raw === null) continue;
+        [$slug, $ats] = explode('|', $key);
+        if (isset($healed[$slug])) continue;
+        $data = json_decode($raw, true);
+        $valid = match ($ats) {
+            'greenhouse', 'ashby' => is_array($data['jobs'] ?? null),
+            'lever' => is_array($data) && ($data === [] || isset($data[0])), // list check, PHP 8.0 safe
+            'smartrecruiters' => is_array($data['content'] ?? null),
+        };
+        if ($valid) {
+            $healed[$slug] = $ats;
+            /* The healed board's matches count this run, not next. */
+            foreach (parse_board($ats, $slug, $data) as $f) {
+                $f['company'] = $slug;
+                $f['ats'] = $ats;
+                $jobs[] = $f;
+            }
+        }
+    }
+
+    foreach ($probeSlugs as $slug) {
+        if (isset($healed[$slug])) {
+            $fixes['fixed'][$slug] = $healed[$slug];
+            unset($fixes['dead'][$slug]);
+        } else {
+            $fixes['dead'][$slug] = (int) ($fixes['dead'][$slug] ?? 0) + 1;
+        }
+    }
+    if (!is_dir($cacheDir)) @mkdir($cacheDir);
+    @file_put_contents($fixFile, json_encode($fixes, JSON_PRETTY_PRINT), LOCK_EX);
+}
+
+$pruneCandidates = array_keys(array_filter($fixes['dead'], fn($n) => $n >= 2));
+
+usort($jobs, fn($a, $b) => strcmp($b['posted'], $a['posted']));
+
+$out = json_encode([
+    'generated_at' => date('c'),
+    'companies_checked' => count($requests),
+    'companies_unreachable' => $errors,
+    'slug_fixes' => $fixes['fixed'],
+    'prune_candidates' => $pruneCandidates,
+    'matches' => $jobs,
+], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+if (!is_dir($cacheDir)) @mkdir($cacheDir);
+@file_put_contents($cacheFile, $out, LOCK_EX);
+echo $out;
+
+/**
+ * Parse one company board's decoded JSON into the common match shape
+ * (title, location, url, posted), filtered by TITLE_RX.
+ */
+function parse_board(string $ats, string $slug, array $data): array
+{
     $found = [];
     if ($ats === 'greenhouse') {
         foreach ($data['jobs'] ?? [] as $j) {
@@ -169,26 +278,8 @@ foreach ($requests as $slug => [$ats, $url]) {
             }
         }
     }
-
-    foreach ($found as $f) {
-        $f['company'] = $slug;
-        $f['ats'] = $ats;
-        $jobs[] = $f;
-    }
+    return $found;
 }
-
-usort($jobs, fn($a, $b) => strcmp($b['posted'], $a['posted']));
-
-$out = json_encode([
-    'generated_at' => date('c'),
-    'companies_checked' => count($requests),
-    'companies_unreachable' => $errors,
-    'matches' => $jobs,
-], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
-if (!is_dir($cacheDir)) @mkdir($cacheDir);
-@file_put_contents($cacheFile, $out, LOCK_EX);
-echo $out;
 
 /**
  * Parse an aggregator feed (JSON or RSS) into the common match shape.

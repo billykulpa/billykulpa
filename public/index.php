@@ -134,6 +134,19 @@ switch (true) {
         render('work-supporting-local-music', ['pg' => $pg, 'nav' => 'work']);
         break;
 
+    case $path === 'work/judes-reading-quest':
+        // Hero and meta are editable in /admin (pages table); these literals
+        // are the fallback until the page row exists.
+        $pg = page('work/judes-reading-quest');
+        if ($pg['h1'] === '') $pg = [
+            'h1' => "Jude's Reading Quest",
+            'lede' => '',
+            'meta_title' => "Jude's Reading Quest — Billy Kulpa",
+            'meta_description' => 'A screen-time deal with my son, shipped as an app: read the daily chapter, pass a quiz, unlock the iPad. Product design, quiz systems, and a parent panel, for an audience of one kid.',
+        ];
+        render('work-judes-reading-quest', ['pg' => $pg, 'nav' => 'work']);
+        break;
+
     case $path === 'work/restreak':
         // Hero and meta are editable in /admin (pages table); these literals
         // are the fallback until the page row exists.

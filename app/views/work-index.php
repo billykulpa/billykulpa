@@ -68,6 +68,19 @@
           <p class="mono-label">Poster &middot; Packaging &middot; Illustration</p>
         </div>
       </a>
+      <a class="work-card" href="/work/judes-reading-quest">
+        <div class="work-card-media work-card-media--rq">
+          <img src="/assets/img/reading-quest/rq-card-wide.webp"
+               srcset="/assets/img/reading-quest/rq-card-wide-800w.webp 800w, /assets/img/reading-quest/rq-card-wide-1400w.webp 1400w, /assets/img/reading-quest/rq-card-wide.webp 1568w"
+               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw"
+               alt="Jude's Reading Quest: the daily reading assignment screen" width="1568" height="657" loading="lazy">
+        </div>
+        <div class="work-card-body">
+          <h3>Jude's Reading Quest</h3>
+          <p>A read-to-unlock-screen-time app built for my son: daily chapters, quizzes, and push alerts to his parents.</p>
+          <p class="mono-label">Product design &middot; Game logic &middot; Parenting</p>
+        </div>
+      </a>
     </div>
   </div>
 </section>

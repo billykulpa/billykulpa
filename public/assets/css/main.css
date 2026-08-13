@@ -849,3 +849,6 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   object-fit: cover;
 }
 .about-portrait figcaption { margin-top: 8px; }
+
+/* Reading Quest card: the app is a night sky, so the card matches it. */
+.work-card-media--rq { background-color: #0e1230; }

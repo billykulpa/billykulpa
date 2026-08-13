@@ -267,3 +267,6 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
   .a-job-status { display: none !important; } /* pill already shown beside the company */
   .a-job-link { margin-top: 8px; }
 }
+
+/* "Posting ↗" stays on one line in the desktop table. */
+.a-jobs-table .a-job-link { white-space: nowrap; }

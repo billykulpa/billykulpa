@@ -5,3 +5,11 @@ app/cache/
 public/assets/uploads/
 # OS noise
 .DS_Store
+# Git bundles are transport containers for the push workflow; once pulled
+# and pushed they're spent. Never commit them.
+*.bundle
+# Design source exports live beside the repo, not in it.
+figma-exports/
+# One-time SQL migrations are delivered and run in phpMyAdmin, not tracked;
+# schema.sql remains the canonical schema.
+add-*.sql

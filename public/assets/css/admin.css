@@ -163,10 +163,40 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
 .a-back a { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
 .a-back a:hover { color: var(--accent); }
 
-/* ==================== Mobile admin ===================================== */
+/* ==================== Job tracker list ================================= */
 
-/* Inline status pill next to the company name exists only in stacked view. */
-.a-job-status-inline { display: none; }
+/* Two-line entries: role + company on top, the details underneath, and
+   the posting link running the full height of the row on the right. */
+.a-jobs-list { background: #fff; border: 1px solid var(--rule); border-radius: 2px; }
+.a-job-row { display: flex; align-items: stretch; gap: 18px; padding: 14px 18px; }
+.a-job-row + .a-job-row { border-top: 1px solid var(--rule); }
+.a-job-main { flex: 1 1 auto; min-width: 0; }
+.a-job-top { margin: 0 0 5px; font-size: 16px; line-height: 1.35; }
+.a-job-title { font-weight: 700; color: var(--ink); text-decoration: none; }
+.a-job-title:hover { color: var(--accent); }
+.a-job-co { color: var(--ink-soft); margin-left: 10px; font-size: 15px; }
+.a-job-meta {
+  margin: 0;
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 4px 16px;
+  font-size: 13.5px; color: var(--ink-soft);
+}
+.a-job-go {
+  display: flex; align-items: center;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.a-job-go:hover { color: var(--accent); }
+@media (max-width: 680px) {
+  .a-job-row { gap: 12px; padding: 12px 14px; }
+  .a-job-top { font-size: 15px; }
+  .a-job-co { display: block; margin: 2px 0 0; font-size: 13.5px; }
+  .a-job-meta { gap: 3px 12px; font-size: 13px; }
+}
+
+/* ==================== Mobile admin ===================================== */
 
 /* Tables scroll sideways rather than wrap weirdly on middling widths. */
 .a-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -235,41 +265,6 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
   .a-main { padding: 28px 18px 60px; }
 }
 
-/* Job tracker stacks into cards on phones. */
-@media (max-width: 680px) {
-  .a-table-scroll:has(.a-jobs-table) { overflow: visible; }
-  .a-table-scroll .a-jobs-table { min-width: 0; width: 100%; }
-  .a-jobs-table thead { display: none; }
-  .a-jobs-table, .a-jobs-table tbody, .a-jobs-table tr, .a-jobs-table td { display: block; }
-  .a-jobs-table tr {
-    border: 1px solid var(--rule);
-    background: #fff;
-    border-radius: 2px;
-    padding: 14px 16px 12px;
-    margin-bottom: 12px;
-  }
-  .a-jobs-table td { border: 0; padding: 0; font-size: 14px; }
-  .a-job-company { font-size: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .a-job-status-inline { display: inline; }
-  .a-job-role { color: var(--ink-soft); margin: 2px 0 8px; }
-  .a-jobs-table td[data-label] { display: inline-block; margin-right: 18px; }
-  .a-jobs-table td[data-label]::before {
-    content: attr(data-label);
-    display: block;
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: 1px;
-  }
-  .a-jobs-table td[data-label]:empty { display: none; }
-  .a-job-status { display: none !important; } /* pill already shown beside the company */
-  .a-job-link { margin-top: 8px; }
-}
-
-/* "Posting ↗" stays on one line in the desktop table. */
-.a-jobs-table .a-job-link { white-space: nowrap; }
 
 /* --------------------------- Traffic (visit log) -------------------------- */
 .a-traffic-h {

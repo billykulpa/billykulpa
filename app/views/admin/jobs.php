@@ -13,24 +13,25 @@ $statusColors = [
 <?php if (!$apps): ?>
 <p class="a-sub">Nothing tracked yet. Add the first one.</p>
 <?php else: ?>
-<div class="a-table-scroll">
-<table class="a-jobs-table">
-  <thead>
-    <tr><th>Company</th><th>Role</th><th>Comp</th><th>Status</th><th>Applied</th><th></th></tr>
-  </thead>
-  <tbody>
-    <?php foreach ($apps as $a): ?>
-    <tr>
-      <td class="a-job-company"><a class="a-rowlink" href="/admin/jobs/edit?id=<?= (int) $a['id'] ?>"><?= esc($a['company']) ?></a>
-        <span class="a-job-status-inline"><span class="a-pill <?= $statusColors[$a['status']] ?? 'a-pill--draft' ?>"><?= esc($a['status']) ?></span></span></td>
-      <td class="a-job-role"><?= esc($a['role']) ?><?= $a['remote'] !== '' ? ' <span class="a-count">· ' . esc($a['remote']) . '</span>' : '' ?></td>
-      <td data-label="Comp"><?= esc($a['comp']) ?></td>
-      <td class="a-job-status" data-label="Status"><span class="a-pill <?= $statusColors[$a['status']] ?? 'a-pill--draft' ?>"><?= esc($a['status']) ?></span></td>
-      <td data-label="Applied"><?= esc(nice_date($a['applied_on'])) ?></td>
-      <td class="a-job-link"><?php if ($a['url'] !== ''): ?><a class="a-count" href="<?= esc($a['url']) ?>" target="_blank" rel="noopener">Posting &nearr;</a><?php endif; ?></td>
-    </tr>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+<div class="a-jobs-list">
+  <?php foreach ($apps as $a): ?>
+  <div class="a-job-row">
+    <div class="a-job-main">
+      <p class="a-job-top">
+        <a class="a-job-title" href="/admin/jobs/edit?id=<?= (int) $a['id'] ?>"><?= esc($a['role']) ?></a>
+        <span class="a-job-co"><?= esc($a['company']) ?></span>
+      </p>
+      <p class="a-job-meta">
+        <span class="a-pill <?= $statusColors[$a['status']] ?? 'a-pill--draft' ?>"><?= esc($a['status']) ?></span>
+        <?php if ($a['comp'] !== ''): ?><span><?= esc($a['comp']) ?></span><?php endif; ?>
+        <?php if ($a['remote'] !== ''): ?><span><?= esc($a['remote']) ?></span><?php endif; ?>
+        <?php if ($a['applied_on']): ?><span>Applied <?= esc(nice_date($a['applied_on'])) ?></span><?php endif; ?>
+      </p>
+    </div>
+    <?php if ($a['url'] !== ''): ?>
+    <a class="a-job-go" href="<?= esc($a['url']) ?>" target="_blank" rel="noopener">Posting&nbsp;&nearr;</a>
+    <?php endif; ?>
+  </div>
+  <?php endforeach; ?>
 </div>
 <?php endif; ?>

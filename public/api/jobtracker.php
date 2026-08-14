@@ -52,6 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         echo json_encode(['error' => 'add must be base64-encoded JSON']);
         exit;
     }
+    // Payloads may be gzipped before encoding: the scheduled run's fetch
+    // proxy caps URL length, and letters don't fit raw. Sniff the magic.
+    if (str_starts_with($raw, "\x1f\x8b")) {
+        $raw = @gzdecode($raw) ?: '';
+    }
     $in = json_decode($raw, true);
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $in = json_decode((string) file_get_contents('php://input'), true);

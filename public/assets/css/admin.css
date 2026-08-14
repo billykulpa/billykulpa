@@ -269,10 +269,15 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
 /* --------------------------- Traffic (visit log) -------------------------- */
 .a-traffic-h {
   font-size: 15px;
-  margin: 28px 0 10px;
-  padding-top: 14px;
+  line-height: 1.4;
+  margin: 40px 0 14px;
+  padding-top: 20px;
   border-top: 1px solid var(--rule);
 }
+/* .a-sub's negative top margin is built for hugging the page H1; mid-page
+   (after a traffic section heading) it cramps — give it room instead. */
+.a-traffic-h + .a-sub { margin: 0 0 20px; }
+.a-sub { line-height: 1.55; }
 .a-traffic-table { width: 100%; }
 .a-traffic-ref {
   max-width: 420px;

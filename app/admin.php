@@ -226,11 +226,12 @@ function admin_route(string $route): void
             $days = $recent = $referrers = [];
             $tableMissing = false;
             try {
+                $off = central_offset_minutes(); // group days by Central time, not server time
                 $days = db()->query(
-                    "SELECT DATE(created_at) AS d,
+                    "SELECT DATE(created_at + INTERVAL {$off} MINUTE) AS d,
                             SUM(who = 0) AS humans, SUM(who = 1) AS bots, SUM(who = 2) AS self
                      FROM visits WHERE created_at >= NOW() - INTERVAL 14 DAY
-                     GROUP BY DATE(created_at) ORDER BY d DESC"
+                     GROUP BY d ORDER BY d DESC"
                 )->fetchAll();
                 $recent = db()->query(
                     "SELECT path, referrer, created_at FROM visits

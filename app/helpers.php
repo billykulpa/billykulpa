@@ -50,6 +50,30 @@ function nice_date(?string $dt): string
     return date('M j, Y', strtotime($dt));
 }
 
+/**
+ * Format a server-time datetime string in US Central time. The server
+ * (and its database timestamps) run on UTC; Billy runs on Roscoe time.
+ */
+function central_time(?string $dt, string $fmt = 'M j, g:i a'): string
+{
+    if (!$dt) return '';
+    try {
+        $d = new DateTime($dt, new DateTimeZone(date_default_timezone_get()));
+        $d->setTimezone(new DateTimeZone('America/Chicago'));
+        return $d->format($fmt);
+    } catch (Exception $e) {
+        return $dt;
+    }
+}
+
+/** Minutes to add to server time to get US Central, for SQL date math. */
+function central_offset_minutes(): int
+{
+    $srv = new DateTimeZone(date_default_timezone_get());
+    $now = new DateTime('now', $srv);
+    return intdiv((new DateTimeZone('America/Chicago'))->getOffset($now) - $srv->getOffset($now), 60);
+}
+
 /* ---------------------------------------------------------------------------
  * Uploads (the About portrait)
  * ------------------------------------------------------------------------- */

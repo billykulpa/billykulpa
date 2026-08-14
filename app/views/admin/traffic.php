@@ -8,7 +8,8 @@
 <?php else: ?>
 
 <p class="a-sub">First-party log: no cookies, no IP addresses, no client scripts.
-A human visit with a job-board or corporate referrer means someone is actually looking.</p>
+A human visit with a job-board or corporate referrer means someone is actually looking.
+Times are US&nbsp;Central.</p>
 
 <h2 class="a-traffic-h">Last 14 days</h2>
 <?php if (!$days): ?>
@@ -60,7 +61,7 @@ A human visit with a job-board or corporate referrer means someone is actually l
   <tbody>
     <?php foreach ($recent as $v): ?>
     <tr>
-      <td class="a-count" style="white-space:nowrap"><?= esc(date('M j, g:i a', strtotime($v['created_at']))) ?></td>
+      <td class="a-count" style="white-space:nowrap"><?= esc(central_time($v['created_at'])) ?></td>
       <td><?= esc($v['path']) ?></td>
       <td class="a-traffic-ref a-count"><?= $v['referrer'] !== '' ? esc($v['referrer']) : '—' ?></td>
     </tr>

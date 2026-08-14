@@ -266,6 +266,14 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
 }
 
 
+/* Cover letter block on the job edit page. */
+.a-letter-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.a-letter-head .a-btn { margin: 0; padding: 6px 14px; font-size: 12.5px; }
+.a-letter { font-size: 14.5px; line-height: 1.55; }
+
+/* "Letter ready" hint on the jobs board. */
+.a-job-letter-flag { color: var(--accent); font-weight: 600; }
+
 /* --------------------------- Traffic (visit log) -------------------------- */
 .a-traffic-h {
   font-size: 15px;

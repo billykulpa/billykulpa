@@ -166,7 +166,9 @@ function admin_route(string $route): void
         // linked from, or visible on, the public site.
         case $route === 'jobs':
             require_login();
-            $apps = db()->query("SELECT * FROM applications ORDER BY FIELD(status,'offer','interview','callback','applied','found','denied','abandoned'), COALESCE(applied_on, created_at) DESC")->fetchAll();
+            // 'found' sorts above 'applied': fresh finds from the morning run
+            // are the actionable ones when Billy checks the board.
+            $apps = db()->query("SELECT * FROM applications ORDER BY FIELD(status,'offer','interview','callback','found','applied','denied','abandoned'), COALESCE(applied_on, created_at) DESC")->fetchAll();
             render_admin('jobs', ['apps' => $apps, 'title' => 'Job tracker']);
             break;
 
@@ -174,7 +176,7 @@ function admin_route(string $route): void
         case $route === 'jobs/new':
             require_login();
             $app = ['id' => 0, 'company' => '', 'role' => '', 'comp' => '', 'remote' => '',
-                    'url' => '', 'status' => 'found', 'applied_on' => null, 'notes' => ''];
+                    'url' => '', 'status' => 'found', 'applied_on' => null, 'notes' => '', 'letter' => ''];
             if ($route === 'jobs/edit') {
                 $stmt = db()->prepare('SELECT * FROM applications WHERE id = ?');
                 $stmt->execute([(int) ($_GET['id'] ?? 0)]);
@@ -191,12 +193,13 @@ function admin_route(string $route): void
                     in_array($_POST['status'] ?? '', ['found','applied','callback','interview','offer','denied','abandoned'], true) ? $_POST['status'] : 'found',
                     ($_POST['applied_on'] ?? '') !== '' ? $_POST['applied_on'] : null,
                     trim($_POST['notes'] ?? ''),
+                    trim($_POST['letter'] ?? ''),
                 ];
                 if ($app['id']) {
-                    $stmt = db()->prepare('UPDATE applications SET company=?, role=?, comp=?, remote=?, url=?, status=?, applied_on=?, notes=? WHERE id=?');
+                    $stmt = db()->prepare('UPDATE applications SET company=?, role=?, comp=?, remote=?, url=?, status=?, applied_on=?, notes=?, letter=? WHERE id=?');
                     $stmt->execute([...$fields, $app['id']]);
                 } else {
-                    $stmt = db()->prepare('INSERT INTO applications (company, role, comp, remote, url, status, applied_on, notes) VALUES (?,?,?,?,?,?,?,?)');
+                    $stmt = db()->prepare('INSERT INTO applications (company, role, comp, remote, url, status, applied_on, notes, letter) VALUES (?,?,?,?,?,?,?,?,?)');
                     $stmt->execute($fields);
                     $app['id'] = (int) db()->lastInsertId();
                 }

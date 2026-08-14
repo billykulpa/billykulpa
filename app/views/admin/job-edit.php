@@ -39,6 +39,12 @@
   <input type="text" id="url" name="url" value="<?= esc($app['url']) ?>">
   <label class="a-label" for="notes">Notes</label>
   <textarea id="notes" name="notes"><?= esc($app['notes'] ?? '') ?></textarea>
+  <div class="a-letter-head">
+    <label class="a-label" for="letter">Cover letter body</label>
+    <button type="button" class="a-btn a-btn--ghost a-copy-letter" data-copy-target="letter" hidden>Copy letter</button>
+  </div>
+  <textarea id="letter" name="letter" class="a-letter" rows="14"
+            placeholder="Paste or write the cover letter body here. The morning run fills this in for roles it files."><?= esc($app['letter'] ?? '') ?></textarea>
   <button class="a-btn" type="submit">Save</button>
 </form>
 

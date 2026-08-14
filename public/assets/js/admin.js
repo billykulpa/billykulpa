@@ -1,3 +1,25 @@
+/* Copy-letter button on the job edit page: copies the letter textarea and
+   confirms inline. Hidden until we know the textarea has content. */
+(function () {
+  var btn = document.querySelector('.a-copy-letter');
+  if (!btn) return;
+  var area = document.getElementById(btn.getAttribute('data-copy-target'));
+  if (!area) return;
+  function sync() { btn.hidden = area.value.trim() === ''; }
+  sync();
+  area.addEventListener('input', sync);
+  btn.addEventListener('click', function () {
+    navigator.clipboard.writeText(area.value).then(function () {
+      var old = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      setTimeout(function () { btn.textContent = old; }, 1600);
+    }, function () {
+      area.focus();
+      area.select(); /* clipboard API blocked: leave it selected for Cmd+C */
+    });
+  });
+})();
+
 /* Admin drawer — same pattern as the public site's mobile nav. */
 (function () {
   var toggle = document.getElementById('a-nav-toggle');

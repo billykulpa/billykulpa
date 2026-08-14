@@ -26,6 +26,7 @@ $statusColors = [
         <?php if ($a['comp'] !== ''): ?><span><?= esc($a['comp']) ?></span><?php endif; ?>
         <?php if ($a['remote'] !== ''): ?><span><?= esc($a['remote']) ?></span><?php endif; ?>
         <?php if ($a['applied_on']): ?><span>Applied <?= esc(nice_date($a['applied_on'])) ?></span><?php endif; ?>
+        <?php if (trim((string) ($a['letter'] ?? '')) !== ''): ?><span class="a-job-letter-flag">Letter ready</span><?php endif; ?>
       </p>
     </div>
     <?php if ($a['url'] !== ''): ?>

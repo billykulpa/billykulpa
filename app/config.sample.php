@@ -26,6 +26,11 @@ return [
     // Session cookie name for the admin.
     'session_name' => 'bk_admin',
 
+    // Write key for /api/jobtracker.php (the morning job-search run files
+    // its finds through it). Any long random string; leave it out to keep
+    // the endpoint disabled. Never commit the real value.
+    // 'jobtracker_key' => 'change-me',
+
     // Contact form.
     'contact' => [
         'to'        => 'billy@billykulpa.com',

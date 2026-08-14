@@ -1,0 +1,62 @@
+# Billy Kulpa
+
+> Creative leader who came up through code. Senior Manager, Creative at the
+> Fabricators and Manufacturers Association (FMA), directing brand systems for
+> a national trade association: strategy, identity, templates, and the code
+> that ships them. Twenty-plus years across design, development, and
+> journalism. Based in Roscoe, Illinois; works remotely. Open to
+> creative-director-level roles.
+
+This file is a plain-language summary of billykulpa.com for machine readers,
+in the spirit of llms.txt. Everything here is stated on the site itself.
+
+## Current role
+
+- Senior Manager, Creative, Fabricators and Manufacturers Association
+  (Elgin, Illinois), November 2023 to present. Owns creative output for FMA
+  and its family of brands: The Fabricator, SparkForce, and a calendar of
+  event subbrands. Leads a three-person creative team closing roughly 500
+  design tickets a year.
+- Built the design system and governance behind an email program of roughly
+  2,000,000 sends a year: a 20-plus-template library, staff training, and
+  compliance rules (licensing, branding, CASL/GDPR).
+- Previously Senior User Interface Developer at FMA (2018-2023): redesigned
+  thefabricator.com, fmamfg.org, and fabtechexpo.com in PHP, JavaScript,
+  WordPress, Laravel, and Vue.js.
+
+## Background
+
+- Senior Manager, Creative Assets at Cleo (2013-2018): rebuilt the corporate
+  identity and website of a B2B integration-software company.
+- Deputy Design Director at Lee Enterprises (2012-2013): led a 30-designer
+  centralized design hub producing branded publications across markets.
+- Earlier: Rosecrance, GateHouse Media, and the Rockford Register Star.
+  Ex-journalist; Poynter Institute Summer Visual Fellow (2007); B.A. in
+  Journalism, Northern Illinois University.
+- President of the board, The Superhero Center for Autism (2021-2023).
+
+## Side projects (built solo, hands on keyboard)
+
+- [Restreak](https://restreak.com): daily sports trivia game. Product design,
+  brand, and engineering by one person in PHP, MySQL, and vanilla JavaScript,
+  with a public changelog.
+- This site: hand-built PHP and vanilla JS, custom CMS, GitHub Actions
+  deploys, public repo at https://github.com/billykulpa/billykulpa.
+
+## Case studies
+
+- [Email Design at Scale](https://billykulpa.com/work/fma-email): the
+  2M-send email program, template system, and governance.
+- [FMA Social Brand Management](https://billykulpa.com/work/fma-social):
+  one parent brand, two overlapping subbrands, constant cadence.
+- [Restreak](https://billykulpa.com/work/restreak): shipping a consumer
+  product solo, AI-assisted.
+- [Jude's Reading Quest](https://billykulpa.com/work/judes-reading-quest):
+  a reading app built for an audience of one kid.
+- [Supporting Local Music](https://billykulpa.com/work/supporting-local-music):
+  posters and packaging from the Rockford music scene.
+
+## Contact
+
+- Email: billy@billykulpa.com
+- Site: https://billykulpa.com

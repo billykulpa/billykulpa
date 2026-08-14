@@ -219,6 +219,39 @@ function admin_route(string $route): void
             header('Location: /admin/jobs');
             break;
 
+        /* ----------------------------- Traffic ----------------------------- */
+        // First-party visit log (app/visits.php). who: 0 human, 1 bot, 2 self.
+        case $route === 'traffic':
+            require_login();
+            $days = $recent = $referrers = [];
+            $tableMissing = false;
+            try {
+                $days = db()->query(
+                    "SELECT DATE(created_at) AS d,
+                            SUM(who = 0) AS humans, SUM(who = 1) AS bots, SUM(who = 2) AS self
+                     FROM visits WHERE created_at >= NOW() - INTERVAL 14 DAY
+                     GROUP BY DATE(created_at) ORDER BY d DESC"
+                )->fetchAll();
+                $recent = db()->query(
+                    "SELECT path, referrer, created_at FROM visits
+                     WHERE who = 0 ORDER BY created_at DESC LIMIT 50"
+                )->fetchAll();
+                $referrers = db()->query(
+                    "SELECT referrer, COUNT(*) AS n FROM visits
+                     WHERE who = 0 AND referrer <> ''
+                       AND referrer NOT LIKE '%billykulpa.com%'
+                       AND created_at >= NOW() - INTERVAL 30 DAY
+                     GROUP BY referrer ORDER BY n DESC LIMIT 20"
+                )->fetchAll();
+            } catch (PDOException $e) {
+                $tableMissing = true;
+            }
+            render_admin('traffic', [
+                'days' => $days, 'recent' => $recent, 'referrers' => $referrers,
+                'tableMissing' => $tableMissing, 'title' => 'Traffic',
+            ]);
+            break;
+
         /* ----------------------------- Posts ------------------------------ */
         case $route === 'posts':
             require_login();

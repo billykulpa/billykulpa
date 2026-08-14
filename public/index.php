@@ -26,6 +26,9 @@ if ($path === 'admin' || str_starts_with($path, 'admin/')) {
 
 /* ----------------------------- Public routes ---------------------------- */
 
+require APP_DIR . '/visits.php';
+log_visit($path);
+
 switch (true) {
 
     case $path === '':

@@ -270,3 +270,22 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
 
 /* "Posting ↗" stays on one line in the desktop table. */
 .a-jobs-table .a-job-link { white-space: nowrap; }
+
+/* --------------------------- Traffic (visit log) -------------------------- */
+.a-traffic-h {
+  font-size: 15px;
+  margin: 28px 0 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.a-traffic-table { width: 100%; }
+.a-traffic-ref {
+  max-width: 420px;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+@media (max-width: 680px) {
+  .a-table-scroll:has(.a-traffic-table) { overflow: visible; }
+  .a-table-scroll .a-traffic-table { min-width: 0; }
+  .a-traffic-table th, .a-traffic-table td { font-size: 13px; padding: 8px 8px 8px 0; }
+}

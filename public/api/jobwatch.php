@@ -35,6 +35,10 @@ if (empty($_GET['fresh']) && is_file($cacheFile) && (time() - filemtime($cacheFi
 }
 
 @set_time_limit(180);
+/* Callers on short fetch timeouts (the scheduled run's proxy) often hang up
+   before a fresh poll finishes. Keep going anyway: the cache still gets
+   written, and their next cache-served request picks up the fresh data. */
+ignore_user_abort(true);
 $companies = require APP_DIR . '/jobwatch-companies.php';
 
 /* ---- Self-healing slug fixes: previously discovered ATS corrections
@@ -74,8 +78,8 @@ function fetch_all(array $requests, int $batchSize = 20): array
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_MAXREDIRS => 3,
-                CURLOPT_CONNECTTIMEOUT => 5,
-                CURLOPT_TIMEOUT => 10,
+                CURLOPT_CONNECTTIMEOUT => 4,
+                CURLOPT_TIMEOUT => 8,
                 CURLOPT_USERAGENT => 'billykulpa.com job watch (billy@billykulpa.com)',
                 CURLOPT_HTTPHEADER => ['Accept: application/json'],
             ]);

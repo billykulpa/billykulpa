@@ -32,19 +32,34 @@ if ($key === '' || !hash_equals($key, (string) ($_GET['k'] ?? ''))) {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+/* GET with no payload → the tracked list. GET with ?add=<base64 JSON> →
+   file an application. The GET filing path exists because the scheduled
+   run's sandbox can only reach this site through a read-only fetch proxy:
+   its GETs arrive, its POSTs never leave. Same validation either way. */
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['add'] ?? '') === '') {
     $rows = db()->query('SELECT company, role, url, status FROM applications ORDER BY id DESC')->fetchAll();
     echo json_encode(['tracked' => $rows], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Accept base64url, and undo the +→space mangling URL decoding does
+    // to standard base64.
+    $b64 = strtr(str_replace(' ', '+', (string) $_GET['add']), '-_', '+/');
+    $raw = base64_decode($b64, true);
+    if ($raw === false) {
+        http_response_code(400);
+        echo json_encode(['error' => 'add must be base64-encoded JSON']);
+        exit;
+    }
+    $in = json_decode($raw, true);
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $in = json_decode((string) file_get_contents('php://input'), true);
+} else {
     http_response_code(405);
     echo json_encode(['error' => 'method not allowed']);
     exit;
 }
-
-$in = json_decode((string) file_get_contents('php://input'), true);
 if (!is_array($in)) {
     http_response_code(400);
     echo json_encode(['error' => 'body must be JSON']);

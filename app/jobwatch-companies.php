@@ -56,6 +56,10 @@ return [
     'abnormalsecurity' => 'greenhouse', 'crowdstrike' => 'greenhouse', 'snyk' => 'greenhouse',
     '1password' => 'lever', 'tailscale' => 'greenhouse', 'vanta' => 'ashby',
 
+    // Healthcare / B2B (surfaced by the morning runs)
+    'alma' => 'greenhouse', 'veeamsoftware' => 'greenhouse',
+    'jackmortonworldwide' => 'greenhouse',
+
     // Media / entertainment
     'netflix' => 'lever', 'spotify' => 'lever', 'soundcloud' => 'greenhouse',
     'bandcamp' => 'greenhouse', 'splice' => 'greenhouse', 'axios' => 'greenhouse',

@@ -32,24 +32,39 @@ if ($key === '' || !hash_equals($key, (string) ($_GET['k'] ?? ''))) {
     exit;
 }
 
-/* GET with no payload → the tracked list. GET with ?add=<base64 JSON> →
-   file an application. The GET filing path exists because the scheduled
-   run's sandbox can only reach this site through a read-only fetch proxy:
-   its GETs arrive, its POSTs never leave. Same validation either way. */
+/* GET with no payload → the tracked list.
+   GET with ?add=direct → file via flat query params (no encoding overhead;
+     fits easily in the scheduled run's egress proxy URL limit).
+   GET with ?add=<base64 JSON> → legacy base64url path (gzip-then-base64
+     also accepted). Kept for compatibility.
+   POST → file from same-origin browser. */
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['add'] ?? '') === '') {
     $rows = db()->query('SELECT company, role, url, status FROM applications ORDER BY id DESC')->fetchAll();
     echo json_encode(['tracked' => $rows], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['add'] ?? '') === 'direct') {
+    // Flat query-param mode: ?add=direct&company=X&role=Y&comp=Z&remote=W&url=U&notes=N
+    // The scheduled run uses this to file metadata-only rows (no letter).
+    // Letters are included in the push-notification report for Billy to copy.
+    $in = [
+        'company' => $_GET['company'] ?? '',
+        'role'    => $_GET['role']    ?? '',
+        'comp'    => $_GET['comp']    ?? '',
+        'remote'  => $_GET['remote']  ?? '',
+        'url'     => $_GET['url']     ?? '',
+        'notes'   => $_GET['notes']   ?? '',
+        'letter'  => '',
+    ];
+} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Accept base64url, and undo the +→space mangling URL decoding does
     // to standard base64.
     $b64 = strtr(str_replace(' ', '+', (string) $_GET['add']), '-_', '+/');
     $raw = base64_decode($b64, true);
     if ($raw === false) {
         http_response_code(400);
-        echo json_encode(['error' => 'add must be base64-encoded JSON']);
+        echo json_encode(['error' => 'add must be base64-encoded JSON or "direct"']);
         exit;
     }
     // Payloads may be gzipped before encoding: the scheduled run's fetch

@@ -45,6 +45,7 @@ return [
     'etsy' => 'greenhouse', 'wayfair' => 'greenhouse', 'chewy' => 'greenhouse',
 
     // SaaS / B2B (complex-technical lane)
+    'typeform' => 'greenhouse', 'huckleberrylabs' => 'lever',
     'asana' => 'greenhouse', 'airtable' => 'greenhouse', 'notion' => 'greenhouse',
     'calendly' => 'greenhouse', 'zapier' => 'greenhouse', 'clickup' => 'greenhouse',
     'monday' => 'greenhouse', 'miro' => 'greenhouse', 'loom' => 'greenhouse',
@@ -56,7 +57,8 @@ return [
     'abnormalsecurity' => 'greenhouse', 'crowdstrike' => 'greenhouse', 'snyk' => 'greenhouse',
     '1password' => 'lever', 'tailscale' => 'greenhouse', 'vanta' => 'ashby',
 
-    // Healthcare / B2B (surfaced by the morning runs)
+    // Healthcare / consumer health
+    'ag1' => 'greenhouse',
     'alma' => 'greenhouse', 'veeamsoftware' => 'greenhouse',
     'jackmortonworldwide' => 'greenhouse',
 

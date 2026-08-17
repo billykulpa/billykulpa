@@ -170,16 +170,18 @@ function admin_route(string $route): void
             // are the actionable ones when Billy checks the board.
             // Filter: active (default) hides denied/abandoned; closed shows only
             // those; all shows everything. Counts feed the filter tabs.
-            $show = in_array($_GET['show'] ?? '', ['closed', 'all'], true) ? $_GET['show'] : 'active';
+            $show = in_array($_GET['show'] ?? '', ['found', 'closed', 'all'], true) ? $_GET['show'] : 'active';
             $where = match ($show) {
+                'found' => "WHERE status = 'found'",
                 'closed' => "WHERE status IN ('denied','abandoned')",
                 'all' => '',
                 default => "WHERE status NOT IN ('denied','abandoned')",
             };
             $apps = db()->query("SELECT * FROM applications $where ORDER BY FIELD(status,'offer','interview','callback','found','applied','denied','abandoned'), COALESCE(applied_on, created_at) DESC")->fetchAll();
-            $counts = ['active' => 0, 'closed' => 0, 'all' => 0];
+            $counts = ['found' => 0, 'active' => 0, 'closed' => 0, 'all' => 0];
             foreach (db()->query("SELECT status, COUNT(*) n FROM applications GROUP BY status") as $c) {
                 $counts['all'] += (int) $c['n'];
+                if ($c['status'] === 'found') $counts['found'] += (int) $c['n'];
                 $counts[in_array($c['status'], ['denied', 'abandoned'], true) ? 'closed' : 'active'] += (int) $c['n'];
             }
             render_admin('jobs', ['apps' => $apps, 'show' => $show, 'counts' => $counts, 'title' => 'Job tracker']);

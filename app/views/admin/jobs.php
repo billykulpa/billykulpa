@@ -1,7 +1,7 @@
 <?php /** @var array $apps @var string $show @var array $counts */
 $show = $show ?? 'active';
 $counts = $counts ?? [];
-$filters = ['active' => 'Active', 'closed' => 'Closed', 'all' => 'All'];
+$filters = ['found' => 'Found', 'active' => 'Active', 'closed' => 'Closed', 'all' => 'All'];
 $statusColors = [
   'offer' => 'a-pill--published', 'interview' => 'a-pill--published',
   'callback' => 'a-pill--published', 'applied' => 'a-pill--draft',
@@ -23,7 +23,12 @@ $statusColors = [
 </nav>
 
 <?php if (!$apps): ?>
-<p class="a-sub"><?= $show === 'closed' ? 'Nothing closed yet.' : ($show === 'active' && ($counts['all'] ?? 0) > 0 ? 'Nothing active right now.' : 'Nothing tracked yet. Add the first one.') ?></p>
+<p class="a-sub"><?= match (true) {
+  $show === 'found' => 'Nothing waiting to be applied for. Inbox zero.',
+  $show === 'closed' => 'Nothing closed yet.',
+  $show === 'active' && ($counts['all'] ?? 0) > 0 => 'Nothing active right now.',
+  default => 'Nothing tracked yet. Add the first one.',
+} ?></p>
 <?php else: ?>
 <div class="a-jobs-list">
   <?php foreach ($apps as $a): ?>
@@ -38,7 +43,7 @@ $statusColors = [
         <?php if ($a['comp'] !== ''): ?><span><?= esc($a['comp']) ?></span><?php endif; ?>
         <?php if ($a['remote'] !== ''): ?><span><?= esc($a['remote']) ?></span><?php endif; ?>
         <?php if ($a['applied_on']): ?><span>Applied <?= esc(nice_date($a['applied_on'])) ?></span><?php endif; ?>
-        <?php if (trim((string) ($a['letter'] ?? '')) !== ''): ?><span class="a-job-letter-flag">Letter ready</span><?php endif; ?>
+        <?php if ($a['status'] === 'found' && trim((string) ($a['letter'] ?? '')) !== ''): ?><span class="a-job-letter-flag">Letter ready</span><?php endif; ?>
       </p>
     </div>
     <?php if ($a['url'] !== ''): ?>

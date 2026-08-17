@@ -74,6 +74,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['add'] ?? '') === 'direct') {
     }
     $in = json_decode($raw, true);
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $in = json_decode((string) file_get_contents('php://input'), true);
+} else {
+    http_response_code(405);
+    echo json_encode(['error' => 'method not allowed']);
+    exit;
+}
+if (!is_array($in)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'body must be JSON']);
+    exit;
+}
 
 $field = fn(string $name, int $max) => mb_substr(trim((string) ($in[$name] ?? '')), 0, $max);
 $company = $field('company', 190);

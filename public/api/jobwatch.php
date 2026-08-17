@@ -50,7 +50,10 @@ $companies = require APP_DIR . '/jobwatch-companies.php';
         probe dead get skipped and reported as prune candidates. ---- */
 $fixFile = APP_DIR . '/cache/jobwatch-fixes.json';
 $fixes = is_file($fixFile) ? (json_decode((string) @file_get_contents($fixFile), true) ?: []) : [];
-$fixes += ['fixed' => [], 'dead' => [], 'auto' => []];
+$fixes += ['fixed' => [], 'dead' => [], 'auto' => [], 'v' => 1];
+/* v2: heals recorded before the non-empty rule were unreliable. Drop them
+   once and let the prober rebuild the map under the stricter rule. */
+if ((int) $fixes['v'] < 2) { $fixes['fixed'] = []; $fixes['dead'] = []; $fixes['v'] = 2; }
 foreach ($fixes['fixed'] as $slug => $ats) {
     if (isset($companies[$slug])) $companies[$slug] = $ats;
 }
@@ -232,10 +235,14 @@ if ($probeSlugs) {
         [$slug, $ats] = explode('|', $key);
         if (isset($healed[$slug])) continue;
         $data = json_decode($raw, true);
+        /* A heal must find a NON-EMPTY board: several ATS APIs answer an
+           unknown slug with 200 and an empty list, and accepting that
+           silently pointed half the watchlist at nothing (Aug 17). A real
+           company with zero openings just stays un-healed, harmlessly. */
         $valid = match ($ats) {
-            'greenhouse', 'ashby' => is_array($data['jobs'] ?? null),
-            'lever' => is_array($data) && ($data === [] || isset($data[0])), // list check, PHP 8.0 safe
-            'smartrecruiters' => is_array($data['content'] ?? null),
+            'greenhouse', 'ashby' => !empty($data['jobs']) && is_array($data['jobs']),
+            'lever' => is_array($data) && isset($data[0]),
+            'smartrecruiters' => !empty($data['content']) && is_array($data['content']),
         };
         if ($valid) {
             $healed[$slug] = $ats;

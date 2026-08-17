@@ -8,6 +8,8 @@
 <?php else: ?>
 
 <p class="a-sub">First-party log: no cookies, no IP addresses, no client scripts.
+People = distinct human visitors per day (a daily-rotating digest, never an IP);
+hits = their page views. Scanners probing for WordPress and the like count as bots.
 A human visit with a job-board or corporate referrer means someone is actually looking.
 Times are US&nbsp;Central.</p>
 
@@ -17,12 +19,13 @@ Times are US&nbsp;Central.</p>
 <?php else: ?>
 <div class="a-table-scroll">
 <table class="a-traffic-table">
-  <thead><tr><th>Day</th><th>Humans</th><th>Bots</th><th>You</th></tr></thead>
+  <thead><tr><th>Day</th><th>People</th><th>Hits</th><th>Bots</th><th>You</th></tr></thead>
   <tbody>
     <?php foreach ($days as $d): ?>
     <tr>
       <td><?= esc(nice_date($d['d'])) ?></td>
-      <td><strong><?= (int) $d['humans'] ?></strong></td>
+      <td><strong><?= (int) $d['people'] ?></strong></td>
+      <td class="a-count"><?= (int) $d['humans'] ?></td>
       <td class="a-count"><?= (int) $d['bots'] ?></td>
       <td class="a-count"><?= (int) $d['self'] ?></td>
     </tr>

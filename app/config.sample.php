@@ -30,6 +30,9 @@ return [
     // its finds through it). Any long random string; leave it out to keep
     // the endpoint disabled. Never commit the real value.
     // 'jobtracker_key' => 'change-me',
+    // Optional: salt for the daily visitor digest in the traffic log
+    // (falls back to the DB password, which is fine; never leaves the server).
+    // 'visit_salt' => 'change-me-too',
 
     // Contact form.
     'contact' => [

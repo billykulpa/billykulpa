@@ -19,8 +19,8 @@ const CACHE_TTL = 2700; // 45 minutes
 /* TITLE_RX is the wide net (small companies call the top creative seat
    "art director" or "creative manager"); BAR_RX marks the titles that
    clear Billy's bar on their own. Every match carries tier: bar | flag. */
-const TITLE_RX = '/creative\s+director|director[,]?\s+(of\s+)?creative|executive\s+creative|group\s+creative|head\s+of\s+(creative|brand|design|content|marketing\s+creative)|vp[,]?\s+(of\s+)?(creative|brand)|creative\s+(lead|manager)|brand\s+(director|lead)|design\s+director|art\s+director/i';
-const BAR_RX = '/creative\s+director|director[,]?\s+(of\s+)?creative|executive\s+creative|group\s+creative|head\s+of\s+(creative|brand)|vp[,]?\s+(of\s+)?(creative|brand)/i';
+const TITLE_RX = '/creative\s+director|director[,]?\s+(of\s+)?creative|executive\s+creative|group\s+creative|head\s+of\s+(creative|brand|design|content|marketing\s+creative)|vp[,]?\s+(of\s+)?(creative|brand|design)|creative\s+(lead|manager)|brand\s+(director|lead)|design\s+(director|manager)|art\s+director/i';
+const BAR_RX = '/creative\s+director|director[,]?\s+(of\s+)?creative|executive\s+creative|group\s+creative|head\s+of\s+(creative|brand|design)|vp[,]?\s+(of\s+)?(creative|brand|design)|brand\s+director/i';
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Robots-Tag: noindex, nofollow');

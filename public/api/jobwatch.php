@@ -33,16 +33,41 @@ if (($_GET['k'] ?? '') !== JOBWATCH_KEY) {
 
 $cacheDir = APP_DIR . '/cache';
 $cacheFile = $cacheDir . '/jobwatch.json';
-if (empty($_GET['fresh']) && is_file($cacheFile) && (time() - filemtime($cacheFile)) < CACHE_TTL) {
+$lockFile = $cacheDir . '/jobwatch.lock';
+$cacheAge = is_file($cacheFile) ? time() - filemtime($cacheFile) : PHP_INT_MAX;
+$wantFresh = !empty($_GET['fresh']) || $cacheAge >= CACHE_TTL;
+/* One rebuild at a time: a lock younger than 6 minutes means another
+   request is already polling, so just serve what we have. */
+$rebuilding = is_file($lockFile) && (time() - filemtime($lockFile)) < 360;
+
+/* Serve-stale-then-rebuild: whenever a cache exists, answer with it
+   IMMEDIATELY (marked stale if a rebuild is due), close the connection,
+   and only then do the slow poll. Callers never wait on 350 boards; the
+   next request gets the fresh file. Only the very first run (no cache at
+   all) blocks. */
+if (is_file($cacheFile) && (!$wantFresh || $rebuilding)) {
     readfile($cacheFile);
     exit;
 }
+if (is_file($cacheFile)) {
+    $stale = (string) file_get_contents($cacheFile);
+    $stale = preg_replace('/^\{/', '{"stale": true, "rebuilding": true, ', $stale, 1);
+    header('Content-Length: ' . strlen($stale));
+    header('Connection: close');
+    echo $stale;
+    if (function_exists('fastcgi_finish_request')) { fastcgi_finish_request(); }
+    elseif (function_exists('litespeed_finish_request')) { litespeed_finish_request(); }
+    else { @ob_end_flush(); flush(); }
+}
 
 @set_time_limit(300);
-/* Callers on short fetch timeouts (the scheduled run's proxy) often hang up
-   before a fresh poll finishes. Keep going anyway: the cache still gets
-   written, and their next cache-served request picks up the fresh data. */
 ignore_user_abort(true);
+if (!is_dir($cacheDir)) @mkdir($cacheDir);
+@touch($lockFile);
+/* Hard deadline for the whole poll: whatever is done by then gets written.
+   Hostinger kills long scripts; a partial cache beats none. */
+define('POLL_DEADLINE', microtime(true) + 200);
+register_shutdown_function(fn() => @unlink($lockFile));
 $companies = require APP_DIR . '/jobwatch-companies.php';
 
 /* ---- Self-healing slug fixes: previously discovered ATS corrections
@@ -77,11 +102,15 @@ foreach ($companies as $slug => $ats) {
 }
 
 /* ---- Fetch in parallel batches ---- */
-function fetch_all(array $requests, int $batchSize = 40): array
+function fetch_all(array $requests, int $batchSize = 60): array
 {
     $results = [];
     $chunks = array_chunk($requests, $batchSize, true);
     foreach ($chunks as $chunk) {
+        if (defined('POLL_DEADLINE') && microtime(true) > POLL_DEADLINE) {
+            foreach ($chunk as $slug => $_) $results[$slug] = null; // out of time: count as unreachable
+            continue;
+        }
         $mh = curl_multi_init();
         $handles = [];
         foreach ($chunk as $slug => [$ats, $url]) {
@@ -90,8 +119,8 @@ function fetch_all(array $requests, int $batchSize = 40): array
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_MAXREDIRS => 3,
-                CURLOPT_CONNECTTIMEOUT => 4,
-                CURLOPT_TIMEOUT => 8,
+                CURLOPT_CONNECTTIMEOUT => 3,
+                CURLOPT_TIMEOUT => 6,
                 CURLOPT_USERAGENT => 'billykulpa.com job watch (billy@billykulpa.com)',
                 CURLOPT_HTTPHEADER => ['Accept: application/json'],
             ]);
@@ -162,7 +191,7 @@ foreach ($requests as $slug => [$ats, $url]) {
 /* ---- Hacker News "Who is hiring": the monthly startup hiring thread.
         Two-step: find the current thread, then pull its top-level comments.
         This is the small-company channel Billy asked for. ---- */
-foreach (fetch_hn_jobs() as $f) {
+foreach ((microtime(true) < POLL_DEADLINE - 25 ? fetch_hn_jobs() : []) as $f) {
     $f['ats'] = 'aggregator';
     $jobs[] = $f;
 }
@@ -205,7 +234,7 @@ $probeSlugs = [];
 /* If most of the run failed, the network (not the slugs) is the problem:
    skip probing so transient outages don't poison the dead counts. */
 $networkOk = count($errors) < count($requests) * 0.6;
-foreach ($networkOk ? $errors : [] as $err) {
+foreach (($networkOk && microtime(true) < POLL_DEADLINE - 30) ? $errors : [] as $err) {
     $slug = explode(' ', $err)[0];
     if (isset($companies[$slug]) && (int) ($fixes['dead'][$slug] ?? 0) < 2) {
         $probeSlugs[] = $slug;
@@ -274,6 +303,8 @@ usort($jobs, fn($a, $b) => [$a['tier'] !== 'bar', $b['posted']] <=> [$b['tier'] 
 $out = json_encode([
     'generated_at' => date('c'),
     'companies_checked' => count($requests),
+    'poll_seconds' => (int) (200 - (POLL_DEADLINE - microtime(true))),
+    'poll_truncated' => microtime(true) > POLL_DEADLINE,
     'companies_unreachable' => $errors,
     'slug_fixes' => $fixes['fixed'],
     'prune_candidates' => $pruneCandidates,

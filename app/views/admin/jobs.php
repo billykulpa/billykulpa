@@ -1,4 +1,7 @@
-<?php /** @var array $apps */
+<?php /** @var array $apps @var string $show @var array $counts */
+$show = $show ?? 'active';
+$counts = $counts ?? [];
+$filters = ['active' => 'Active', 'closed' => 'Closed', 'all' => 'All'];
 $statusColors = [
   'offer' => 'a-pill--published', 'interview' => 'a-pill--published',
   'callback' => 'a-pill--published', 'applied' => 'a-pill--draft',
@@ -10,8 +13,17 @@ $statusColors = [
   <a class="a-btn" href="/admin/jobs/new">Add application</a>
 </div>
 
+<nav class="a-filters" aria-label="Filter applications">
+  <?php foreach ($filters as $key => $label): ?>
+  <a class="a-filter<?= $show === $key ? ' is-on' : '' ?>"
+     href="/admin/jobs<?= $key === 'active' ? '' : '?show=' . $key ?>"
+     <?= $show === $key ? 'aria-current="page"' : '' ?>><?= $label ?>
+    <span class="a-filter-n"><?= (int) ($counts[$key] ?? 0) ?></span></a>
+  <?php endforeach; ?>
+</nav>
+
 <?php if (!$apps): ?>
-<p class="a-sub">Nothing tracked yet. Add the first one.</p>
+<p class="a-sub"><?= $show === 'closed' ? 'Nothing closed yet.' : ($show === 'active' && ($counts['all'] ?? 0) > 0 ? 'Nothing active right now.' : 'Nothing tracked yet. Add the first one.') ?></p>
 <?php else: ?>
 <div class="a-jobs-list">
   <?php foreach ($apps as $a): ?>

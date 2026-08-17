@@ -34,7 +34,7 @@ if (empty($_GET['fresh']) && is_file($cacheFile) && (time() - filemtime($cacheFi
     exit;
 }
 
-@set_time_limit(180);
+@set_time_limit(300);
 /* Callers on short fetch timeouts (the scheduled run's proxy) often hang up
    before a fresh poll finishes. Keep going anyway: the cache still gets
    written, and their next cache-served request picks up the fresh data. */
@@ -65,7 +65,7 @@ foreach ($companies as $slug => $ats) {
 }
 
 /* ---- Fetch in parallel batches ---- */
-function fetch_all(array $requests, int $batchSize = 20): array
+function fetch_all(array $requests, int $batchSize = 40): array
 {
     $results = [];
     $chunks = array_chunk($requests, $batchSize, true);
@@ -149,7 +149,7 @@ foreach ($requests as $slug => [$ats, $url]) {
         itself: the working provider gets cached and used from then on.
         Slugs that probe dead twice become prune candidates and stop
         being probed. Capped per run to keep response times sane. ---- */
-const PROBE_SLUGS_PER_RUN = 20;
+const PROBE_SLUGS_PER_RUN = 40;
 $allAts = ['greenhouse', 'lever', 'ashby', 'smartrecruiters'];
 $probeSlugs = [];
 /* If most of the run failed, the network (not the slugs) is the problem:

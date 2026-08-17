@@ -166,7 +166,10 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
 /* ==================== Job tracker list ================================= */
 
 /* Status filter tabs: Active (default) / Closed / All. */
-.a-filters { display: flex; gap: 4px; margin-bottom: 14px; }
+.a-filters { display: flex; gap: 4px; margin-bottom: 20px; }
+/* Empty-state copy under the tabs: .a-sub's negative top margin is for
+   sitting under a page heading, not here. */
+.a-filters + .a-sub { margin-top: 0; }
 .a-filter {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 7px 12px; border-radius: 2px;

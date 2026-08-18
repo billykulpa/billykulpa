@@ -13,10 +13,11 @@ trade association (the strategy decks, the identity, the templates, and the
 systems that ship them) and build products on the side.';
 
 $highlights = [
-    'Lead a multidisciplinary creative team closing roughly 500 design tickets a year across a parent brand, two publications, a foundation, and dozens of event subbrands.',
+    "Senior creative seat with final creative authority across a national trade association's family of brands: a parent brand, two publications, a workforce-development foundation, and dozens of event identities.",
+    "Lead a team of print and digital designers and direct creative across the disciplines beyond it: videographers and web developers cross-departmentally, freelance illustrators (or my own illustration), and third-party agencies on large-scale branding work, where I serve as the organization's brand authority.",
     'Own the template system and governance behind an email program of roughly 2,000,000 sends a year: 20-plus templates, staff training, and start-fresh rules that keep licensing and compliance current.',
     'Designed, built, and shipped Restreak (restreak.com), a daily sports trivia game, solo: identity, product design, and hand-built PHP, MySQL, and vanilla JavaScript.',
-    'Led a 30-designer centralized design hub producing branded publications across multiple markets at Lee Enterprises.',
+    "Previously led a 30-person team of designers and illustrators at Lee Enterprises' centralized design hub, and ran all creative for Cleo as the sole in-house creative directing agencies and freelancers.",
     'Early adopter of AI in creative production: generative tools embedded in team workflows, and Claude-assisted development directed by hand-written specs.',
 ];
 
@@ -25,7 +26,8 @@ $experience = [
      'org' => 'Fabricators and Manufacturers Association', 'org_url' => 'https://www.fmamfg.org', 'loc' => 'Elgin, Illinois',
      'points' => [
         'Own all creative output for FMA and its family of brands (The Fabricator, SparkForce, and a full calendar of event subbrands) following the 2023 corporate rebrand: creative quality, brand integrity, and asset standards.',
-        'Lead and develop a multidisciplinary creative team closing roughly 500 design tickets a year, with an emphasis on skill development and creative ownership.',
+        'Lead and coach a team of print and digital designers closing roughly 500 design tickets a year, and direct creative across disciplines beyond the team: videographers and web developers cross-departmentally, and freelance illustrators.',
+        "Serve as the organization's brand authority when third-party agencies are engaged for large-scale branding initiatives: briefing, creative direction, and final approval.",
         'Built the design system and governance behind an email program of roughly 2,000,000 sends a year: a 20-plus-template library, staff training, and rules that keep every send current on licensing, branding, and CASL/GDPR compliance.',
         'Rebranded flagship conferences (including the Advanced Laser Applications Workshop) and carried the identities across print, programmatic, social, and environmental applications season over season.',
         'Championed the adoption of AI technologies, embedding generative AI and automation into creative processes to improve speed, output volume, and ideation.',
@@ -42,15 +44,15 @@ $experience = [
     ['title' => 'Senior Manager, Creative Assets', 'dates' => 'April 2013–January 2018',
      'org' => 'Cleo', 'org_url' => 'https://www.cleo.com', 'loc' => 'Rockford, Illinois',
      'points' => [
-        "Rebuilt Cleo's visual identity from the ground up, establishing a cohesive brand across all customer touchpoints.",
+        "Sole in-house creative: rebuilt Cleo's visual identity from the ground up and owned every customer-facing design output.",
         'Designed and developed the corporate website, including custom CMS functionality supporting cross-departmental contributors.',
         'Produced core brand deliverables, including a logo system, retail website, animated and testimonial videos, and print collateral.',
-        'Oversaw all customer-facing design output and managed both in-house creatives and external vendors.',
+        'Led all major branding initiatives with third-party agencies and directed a network of freelance designers to extend capacity.',
      ]],
     ['title' => 'Deputy Design Director', 'dates' => 'August 2012–April 2013',
      'org' => 'Lee Enterprises', 'org_url' => 'https://lee.net/', 'loc' => 'Munster, Indiana',
      'points' => [
-        'Led a 30-designer team in producing branded publications across multiple markets during a company-wide transition to a centralized design hub.',
+        'Led a 30-person team of designers and illustrators producing branded publications across multiple markets during a company-wide transition to a centralized design hub.',
         'Recruited and developed talent to support rapid departmental growth and evolving production needs.',
         'Directed daily and weekly creative operations, ensuring consistent quality, efficient workflows, and on-time delivery.',
      ]],

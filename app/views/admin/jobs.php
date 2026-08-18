@@ -42,9 +42,9 @@ $statusColors = [
         <span class="a-pill <?= $statusColors[$a['status']] ?? 'a-pill--draft' ?>"><?= esc($a['status']) ?></span>
         <?php if ($a['comp'] !== ''): ?><span><?= esc($a['comp']) ?></span><?php endif; ?>
         <?php if ($a['remote'] !== ''): ?><span><?= esc($a['remote']) ?></span><?php endif; ?>
-        <?php if ($a['applied_on']): ?><span>Applied <?= esc(nice_date($a['applied_on'])) ?></span><?php endif; ?>
         <?php if ($a['status'] === 'found' && trim((string) ($a['letter'] ?? '')) !== ''): ?><span class="a-job-letter-flag">Letter ready</span><?php endif; ?>
       </p>
+      <?php if ($a['applied_on']): ?><p class="a-job-applied">Applied <?= esc(nice_date($a['applied_on'])) ?></p><?php endif; ?>
     </div>
     <?php if ($a['url'] !== ''): ?>
     <a class="a-job-go" href="<?= esc($a['url']) ?>" target="_blank" rel="noopener">Posting&nbsp;&nearr;</a>

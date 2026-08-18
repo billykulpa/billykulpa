@@ -58,17 +58,16 @@
           <p class="mono-label">Identity &middot; Print &middot; Campaigns</p>
         </div>
       </a>
-      <a class="work-card" href="/work/fma-email">
+      <a class="work-card" href="/work/cleo-website-and-brand-development">
         <div class="work-card-media">
-          <img src="/assets/img/email/email-templates-trio.webp"
-               srcset="/assets/img/email/email-templates-trio-800w.webp 800w, /assets/img/email/email-templates-trio-1400w.webp 1400w, /assets/img/email/email-templates-trio.webp 3654w"
-               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw"
-               alt="Three email templates from the FMA library: SparkForce Top Five, Pub Promo, and Fabrinomics" width="3654" height="1200" loading="lazy">
+          <img src="/assets/img/cleo-website-home-sample-960x600.webp"
+               srcset="/assets/img/cleo-website-home-sample-540x338.webp 540w, /assets/img/cleo-website-home-sample-960x600.webp 960w, /assets/img/cleo-website-home-sample-1920x1200.webp 1920w"
+               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw" alt="The redesigned Cleo website hero" width="1920" height="1200" loading="lazy">
         </div>
         <div class="work-card-body">
-          <h3>Email Design at Scale</h3>
-          <p>A template system that lets a two-designer team ship a national association's entire email program.</p>
-          <p class="mono-label">Design systems &middot; Training &middot; Governance</p>
+          <h3>Cleo Website and Brand Development</h3>
+          <p>A B2B software brand rebuilt from the logo up by a one-person creative team: identity, website, video, and print.</p>
+          <p class="mono-label">Identity &middot; Web &middot; Video</p>
         </div>
       </a>
       <a class="work-card" href="/work/supporting-local-music">

@@ -44,16 +44,40 @@
           <p class="mono-label">Identity &middot; Print &middot; Campaigns</p>
         </div>
       </a>
-      <a class="work-card" href="/work/fma-email">
+      <a class="work-card" href="/work/cleo-website-and-brand-development">
         <div class="work-card-media">
-          <img src="/assets/img/email/email-templates-trio.webp"
-               srcset="/assets/img/email/email-templates-trio-800w.webp 800w, /assets/img/email/email-templates-trio-1400w.webp 1400w, /assets/img/email/email-templates-trio.webp 3654w"
-               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw" alt="Three email templates from the FMA library: SparkForce Top Five, Pub Promo, and Fabrinomics" width="3654" height="1200" loading="lazy">
+          <img src="/assets/img/cleo-website-home-sample-960x600.webp"
+               srcset="/assets/img/cleo-website-home-sample-540x338.webp 540w, /assets/img/cleo-website-home-sample-960x600.webp 960w, /assets/img/cleo-website-home-sample-1920x1200.webp 1920w"
+               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw" alt="The redesigned Cleo website hero" width="1920" height="1200" loading="lazy">
         </div>
         <div class="work-card-body">
-          <h3>Email Design at Scale</h3>
-          <p>A template system behind a national association's entire email program.</p>
-          <p class="mono-label">Design systems &middot; Training &middot; Governance</p>
+          <h3>Cleo Website and Brand Development</h3>
+          <p>A B2B software brand rebuilt from the logo up by a one-person creative team: identity, website, video, and print.</p>
+          <p class="mono-label">Identity &middot; Web &middot; Video</p>
+        </div>
+      </a>
+      <a class="work-card" href="/work/netreo-website-development-and-brand-rebuild">
+        <div class="work-card-media">
+          <img src="/assets/img/netreo-website-home-sample-960x640.webp"
+               srcset="/assets/img/netreo-website-home-sample-540x360.webp 540w, /assets/img/netreo-website-home-sample-960x640.webp 960w, /assets/img/netreo-website-home-sample-1920x1280.webp 1920w"
+               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw" alt="The redesigned Netreo website hero" width="1920" height="1280" loading="lazy">
+        </div>
+        <div class="work-card-body">
+          <h3>Netreo Website and Brand Rebuild</h3>
+          <p>A new logo, identity system, and website for an IT-monitoring software company.</p>
+          <p class="mono-label">Identity &middot; Web &middot; B2B</p>
+        </div>
+      </a>
+      <a class="work-card" href="/work/meshiq-website-development-and-brand-rebuild">
+        <div class="work-card-media">
+          <img src="/assets/img/meshiq-website-home-sample-960x828.webp"
+               srcset="/assets/img/meshiq-website-home-sample-540x466.webp 540w, /assets/img/meshiq-website-home-sample-960x828.webp 960w, /assets/img/meshiq-website-home-sample-1920x1656.webp 1920w"
+               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw" alt="The redesigned MeshIQ website hero" width="1920" height="1656" loading="lazy">
+        </div>
+        <div class="work-card-body">
+          <h3>MeshIQ Website and Brand Rebuild</h3>
+          <p>Logo, identity, and website for a middleware observability company, from rejected sketches to launch.</p>
+          <p class="mono-label">Identity &middot; Web &middot; B2B</p>
         </div>
       </a>
       <a class="work-card" href="/work/supporting-local-music">
@@ -93,7 +117,11 @@
     </div>
     <?php
     $archive = json_decode(file_get_contents(__DIR__ . '/../work-archive.json'), true);
-    unset($archive['alaw-rebrand']); // featured above — keep it out of the archive list
+    // Featured above — keep them out of the archive list.
+    unset($archive['alaw-rebrand'], $archive['cleo-website-and-brand-development'],
+          $archive['netreo-website-development-and-brand-rebuild'], $archive['meshiq-website-development-and-brand-rebuild']);
+    // Retired from the featured grid but still a full case study at its own route.
+    $archive['fma-email'] = ['client' => 'FMA', 'completed' => '2025', 'title' => 'Email Design at Scale'];
     uasort($archive, fn($a, $b) => strcmp($b['completed'], $a['completed'])); // newest first
     ?>
     <div class="notes-list archive-list">

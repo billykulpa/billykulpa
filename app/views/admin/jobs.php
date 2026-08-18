@@ -40,6 +40,7 @@ $statusColors = [
       </p>
       <p class="a-job-meta">
         <span class="a-pill <?= $statusColors[$a['status']] ?? 'a-pill--draft' ?>"><?= esc($a['status']) ?></span>
+        <?php if (str_starts_with((string) ($a['notes'] ?? ''), '[auto]')): ?><span class="a-pill a-pill--auto" title="Filed automatically by jobwatch from the live ATS board">auto</span><?php endif; ?>
         <?php if ($a['comp'] !== ''): ?><span><?= esc($a['comp']) ?></span><?php endif; ?>
         <?php if ($a['remote'] !== ''): ?><span><?= esc($a['remote']) ?></span><?php endif; ?>
         <?php if ($a['status'] === 'found' && trim((string) ($a['letter'] ?? '')) !== ''): ?><span class="a-job-letter-flag">Letter ready</span><?php endif; ?>

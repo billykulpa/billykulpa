@@ -21,7 +21,7 @@ return [
     // Fintech (the Bankrate/Fabrinomics lane)
     'stripe' => 'greenhouse', 'plaid' => 'lever', 'affirm' => 'greenhouse',
     'chime' => 'greenhouse', 'brex' => 'greenhouse', 'ramp' => 'ashby',
-    'mercury' => 'greenhouse', 'coinbase' => 'greenhouse', 'kraken' => 'lever',
+    'mercury' => 'greenhouse', 'coinbase' => 'greenhouse', 'kraken.com' => 'ashby', 'phantom' => 'ashby',
     'robinhood' => 'greenhouse', 'wealthsimple' => 'lever', 'nerdwallet' => 'greenhouse',
     'creditkarma' => 'greenhouse', 'sofi' => 'greenhouse', 'marqeta' => 'greenhouse',
     'billcom' => 'greenhouse', 'gusto' => 'greenhouse', 'deel' => 'ashby',
@@ -90,6 +90,7 @@ return [
     'togetherai' => 'greenhouse', 'mistral' => 'lever', 'characterai' => 'ashby',
     'heygen' => 'ashby', 'captions' => 'ashby', 'descript' => 'greenhouse',
     'wandb' => 'lever', 'statsig' => 'ashby', 'clay' => 'ashby', 'attio' => 'ashby',
+    'convex-dev' => 'ashby', 'jump-app' => 'ashby', 'audiohook' => 'ashby', 'goodparty' => 'ashby',
 
     // Dev tools / data (complex-technical lane, round two)
     'sentry' => 'greenhouse', 'newrelic' => 'greenhouse', 'honeycomb' => 'greenhouse',

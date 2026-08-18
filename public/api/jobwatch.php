@@ -298,6 +298,75 @@ if ($probeSlugs) {
 
 $pruneCandidates = array_keys(array_filter($fixes['dead'], fn($n) => $n >= 2));
 
+/* ---- Auto-file into the job tracker. The server already knows which
+        matches are live, bar-tier, and remote-US, so it writes them into
+        the applications table as "found" rows itself: no sandbox, no
+        proxy, nothing for Billy to copy. Rows it filed carry a "[auto]"
+        note prefix; when one of those postings later disappears from a
+        board that was reachable this run, the row is retired to
+        "abandoned" with a closed date, so dead links stop reaching him.
+        Everything here is best-effort: the poll never fails because of it. ---- */
+$autoFiled = [];
+$autoRetired = [];
+try {
+    require_once APP_DIR . '/db.php';
+    $pdo = db();
+    $rows = $pdo->query('SELECT id, company, role, url, status, notes FROM applications')->fetchAll();
+    $norm = fn(string $x) => preg_replace('/[^a-z0-9]/', '', strtolower($x));
+    $trackedUrls = [];
+    $trackedCos = [];
+    foreach ($rows as $r) {
+        if ($r['url'] !== '') $trackedUrls[$r['url']] = true;
+        $trackedCos[$norm($r['company'])] = true;
+    }
+    $usRx = '/remote|anywhere|united states|\bUSA?\b/i';
+    $notUsRx = '/canada|\buk\b|united kingdom|europe|emea|latam|brazil|argentina|mexico|colombia|chile|india|australia|\bau\b|singapore|london|philippines|germany|poland|ireland|spain|portugal|netherlands|france|toronto|vancouver|montreal/i';
+    $skipTitleRx = '/experiential|\bevent|trade ?show|contract|temporary|freelance|intern/i';
+    $avoidCos = ['jackmortonworldwide'];
+    $liveUrls = [];
+    $reachable = [];
+    foreach ($requests as $slug => [$ats, $u]) {
+        if (!str_starts_with($ats, 'aggregator') && ($responses[$slug] ?? null) !== null) $reachable[$slug] = true;
+    }
+    foreach ($jobs as $j) {
+        $url = (string) ($j['url'] ?? '');
+        if ($url !== '') $liveUrls[$url] = true;
+        if (($j['tier'] ?? '') !== 'bar') continue;
+        $loc = (string) ($j['location'] ?? '');
+        if (!preg_match($usRx, $loc) || preg_match($notUsRx, $loc)) continue;
+        if (preg_match($skipTitleRx, (string) $j['title'])) continue;
+        $co = (string) ($j['company'] ?? '');
+        if ($co === '' || in_array(strtolower($co), $avoidCos, true)) continue;
+        if ($url === '' || isset($trackedUrls[$url]) || isset($trackedCos[$norm($co)])) continue;
+        $pretty = ($j['ats'] === 'aggregator') ? $co : ucwords(str_replace(['-', '_'], ' ', $co));
+        $note = '[auto] Filed by jobwatch ' . date('Y-m-d') . ' from ' . $j['ats'] . '; live on the board at filing. Location: ' . $loc . '.';
+        $stmt = $pdo->prepare('INSERT INTO applications (company, role, comp, remote, url, status, applied_on, notes, letter)
+                               VALUES (?,?,?,?,?, "found", NULL, ?, NULL)');
+        $stmt->execute([mb_substr($pretty, 0, 190), mb_substr((string) $j['title'], 0, 190),
+                        mb_substr((string) ($j['salary'] ?? ''), 0, 190), mb_substr($loc, 0, 190), mb_substr($url, 0, 500), $note]);
+        $trackedUrls[$url] = true;
+        $trackedCos[$norm($co)] = true;
+        $autoFiled[] = ['company' => $pretty, 'title' => $j['title'], 'url' => $url];
+    }
+    /* Retire auto rows whose posting vanished from a board we reached this run. */
+    foreach ($rows as $r) {
+        if ($r['status'] !== 'found' || !str_starts_with((string) $r['notes'], '[auto]')) continue;
+        if (isset($liveUrls[$r['url']])) continue;
+        if (!preg_match('/from (greenhouse|lever|ashby|smartrecruiters)/', (string) $r['notes'])) continue; // aggregator rows: feeds rotate, don't retire
+        $slug = null;
+        foreach (array_keys($companies) as $c) {
+            $u = strtolower($r['url']);
+            if (str_contains($u, '/' . $c . '/') || str_contains($u, '//' . $c . '.') || str_contains($u, '.' . $c . '.') || str_contains($u, '/' . $c . '?')) { $slug = $c; break; }
+        }
+        if ($slug === null || empty($reachable[$slug])) continue;
+        $stmt = $pdo->prepare('UPDATE applications SET status = "abandoned", notes = CONCAT(notes, ?) WHERE id = ?');
+        $stmt->execute([' Closed: gone from the board ' . date('Y-m-d') . '.', $r['id']]);
+        $autoRetired[] = ['company' => $r['company'], 'title' => $r['role']];
+    }
+} catch (Throwable $e) {
+    // Tracker unavailable or schema mismatch: the poll still answers.
+}
+
 usort($jobs, fn($a, $b) => [$a['tier'] !== 'bar', $b['posted']] <=> [$b['tier'] !== 'bar', $a['posted']]);
 
 $out = json_encode([
@@ -309,6 +378,8 @@ $out = json_encode([
     'slug_fixes' => $fixes['fixed'],
     'prune_candidates' => $pruneCandidates,
     'harvested_this_run' => $harvested,
+    'auto_filed' => $autoFiled,
+    'auto_retired' => $autoRetired,
     'auto_watchlist' => $fixes['auto'],
     'matches' => $jobs,
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

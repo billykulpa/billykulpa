@@ -44,7 +44,7 @@ $experience = [
     ['title' => 'Senior Manager, Creative Assets', 'dates' => 'April 2013–January 2018',
      'org' => 'Cleo', 'org_url' => 'https://www.cleo.com', 'loc' => 'Rockford, Illinois',
      'points' => [
-        "Sole in-house creative: rebuilt Cleo's visual identity from the ground up and owned every customer-facing design output.",
+        "Sole in-house creative: rebuilt Cleo's visual identity from the ground up and owned every customer-facing design output in both print and digital environments. I designed, built, and deployed every asset, from trade show materials to the website to the email lead-generation program.",
         'Designed and developed the corporate website, including custom CMS functionality supporting cross-departmental contributors.',
         'Produced core brand deliverables, including a logo system, retail website, animated and testimonial videos, and print collateral.',
         'Led all major branding initiatives with third-party agencies and directed a network of freelance designers to extend capacity.',

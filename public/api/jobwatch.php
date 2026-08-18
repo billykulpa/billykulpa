@@ -200,7 +200,7 @@ foreach ((microtime(true) < POLL_DEADLINE - 25 ? fetch_hn_jobs() : []) as $f) {
         flag (art director / creative manager / lead: a look, not a file). */
 foreach ($jobs as &$j) {
     $t = $j['title'] ?? '';
-    $j['tier'] = (preg_match(BAR_RX, $t) && !preg_match('/associate|assistant|junior|intern|freelance|contract/i', $t)) ? 'bar' : 'flag';
+    $j['tier'] = (preg_match(BAR_RX, $t) && !preg_match('/associate|assistant|junior|intern|freelance|contract|operations|production|producer|project|program/i', $t)) ? 'bar' : 'flag';
 }
 unset($j);
 
@@ -319,8 +319,15 @@ try {
         if ($r['url'] !== '') $trackedUrls[$r['url']] = true;
         $trackedCos[$norm($r['company'])] = true;
     }
-    $usRx = '/remote|anywhere|united states|\bUSA?\b/i';
     $notUsRx = '/canada|\buk\b|united kingdom|europe|emea|latam|brazil|argentina|mexico|colombia|chile|india|australia|\bau\b|singapore|london|philippines|germany|poland|ireland|spain|portugal|netherlands|france|toronto|vancouver|montreal/i';
+    /* Remote-US means: says remote/anywhere, or is nothing but a country
+       ("United States", "US", "USA"). A city list is an office, even when
+       it ends in "USA". */
+    $isRemoteUs = function (string $loc) use ($notUsRx): bool {
+        if (preg_match($notUsRx, $loc)) return false;
+        if (preg_match('/remote|anywhere|distributed|work from home|wfh/i', $loc)) return true;
+        return (bool) preg_match('/^\s*(united states( of america)?|usa?|us-based|us only)\s*$/i', $loc);
+    };
     $skipTitleRx = '/experiential|\bevent|trade ?show|contract|temporary|freelance|intern/i';
     $avoidCos = ['jackmortonworldwide'];
     $liveUrls = [];
@@ -333,7 +340,7 @@ try {
         if ($url !== '') $liveUrls[$url] = true;
         if (($j['tier'] ?? '') !== 'bar') continue;
         $loc = (string) ($j['location'] ?? '');
-        if (!preg_match($usRx, $loc) || preg_match($notUsRx, $loc)) continue;
+        if (!$isRemoteUs($loc)) continue;
         if (preg_match($skipTitleRx, (string) $j['title'])) continue;
         $co = (string) ($j['company'] ?? '');
         if ($co === '' || in_array(strtolower($co), $avoidCos, true)) continue;
@@ -348,9 +355,18 @@ try {
         $trackedCos[$norm($co)] = true;
         $autoFiled[] = ['company' => $pretty, 'title' => $j['title'], 'url' => $url];
     }
-    /* Retire auto rows whose posting vanished from a board we reached this run. */
+    /* Retire auto rows whose posting vanished from a board we reached this run,
+       and auto rows whose stored location fails the remote-US rule (a city
+       list that slipped through an earlier version of the rule). */
+    $rows = $pdo->query('SELECT id, company, role, url, status, notes, remote FROM applications')->fetchAll();
     foreach ($rows as $r) {
         if ($r['status'] !== 'found' || !str_starts_with((string) $r['notes'], '[auto]')) continue;
+        if (!$isRemoteUs((string) $r['remote'])) {
+            $stmt = $pdo->prepare('UPDATE applications SET status = "abandoned", notes = CONCAT(notes, ?) WHERE id = ?');
+            $stmt->execute([' Retired ' . date('Y-m-d') . ': location is not remote-US.', $r['id']]);
+            $autoRetired[] = ['company' => $r['company'], 'title' => $r['role'], 'reason' => 'not remote-US'];
+            continue;
+        }
         if (isset($liveUrls[$r['url']])) continue;
         if (!preg_match('/from (greenhouse|lever|ashby|smartrecruiters)/', (string) $r['notes'])) continue; // aggregator rows: feeds rotate, don't retire
         $slug = null;

@@ -113,6 +113,16 @@ switch (true) {
         render('work-fma-email', ['pg' => $pg, 'nav' => 'work']);
         break;
 
+    case $path === 'work/fma-safety-conference':
+        $pg = page('work/fma-safety-conference');
+        if ($pg['h1'] === '') $pg = [
+            'h1' => 'The 2026 Safety Conference Campaign',
+            'meta_title' => 'FMA Safety Conference 2026 Campaign — Billy Kulpa',
+            'meta_description' => 'An event campaign for FMA\'s 18th annual Safety Conference: the parent brand pushed in one direction, Getty and AI-generated imagery for a shop that doesn\'t quite exist, and a sold-out result.',
+        ];
+        render('work-fma-safety-conference', ['pg' => $pg, 'nav' => 'work']);
+        break;
+
     case $path === 'work/fma-social':
         // Hero and meta are editable in /admin (pages table); these literals
         // are the fallback until the page row exists.

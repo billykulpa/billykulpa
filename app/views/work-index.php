@@ -34,6 +34,18 @@
           <p class="mono-label">Brand systems &middot; Social &middot; Messaging</p>
         </div>
       </a>
+      <a class="work-card" href="/work/fma-safety-conference">
+        <div class="work-card-media">
+          <img src="/assets/img/safety-conference/linkedin-banner-1400w.webp"
+               srcset="/assets/img/safety-conference/linkedin-banner-800w.webp 800w, /assets/img/safety-conference/linkedin-banner-1400w.webp 1400w, /assets/img/safety-conference/linkedin-banner-full.webp 3200w"
+               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw" alt="The Safety Conference LinkedIn banner: a hard hat on a workbench with the stacked wordmark" width="3200" height="1800" loading="lazy">
+        </div>
+        <div class="work-card-body">
+          <h3>The Safety Conference Campaign</h3>
+          <p>FMA pushed in one direction for one event, with Getty and AI-generated imagery for a shop that doesn't quite exist. Sold out.</p>
+          <p class="mono-label">Campaign &middot; Social &middot; AI-assisted imagery</p>
+        </div>
+      </a>
       <a class="work-card" href="/work/alaw-rebrand">
         <div class="work-card-media">
           <img src="/assets/img/portfolio-alaw-2024-cover.svg" alt="The ALAW 2024 rebrand cover" width="688" height="387" loading="lazy">

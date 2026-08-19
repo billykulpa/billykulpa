@@ -24,10 +24,10 @@
     <div class="work-grid">
       <a class="work-card work-card--lead" href="/work/restreak">
         <div class="work-card-media work-card-media--restreak">
-          <img src="/assets/img/restreak/restreak-home-dark.webp"
-               srcset="/assets/img/restreak/restreak-home-dark-900w.webp 900w, /assets/img/restreak/restreak-home-dark-1800w.webp 1800w, /assets/img/restreak/restreak-home-dark.webp 2880w"
+          <img src="/assets/img/restreak/restreak-card.webp"
+               srcset="/assets/img/restreak/restreak-card-900w.webp 900w, /assets/img/restreak/restreak-card-1800w.webp 1800w, /assets/img/restreak/restreak-card.webp 2600w"
                sizes="(min-width: 1180px) 1084px, 100vw"
-               alt="Restreak's daily game screen" width="2880" height="1800" loading="lazy">
+               alt="Restreak key art: the wordmark across a four-color banner over black-and-white sports photos and a stat table" width="2600" height="993" loading="lazy">
         </div>
         <div class="work-card-body">
           <h3>Restreak</h3>

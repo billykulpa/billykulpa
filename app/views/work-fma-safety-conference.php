@@ -75,16 +75,22 @@
         our audience, which is both the 60-year-old owner and the 24-year-old
         he just hired. That photograph is very hard to find in a stock
         library.</p>
-        <p>So the series mixes two sources. Some of these frames are Getty
-        Images, chosen for exactly the mix of people and posture the
-        audience needed. Some are AI-generated, because a generative model,
-        given a narrow enough brief, can produce the still life that no
-        photographer happened to shoot: the right hat on the right bench in
-        the right light, with no logos and no mess. It doesn&rsquo;t always
-        work, and when it does it still needs a designer&rsquo;s eye for
-        what is off. But for a very specific slice of requirements it is a
-        real tool, not a shortcut, and I would rather be plain about using
+        <p>So the series mixes two sources. The frames with people in them
+        are Getty Images, chosen for exactly the mix of faces, ages, and
+        posture the audience needed. The still lifes are AI-generated,
+        because a generative model, given a narrow enough brief, can produce
+        the photograph no one happened to shoot: the right hat on the right
+        bench in the right light, with no logos and no mess. It doesn&rsquo;t
+        always work, and when it does it still needs a designer&rsquo;s eye
+        for what is off. But for a very specific slice of requirements it is
+        a real tool, not a shortcut, and I would rather be plain about using
         it than pretend every frame was found.</p>
+        <p>The job, then, is the part that isn&rsquo;t sourcing at all. Two
+        origins, one set: the same warm shop light, the same depth of field,
+        the same color grade and grain, so that a hard hat from a model and
+        three people from a stock library read as if one photographer shot
+        them on one afternoon. If you can tell which is which, I haven&rsquo;t
+        done my job.</p>
 
         <h2>Every size the plan needed</h2>
         <p>The Instagram series led, but the campaign ran everywhere the
@@ -143,7 +149,7 @@
         <div class="fact-stack">
           <div><dt class="mono-label">The brief</dt><dd>FMA&rsquo;s system, stretched for one event: gold-led, stacked wordmark, the bracket device at every size</dd></div>
           <div><dt class="mono-label">The constraint</dt><dd>Shops that are clean but real, tooling that is nobody&rsquo;s brand, people who are both generations of the audience</dd></div>
-          <div><dt class="mono-label">The sources</dt><dd>Getty Images where the right frame existed; generative AI, heavily briefed and hand-picked, where it didn&rsquo;t</dd></div>
+          <div><dt class="mono-label">The sources</dt><dd>Getty Images for the people; generative AI, heavily briefed and hand-picked, for the still lifes; one grade over both so they read as one shoot</dd></div>
           <div><dt class="mono-label">The result</dt><dd>Sold out with a waitlist; significant growth over 2025</dd></div>
           <div><dt class="mono-label">See also</dt><dd><a href="/work/fma-social">FMA social brand management</a> and <a href="/work/alaw-rebrand">the ALAW rebrand</a></dd></div>
         </div>

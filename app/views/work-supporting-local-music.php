@@ -68,12 +68,29 @@
         so the bands stay the loudest thing on the page.</p>
 
         <figure class="case-fig">
-          <img src="/assets/img/joie-de-vivre/anys-poster.webp"
-               srcset="/assets/img/joie-de-vivre/anys-poster-800w.webp 800w, /assets/img/joie-de-vivre/anys-poster.webp 1224w"
-               sizes="(min-width: 900px) 640px, 100vw"
-               alt="The Anys concert poster: three band wordmarks over a night-sky photo composite, with a figure standing on the roof of a truck under a nebula" width="1224" height="1584" loading="lazy">
-          <figcaption class="mono-label">The 8.5&times;11 poster for the August 29, 2026 show. Draft copy above; Billy, give it a voice pass.</figcaption>
+          <a class="fig-link" href="/assets/img/joie-de-vivre/anys-poster-full.webp">
+            <img src="/assets/img/joie-de-vivre/anys-poster.webp" alt="The Anys concert poster: three band wordmarks over a night-sky photo composite, with a figure standing on the roof of a truck under a nebula" width="1400" height="2164" loading="lazy">
+          </a>
+          <figcaption class="mono-label">The 11&times;17 poster (also run at 8.5&times;11). Printed in CMYK; click for full size.</figcaption>
         </figure>
+
+        <p>Same drill as before: the layout was rebuilt for the social formats
+        rather than cropped, with the show details moving beside the bands
+        where the wide frame has room for them.</p>
+
+        <div class="fig-row">
+          <figure class="case-fig">
+            <img src="/assets/img/joie-de-vivre/anys-instagram.webp" alt="The Instagram adaptation of The Anys poster" width="2160" height="2880" loading="lazy">
+            <figcaption class="mono-label">Instagram, 4:5.</figcaption>
+          </figure>
+          <figure class="case-fig">
+            <img src="/assets/img/joie-de-vivre/anys-facebook.webp"
+                 srcset="/assets/img/joie-de-vivre/anys-facebook-800w.webp 800w, /assets/img/joie-de-vivre/anys-facebook-1400w.webp 1400w, /assets/img/joie-de-vivre/anys-facebook.webp 3840w"
+                 sizes="(min-width: 900px) 420px, 100vw"
+                 alt="The Facebook event adaptation of The Anys poster" width="3840" height="2010" loading="lazy">
+            <figcaption class="mono-label">Facebook event header.</figcaption>
+          </figure>
+        </div>
 
         <h2>Career retrospective cassette release</h2>
         <p>The second project was packaging for

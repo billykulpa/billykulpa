@@ -14,7 +14,7 @@
 <section class="section">
   <div class="wrap">
     <dl class="case-meta">
-      <div><dt class="mono-label">Client</dt><dd>Joie de Vivre, Rockford, Illinois</dd></div>
+      <div><dt class="mono-label">Client</dt><dd>Joie de Vivre and The Anys, Rockford, Illinois</dd></div>
       <div><dt class="mono-label">Role</dt><dd>Design, illustration, layout</dd></div>
       <div><dt class="mono-label">Tools</dt><dd>Adobe Illustrator and Photoshop</dd></div>
       <div><dt class="mono-label">Completed</dt><dd>2025&ndash;26</dd></div>
@@ -56,6 +56,24 @@
             <figcaption class="mono-label">Facebook event header.</figcaption>
           </figure>
         </div>
+
+        <h2>The Anys at Mary&rsquo;s Place</h2>
+        <p>Word gets around. After the Joie poster, The Anys asked for one for
+        their August 29, 2026 show at Mary&rsquo;s Place with Track &amp; Field
+        and Mana Kintorso. Three bands, three existing wordmarks in three
+        different voices (brush lettering, a looping ampersand, a stencil),
+        so the job was to give them a sky big enough to share: a night-sky
+        photo composite with a lone figure on the roof of a truck, and the
+        show details set in a small dot-matrix face at the top and bottom
+        so the bands stay the loudest thing on the page.</p>
+
+        <figure class="case-fig">
+          <img src="/assets/img/joie-de-vivre/anys-poster.webp"
+               srcset="/assets/img/joie-de-vivre/anys-poster-800w.webp 800w, /assets/img/joie-de-vivre/anys-poster.webp 1224w"
+               sizes="(min-width: 900px) 640px, 100vw"
+               alt="The Anys concert poster: three band wordmarks over a night-sky photo composite, with a figure standing on the roof of a truck under a nebula" width="1224" height="1584" loading="lazy">
+          <figcaption class="mono-label">The 8.5&times;11 poster for the August 29, 2026 show. Draft copy above; Billy, give it a voice pass.</figcaption>
+        </figure>
 
         <h2>Career retrospective cassette release</h2>
         <p>The second project was packaging for

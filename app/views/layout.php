@@ -26,18 +26,7 @@ if (!empty($_COOKIE[config()['session_name']])) { $qa_user = current_user(); }
   <link rel="preload" href="/assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/main.css?v=<?= @filemtime(public_dir() . '/assets/css/main.css') ?: 0 ?>">
-  <?php // Google Analytics — skipped on local dev so test traffic stays out of the numbers.
-        $ga_host = $_SERVER['HTTP_HOST'] ?? '';
-        if (!str_starts_with($ga_host, '127.0.0.1') && !str_starts_with($ga_host, 'localhost')): ?>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5BPH0BCRWF"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-5BPH0BCRWF');
-  </script>
-  <?php endif; ?>
+  <?php // Analytics: first-party visit log only (app/visits.php). Google Analytics removed Aug 2026; the property keeps its history. ?>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>

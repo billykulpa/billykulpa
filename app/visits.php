@@ -2,11 +2,12 @@
 /**
  * First-party visit log — the "did a recruiter actually look?" ledger.
  *
- * Logs path, referrer, and user agent for public page views. No IP address,
- * no cookies, no client-side JavaScript, so there's nothing to disclose and
- * nothing for PageSpeed to count. Visits are classed at write time:
- *   0 = human, 1 = bot, 2 = self (the admin session cookie is present, so
- *   it's almost certainly Billy browsing his own site).
+ * Logs path, referrer, user agent, and an optional ?via= tag for public page
+ * views. No IP address is stored, no cookie is set on visitors, and the
+ * only client script is a one-line beacon (see below). Visits are classed
+ * at write time:
+ *   0 = human, 1 = bot, 2 = self (admin session cookie, or the long-lived
+ *   "this device is me" cookie set from /admin/traffic).
  *
  * "Bot" is decided by more than the user-agent string, because most scrapers
  * and vulnerability scanners send a plain Chrome UA:
@@ -19,10 +20,20 @@
  * Distinct visitors: each row carries vhash, a 16-hex-char digest of
  * (daily salt + IP + UA). The IP is never stored, and the salt rotates each
  * day, so the hash can dedupe one visitor's page views within a day but
- * can't follow anyone across days. The traffic page counts people, not hits.
+ * can't follow anyone across days. The traffic page groups rows into
+ * sessions (same vhash, gaps under 30 minutes).
+ *
+ * Verified: the page fires a tiny beacon to /api/ping.php after load.
+ * Scrapers don't run scripts; browsers do. The ping marks that visitor's
+ * rows from the last 30 minutes verified=1. So "sessions" is the ceiling
+ * and "verified sessions" is the floor; the truth sits between.
+ *
+ * via: a short tag from ?via=<tag> (e.g. the link on a resume sent to one
+ * company), stored on the landing row and attributed to the whole session
+ * at report time. This is how "did Render open the link?" gets answered.
  *
  * Rows older than 90 days are pruned opportunistically (~1% of requests).
- * Every failure mode is swallowed: if the visits table doesn't exist yet
+ * Every failure mode is swallowed: if the visits table lacks a column yet
  * (code deploys before SQL runs), the public site must not care.
  */
 
@@ -33,6 +44,22 @@ const VISIT_BOT_RX = '/bot|crawl|spider|slurp|bingpreview|facebookexternalhit|he
 /* Paths that only scanners ask for. Even when one of these 200s (it won't),
    nobody typing it is a recruiter. */
 const VISIT_PROBE_RX = '~\.(php|env|git|aws|sql|bak|old|zip|tar|gz|xml|txt|yml|yaml|json|ini|log|asp|aspx|jsp|cgi)$|wp-|wordpress|xmlrpc|phpmyadmin|/admin|/vendor/|/\.|cgi-bin|/config|/backup|/console|/actuator|/telescope|/debug~i';
+
+const VISIT_ME_COOKIE = 'bk_me';
+
+/** The daily-rotating visitor digest for the current request. */
+function visit_hash(): string
+{
+    $cfg = config();
+    $salt = (string) ($cfg['visit_salt'] ?? ($cfg['db']['pass'] ?? 'bk')) . gmdate('Y-m-d');
+    $ua = substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255);
+    return substr(hash('sha256', $salt . ($_SERVER['REMOTE_ADDR'] ?? '') . $ua), 0, 16);
+}
+
+function visit_is_self(): bool
+{
+    return !empty($_COOKIE[config()['session_name'] ?? '']) || !empty($_COOKIE[VISIT_ME_COOKIE]);
+}
 
 function log_visit(string $path): void
 {
@@ -48,6 +75,7 @@ function log_visit_now(string $path): void
     $accept = (string) ($_SERVER['HTTP_ACCEPT'] ?? '');
     $lang = (string) ($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
     $status = (int) http_response_code();
+    $via = substr(preg_replace('/[^a-z0-9_-]/', '', strtolower((string) ($_GET['via'] ?? ''))), 0, 40);
 
     $who = 0; // human
     if ($ua === ''
@@ -58,24 +86,20 @@ function log_visit_now(string $path): void
         || ($accept !== '' && !str_contains($accept, 'text/html') && !str_contains($accept, '*/*'))
     ) {
         $who = 1; // bot
-    } elseif (!empty($_COOKIE[config()['session_name'] ?? ''])) {
-        $who = 2; // self: admin session cookie present
+    } elseif (visit_is_self()) {
+        $who = 2; // self
     }
 
-    /* Daily-rotating visitor digest. Salt = site secret + date, so the same
-       person on the same device is one visitor per day and nothing more. */
-    $cfg = config();
-    $salt = (string) ($cfg['visit_salt'] ?? ($cfg['db']['pass'] ?? 'bk')) . gmdate('Y-m-d');
-    $vhash = substr(hash('sha256', $salt . ($_SERVER['REMOTE_ADDR'] ?? '') . $ua), 0, 16);
+    $vhash = visit_hash();
 
     try {
         try {
+            $stmt = db()->prepare('INSERT INTO visits (path, referrer, ua, who, vhash, via) VALUES (?, ?, ?, ?, ?, ?)');
+            $stmt->execute(['/' . $path, $referrer, $ua, $who, $vhash, $via]);
+        } catch (PDOException $e) {
+            // via column not migrated yet: log without it rather than lose the row.
             $stmt = db()->prepare('INSERT INTO visits (path, referrer, ua, who, vhash) VALUES (?, ?, ?, ?, ?)');
             $stmt->execute(['/' . $path, $referrer, $ua, $who, $vhash]);
-        } catch (PDOException $e) {
-            // vhash column not migrated yet: log without it rather than lose the row.
-            $stmt = db()->prepare('INSERT INTO visits (path, referrer, ua, who) VALUES (?, ?, ?, ?)');
-            $stmt->execute(['/' . $path, $referrer, $ua, $who]);
         }
 
         if (random_int(1, 100) === 1) {
@@ -84,4 +108,65 @@ function log_visit_now(string $path): void
     } catch (Throwable $e) {
         // Table missing or DB hiccup: never let analytics break the site.
     }
+}
+
+/**
+ * Beacon: mark this visitor's recent rows verified. Called by /api/ping.php.
+ * Tolerates the column not existing yet.
+ */
+function visit_verify(): void
+{
+    try {
+        $stmt = db()->prepare('UPDATE visits SET verified = 1 WHERE vhash = ? AND created_at > NOW() - INTERVAL 30 MINUTE');
+        $stmt->execute([visit_hash()]);
+    } catch (Throwable $e) {
+    }
+}
+
+/**
+ * Group raw rows (ordered by created_at ASC) into sessions: same vhash,
+ * gaps under 30 minutes. Returns sessions newest-first with: vhash, who,
+ * start, end, seconds, pages (ordered paths), entry, referrer (first
+ * external), via (first non-empty), verified (any), mobile (UA sniff).
+ */
+function visit_sessions(array $rows): array
+{
+    $open = [];   // vhash => session index
+    $sessions = [];
+    foreach ($rows as $r) {
+        $h = $r['vhash'] ?: ('anon-' . $r['id']);
+        $t = strtotime($r['created_at']);
+        $idx = $open[$h] ?? null;
+        if ($idx === null || $t - $sessions[$idx]['end_ts'] > 1800) {
+            $sessions[] = [
+                'vhash' => $h, 'who' => (int) $r['who'],
+                'start' => $r['created_at'], 'end' => $r['created_at'],
+                'start_ts' => $t, 'end_ts' => $t,
+                'pages' => [], 'entry' => $r['path'],
+                'referrer' => '', 'via' => '', 'verified' => 0,
+                'mobile' => (bool) preg_match('/Mobile|Android|iPhone|iPad/i', (string) $r['ua']),
+            ];
+            $idx = array_key_last($sessions);
+            $open[$h] = $idx;
+        }
+        $s = &$sessions[$idx];
+        $s['pages'][] = $r['path'];
+        $s['end'] = $r['created_at'];
+        $s['end_ts'] = $t;
+        // Session class: self if any row is self; else human if any row is human; else bot.
+        $w = (int) $r['who'];
+        if ($w === 2 || $s['who'] === 2) $s['who'] = 2;
+        elseif ($w === 0 || $s['who'] === 0) $s['who'] = 0;
+        else $s['who'] = 1;
+        if ($s['referrer'] === '' && $r['referrer'] !== '' && !str_contains((string) $r['referrer'], 'billykulpa.com')) $s['referrer'] = (string) $r['referrer'];
+        if ($s['via'] === '' && !empty($r['via'])) $s['via'] = (string) $r['via'];
+        if (!empty($r['verified'])) $s['verified'] = 1;
+        unset($s);
+    }
+    foreach ($sessions as &$s) {
+        $s['seconds'] = max(0, $s['end_ts'] - $s['start_ts']);
+        $s['count'] = count($s['pages']);
+    }
+    unset($s);
+    return array_reverse($sessions);
 }

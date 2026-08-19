@@ -37,6 +37,18 @@
   </div>
   <label class="a-label" for="url">Posting URL</label>
   <input type="text" id="url" name="url" value="<?= esc($app['url']) ?>">
+  <?php if ($app['id']): $tag = slugify($app['company']); $link = 'https://www.billykulpa.com/?via=' . $tag; ?>
+  <div class="a-tagged">
+    <p class="a-label" style="margin-top:18px">Your link for this application</p>
+    <p class="a-tagged-row"><code id="tagged-link"><?= esc($link) ?></code> <button type="button" class="a-btn a-btn--ghost a-copy-mini" data-copy="#tagged-link">Copy</button></p>
+    <p class="a-hint">Put this on the resume and in the form for <?= esc($app['company']) ?>. Opens show up here and on the Traffic page.
+    <?php if (!empty($opens) && (int) $opens['n'] > 0): ?>
+      <strong>Opened <?= (int) $opens['n'] ?>&times;</strong>, last <?= esc(central_time($opens['last'])) ?>; pages read: <?= esc((string) $opens['pages']) ?>.
+    <?php else: ?>
+      Not opened yet.
+    <?php endif; ?></p>
+  </div>
+  <?php endif; ?>
   <label class="a-label" for="notes">Notes</label>
   <textarea id="notes" name="notes"><?= esc($app['notes'] ?? '') ?></textarea>
   <div class="a-letter-head">

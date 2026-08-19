@@ -50,3 +50,15 @@
     t = setTimeout(function () { document.body.classList.remove('a-nav-resizing'); }, 120);
   });
 })();
+
+/* Generic copy buttons: <button data-copy="#selector">. Used for the
+   tagged application link on the job editor. */
+document.querySelectorAll('[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var el = document.querySelector(b.getAttribute('data-copy'));
+    if (!el) return;
+    var text = el.value !== undefined && el.tagName !== 'CODE' ? el.value : el.textContent;
+    var done = function () { var t = b.textContent; b.textContent = 'Copied'; setTimeout(function () { b.textContent = t; }, 1400); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
+  });
+});

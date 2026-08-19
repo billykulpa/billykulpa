@@ -184,7 +184,15 @@ function admin_route(string $route): void
                 if ($c['status'] === 'found') $counts['found'] += (int) $c['n'];
                 $counts[in_array($c['status'], ['denied', 'abandoned'], true) ? 'closed' : 'active'] += (int) $c['n'];
             }
-            render_admin('jobs', ['apps' => $apps, 'show' => $show, 'counts' => $counts, 'title' => 'Job tracker']);
+            // Tagged-link opens per application: via tag = slugified company.
+            $opens = [];
+            try {
+                foreach (db()->query("SELECT via, COUNT(DISTINCT CONCAT(vhash, DATE(created_at))) n, MAX(created_at) last
+                                      FROM visits WHERE via <> '' AND who = 0 GROUP BY via") as $o) {
+                    $opens[$o['via']] = ['n' => (int) $o['n'], 'last' => $o['last']];
+                }
+            } catch (Throwable $e) { /* via column not migrated yet */ }
+            render_admin('jobs', ['apps' => $apps, 'show' => $show, 'counts' => $counts, 'opens' => $opens, 'title' => 'Job tracker']);
             break;
 
         case $route === 'jobs/edit':
@@ -223,7 +231,16 @@ function admin_route(string $route): void
                 $app = $stmt->fetch();
                 $saved = true;
             }
-            render_admin('job-edit', ['app' => $app, 'saved' => $saved,
+            $opens = null;
+            if ($app['id']) {
+                try {
+                    $st = db()->prepare("SELECT COUNT(DISTINCT CONCAT(vhash, DATE(created_at))) n, MAX(created_at) last, GROUP_CONCAT(DISTINCT path ORDER BY path SEPARATOR ', ') pages
+                                         FROM visits WHERE via = ? AND who = 0");
+                    $st->execute([slugify($app['company'])]);
+                    $opens = $st->fetch() ?: null;
+                } catch (Throwable $e) { $opens = null; }
+            }
+            render_admin('job-edit', ['app' => $app, 'saved' => $saved, 'opens' => $opens,
                 'title' => $app['id'] ? 'Edit application' : 'New application']);
             break;
 
@@ -238,37 +255,83 @@ function admin_route(string $route): void
             break;
 
         /* ----------------------------- Traffic ----------------------------- */
-        // First-party visit log (app/visits.php). who: 0 human, 1 bot, 2 self.
+        // First-party visit log (app/visits.php), reported as sessions.
         case $route === 'traffic':
             require_login();
-            $days = $recent = $referrers = [];
-            $tableMissing = false;
+            require_once APP_DIR . '/visits.php';
+            // "This device is me": a long-lived, content-free cookie so an
+            // unlogged browser (the phone) stops counting as a visitor.
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['me'] ?? '') === '1') {
+                verify_csrf();
+                setcookie(VISIT_ME_COOKIE, '1', ['expires' => time() + 86400 * 365, 'path' => '/',
+                    'httponly' => true, 'samesite' => 'Lax', 'secure' => !empty($_SERVER['HTTPS'])]);
+                header('Location: /admin/traffic?me=ok');
+                break;
+            }
+            $isMe = !empty($_COOKIE[VISIT_ME_COOKIE]);
+            $tableMissing = false; $v2 = true;
+            $sessions = []; $days = []; $entries = []; $paths = []; $refs = []; $vias = []; $recent = [];
             try {
-                $off = central_offset_minutes(); // group days by Central time, not server time
-                $days = db()->query(
-                    "SELECT DATE(created_at + INTERVAL {$off} MINUTE) AS d,
-                            COUNT(DISTINCT CASE WHEN who = 0 AND vhash <> '' THEN vhash END) AS people,
-                            SUM(who = 0) AS humans, SUM(who = 1) AS bots, SUM(who = 2) AS self
-                     FROM visits WHERE created_at >= NOW() - INTERVAL 14 DAY
-                     GROUP BY d ORDER BY d DESC"
-                )->fetchAll();
-                $recent = db()->query(
-                    "SELECT path, referrer, created_at FROM visits
-                     WHERE who = 0 ORDER BY created_at DESC LIMIT 50"
-                )->fetchAll();
-                $referrers = db()->query(
-                    "SELECT referrer, COUNT(*) AS n FROM visits
-                     WHERE who = 0 AND referrer <> ''
-                       AND referrer NOT LIKE '%billykulpa.com%'
-                       AND created_at >= NOW() - INTERVAL 30 DAY
-                     GROUP BY referrer ORDER BY n DESC LIMIT 20"
-                )->fetchAll();
+                try {
+                    $rows = db()->query("SELECT id, path, referrer, ua, who, vhash, via, verified, created_at
+                                          FROM visits WHERE created_at >= NOW() - INTERVAL 30 DAY
+                                          ORDER BY created_at ASC")->fetchAll();
+                } catch (PDOException $e) {
+                    $v2 = false; // add-visit-v2.sql not run yet
+                    $rows = db()->query("SELECT id, path, referrer, ua, who, vhash, '' AS via, 0 AS verified, created_at
+                                          FROM visits WHERE created_at >= NOW() - INTERVAL 30 DAY
+                                          ORDER BY created_at ASC")->fetchAll();
+                }
+                $sessions = visit_sessions($rows);
+                $off = central_offset_minutes();
+                $human = array_values(array_filter($sessions, fn($s) => $s['who'] === 0));
+                // Daily table, last 14 days, Central days.
+                $cut = time() - 14 * 86400;
+                foreach ($sessions as $s) {
+                    if ($s['start_ts'] < $cut) continue;
+                    $d = date('Y-m-d', $s['start_ts'] + $off * 60);
+                    $days[$d] ??= ['d' => $d, 'sessions' => 0, 'verified' => 0, 'pages' => 0, 'bots' => 0, 'self' => 0, 'mobile' => 0];
+                    if ($s['who'] === 0) {
+                        $days[$d]['sessions']++; $days[$d]['pages'] += $s['count'];
+                        if ($s['verified']) $days[$d]['verified']++;
+                        if ($s['mobile']) $days[$d]['mobile']++;
+                    } elseif ($s['who'] === 1) $days[$d]['bots']++;
+                    else $days[$d]['self']++;
+                }
+                krsort($days); $days = array_values($days);
+                // Entry pages, paths, referrer domains, via tags: human sessions, 30 days.
+                foreach ($human as $s) {
+                    $entries[$s['entry']] = ($entries[$s['entry']] ?? 0) + 1;
+                    if ($s['count'] >= 2) {
+                        $k = implode(' → ', array_slice($s['pages'], 0, 4));
+                        $paths[$k] = ($paths[$k] ?? 0) + 1;
+                    }
+                    if ($s['referrer'] !== '') {
+                        $host = parse_url($s['referrer'], PHP_URL_HOST) ?: $s['referrer'];
+                        $host = preg_replace('/^(www|m|l|lm)\./', '', $host);
+                        $refs[$host] = ($refs[$host] ?? 0) + 1;
+                    }
+                    if ($s['via'] !== '') {
+                        $vias[$s['via']] ??= ['via' => $s['via'], 'sessions' => 0, 'verified' => 0, 'last' => '', 'pages' => []];
+                        $vias[$s['via']]['sessions']++;
+                        if ($s['verified']) $vias[$s['via']]['verified']++;
+                        if ($s['start'] > $vias[$s['via']]['last']) $vias[$s['via']]['last'] = $s['start'];
+                        foreach ($s['pages'] as $pg) $vias[$s['via']]['pages'][$pg] = true;
+                    }
+                }
+                arsort($entries); arsort($paths); arsort($refs);
+                $entries = array_slice($entries, 0, 12, true);
+                $paths = array_slice($paths, 0, 12, true);
+                $refs = array_slice($refs, 0, 15, true);
+                usort($vias, fn($a, $b) => strcmp($b['last'], $a['last']));
+                $recent = array_slice($human, 0, 40);
             } catch (PDOException $e) {
                 $tableMissing = true;
             }
             render_admin('traffic', [
-                'days' => $days, 'recent' => $recent, 'referrers' => $referrers,
-                'tableMissing' => $tableMissing, 'title' => 'Traffic',
+                'days' => $days, 'entries' => $entries, 'paths' => $paths, 'refs' => $refs, 'vias' => $vias,
+                'recent' => $recent, 'isMe' => $isMe, 'v2' => $v2, 'tableMissing' => $tableMissing,
+                'meOk' => isset($_GET['me']), 'title' => 'Traffic',
             ]);
             break;
 

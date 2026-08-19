@@ -75,7 +75,7 @@ $companies = require APP_DIR . '/jobwatch-companies.php';
         probe dead get skipped and reported as prune candidates. ---- */
 $fixFile = APP_DIR . '/cache/jobwatch-fixes.json';
 $fixes = is_file($fixFile) ? (json_decode((string) @file_get_contents($fixFile), true) ?: []) : [];
-$fixes += ['fixed' => [], 'dead' => [], 'auto' => [], 'v' => 1];
+$fixes += ['fixed' => [], 'dead' => [], 'auto' => [], 'filed' => [], 'v' => 1];
 /* v2: heals recorded before the non-empty rule were unreliable. Drop them
    once and let the prober rebuild the map under the stricter rule. */
 if ((int) $fixes['v'] < 2) { $fixes['fixed'] = []; $fixes['dead'] = []; $fixes['v'] = 2; }
@@ -315,9 +315,13 @@ try {
     $norm = fn(string $x) => preg_replace('/[^a-z0-9]/', '', strtolower($x));
     $trackedUrls = [];
     $trackedCos = [];
+    $filedDirty = false;
     foreach ($rows as $r) {
         if ($r['url'] !== '') $trackedUrls[$r['url']] = true;
         $trackedCos[$norm($r['company'])] = true;
+        if ($r['url'] !== '' && str_starts_with((string) $r['notes'], '[auto]') && !isset($fixes['filed'][$r['url']])) {
+            $fixes['filed'][$r['url']] = 'seeded'; $filedDirty = true;
+        }
     }
     $notUsRx = '/canada|\buk\b|united kingdom|europe|emea|latam|brazil|argentina|mexico|colombia|chile|india|australia|\bau\b|singapore|london|philippines|germany|poland|ireland|spain|portugal|netherlands|france|toronto|vancouver|montreal/i';
     /* Remote-US means: says remote/anywhere, or is nothing but a country
@@ -345,6 +349,8 @@ try {
         $co = (string) ($j['company'] ?? '');
         if ($co === '' || in_array(strtolower($co), $avoidCos, true)) continue;
         if ($url === '' || isset($trackedUrls[$url]) || isset($trackedCos[$norm($co)])) continue;
+        /* Never file the same URL twice, even if Billy deleted the row. */
+        if (isset($fixes['filed'][$url])) continue;
         $pretty = ($j['ats'] === 'aggregator') ? $co : ucwords(str_replace(['-', '_'], ' ', $co));
         $note = '[auto] Filed by jobwatch ' . date('Y-m-d') . ' from ' . $j['ats'] . '; live on the board at filing. Location: ' . $loc . '.';
         $stmt = $pdo->prepare('INSERT INTO applications (company, role, comp, remote, url, status, applied_on, notes, letter)
@@ -353,6 +359,8 @@ try {
                         mb_substr((string) ($j['salary'] ?? ''), 0, 190), mb_substr($loc, 0, 190), mb_substr($url, 0, 500), $note]);
         $trackedUrls[$url] = true;
         $trackedCos[$norm($co)] = true;
+        $fixes['filed'][$url] = date('Y-m-d');
+        $filedDirty = true;
         $autoFiled[] = ['company' => $pretty, 'title' => $j['title'], 'url' => $url];
     }
     /* Retire auto rows whose posting vanished from a board we reached this run,
@@ -378,6 +386,10 @@ try {
         $stmt = $pdo->prepare('UPDATE applications SET status = "abandoned", notes = CONCAT(notes, ?) WHERE id = ?');
         $stmt->execute([' Closed: gone from the board ' . date('Y-m-d') . '.', $r['id']]);
         $autoRetired[] = ['company' => $r['company'], 'title' => $r['role']];
+    }
+    if ($filedDirty) {
+        if (!is_dir($cacheDir)) @mkdir($cacheDir);
+        @file_put_contents($fixFile, json_encode($fixes, JSON_PRETTY_PRINT), LOCK_EX);
     }
 } catch (Throwable $e) {
     // Tracker unavailable or schema mismatch: the poll still answers.

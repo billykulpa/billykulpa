@@ -317,14 +317,31 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
    (after a traffic section heading) it cramps — give it room instead. */
 .a-traffic-h + .a-sub { margin: 0 0 20px; }
 .a-sub { line-height: 1.55; }
-.a-traffic-table { width: 100%; }
-.a-traffic-ref {
-  max-width: 420px;
-  overflow-wrap: anywhere;
-  word-break: break-all;
-}
+/* One column system for every traffic table, so the same kind of column
+   is the same width on every table:
+     .c-key   label / day / tag / source       150px (sticky on small screens)
+     .c-when  timestamp                         136px
+     .c-num   a count or duration                84px
+     .c-text  paths, referrers, page lists       the rest, min 260px
+   Tables scroll sideways on small screens instead of squashing. */
+.a-traffic-table { width: 100%; table-layout: auto; }
+.a-traffic-table .c-key  { width: 150px; min-width: 150px; }
+.a-traffic-table .c-when { width: 136px; min-width: 136px; white-space: nowrap; }
+.a-traffic-table .c-num  { width: 84px;  min-width: 84px; font-variant-numeric: tabular-nums; }
+.a-traffic-table .c-text { min-width: 260px; }
+.a-traffic-table--narrow { min-width: 0; }
+.a-traffic-ref { overflow-wrap: anywhere; word-break: break-word; }
+.a-table-scroll .a-traffic-table { min-width: 560px; }
+.a-table-scroll .a-traffic-table--narrow { min-width: 360px; }
 @media (max-width: 680px) {
-  .a-table-scroll:has(.a-traffic-table) { overflow: visible; }
-  .a-table-scroll .a-traffic-table { min-width: 0; }
-  .a-traffic-table th, .a-traffic-table td { font-size: 13px; padding: 8px 8px 8px 0; }
+  .a-traffic-table th, .a-traffic-table td { font-size: 13px; padding: 8px 10px 8px 0; }
+  .a-traffic-table .c-key:first-child {
+    position: sticky; left: 0; z-index: 1;
+    background: var(--paper);
+    box-shadow: 8px 0 8px -8px rgba(0,0,0,.12);
+  }
+  .a-traffic-table .c-key  { width: 128px; min-width: 128px; }
+  .a-traffic-table .c-when { width: 120px; min-width: 120px; }
+  .a-traffic-table .c-num  { width: 72px;  min-width: 72px; }
+  .a-traffic-table .c-text { min-width: 220px; }
 }

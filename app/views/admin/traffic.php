@@ -35,15 +35,15 @@ Bots and your own devices are excluded from every number except their own column
 <?php else: ?>
 <div class="a-table-scroll">
 <table class="a-traffic-table">
-  <thead><tr><th>Tag</th><th>Sessions</th><th>Verified</th><th>Last seen</th><th>Pages read</th></tr></thead>
+  <thead><tr><th class="c-key">Tag</th><th class="c-num">Sessions</th><th class="c-num">Verified</th><th class="c-when">Last seen</th><th class="c-text">Pages read</th></tr></thead>
   <tbody>
     <?php foreach ($vias as $v): ?>
     <tr>
-      <td><strong><?= esc($v['via']) ?></strong></td>
-      <td><?= (int) $v['sessions'] ?></td>
-      <td class="a-count"><?= (int) $v['verified'] ?></td>
-      <td class="a-count"><?= esc(central_time($v['last'])) ?></td>
-      <td class="a-traffic-ref"><?= esc(implode(', ', array_keys($v['pages']))) ?></td>
+      <td class="c-key"><strong><?= esc($v['via']) ?></strong></td>
+      <td class="c-num"><strong><?= (int) $v['sessions'] ?></strong></td>
+      <td class="c-num a-count"><?= (int) $v['verified'] ?></td>
+      <td class="c-when a-count"><?= esc(central_time($v['last'])) ?></td>
+      <td class="c-text a-traffic-ref"><?= esc(implode(', ', array_keys($v['pages']))) ?></td>
     </tr>
     <?php endforeach; ?>
   </tbody>
@@ -57,17 +57,17 @@ Bots and your own devices are excluded from every number except their own column
 <?php else: ?>
 <div class="a-table-scroll">
 <table class="a-traffic-table">
-  <thead><tr><th>Day</th><th>Sessions</th><th>Verified</th><th>Pages / session</th><th>Mobile</th><th>Bots</th><th>You</th></tr></thead>
+  <thead><tr><th class="c-key">Day</th><th class="c-num">Sessions</th><th class="c-num">Verified</th><th class="c-num">Pages / sess.</th><th class="c-num">Mobile</th><th class="c-num">Bots</th><th class="c-num">You</th></tr></thead>
   <tbody>
     <?php foreach ($days as $d): ?>
     <tr>
-      <td><?= esc(nice_date($d['d'])) ?></td>
-      <td><strong><?= (int) $d['sessions'] ?></strong></td>
-      <td class="a-count"><?= (int) $d['verified'] ?></td>
-      <td class="a-count"><?= $d['sessions'] ? number_format($d['pages'] / $d['sessions'], 1) : '—' ?></td>
-      <td class="a-count"><?= (int) $d['mobile'] ?></td>
-      <td class="a-count"><?= (int) $d['bots'] ?></td>
-      <td class="a-count"><?= (int) $d['self'] ?></td>
+      <td class="c-key"><?= esc(nice_date($d['d'])) ?></td>
+      <td class="c-num"><strong><?= (int) $d['sessions'] ?></strong></td>
+      <td class="c-num a-count"><?= (int) $d['verified'] ?></td>
+      <td class="c-num a-count"><?= $d['sessions'] ? number_format($d['pages'] / $d['sessions'], 1) : '—' ?></td>
+      <td class="c-num a-count"><?= (int) $d['mobile'] ?></td>
+      <td class="c-num a-count"><?= (int) $d['bots'] ?></td>
+      <td class="c-num a-count"><?= (int) $d['self'] ?></td>
     </tr>
     <?php endforeach; ?>
   </tbody>
@@ -79,25 +79,25 @@ Bots and your own devices are excluded from every number except their own column
   <div>
     <h2 class="a-traffic-h">Where sessions start (30 days)</h2>
     <?php if (!$entries): ?><p class="a-sub">Nothing yet.</p><?php else: ?>
-    <table class="a-traffic-table">
+    <div class="a-table-scroll"><table class="a-traffic-table a-traffic-table--narrow">
       <tbody>
         <?php foreach ($entries as $p => $n): ?>
-        <tr><td class="a-traffic-ref"><?= esc($p) ?></td><td><strong><?= (int) $n ?></strong></td></tr>
+        <tr><td class="c-text a-traffic-ref"><?= esc($p) ?></td><td class="c-num"><strong><?= (int) $n ?></strong></td></tr>
         <?php endforeach; ?>
       </tbody>
-    </table>
+    </table></div>
     <?php endif; ?>
   </div>
   <div>
     <h2 class="a-traffic-h">Outside referrers (30 days)</h2>
     <?php if (!$refs): ?><p class="a-sub">No outside referrers yet.</p><?php else: ?>
-    <table class="a-traffic-table">
+    <div class="a-table-scroll"><table class="a-traffic-table a-traffic-table--narrow">
       <tbody>
         <?php foreach ($refs as $h => $n): ?>
-        <tr><td class="a-traffic-ref"><?= esc($h) ?></td><td><strong><?= (int) $n ?></strong></td></tr>
+        <tr><td class="c-text a-traffic-ref"><?= esc($h) ?></td><td class="c-num"><strong><?= (int) $n ?></strong></td></tr>
         <?php endforeach; ?>
       </tbody>
-    </table>
+    </table></div>
     <?php endif; ?>
   </div>
 </div>
@@ -108,7 +108,7 @@ Bots and your own devices are excluded from every number except their own column
 <table class="a-traffic-table">
   <tbody>
     <?php foreach ($paths as $p => $n): ?>
-    <tr><td class="a-traffic-ref"><?= esc($p) ?></td><td><strong><?= (int) $n ?></strong></td></tr>
+    <tr><td class="c-text a-traffic-ref"><?= esc($p) ?></td><td class="c-num"><strong><?= (int) $n ?></strong></td></tr>
     <?php endforeach; ?>
   </tbody>
 </table>
@@ -121,15 +121,15 @@ Bots and your own devices are excluded from every number except their own column
 <?php else: ?>
 <div class="a-table-scroll">
 <table class="a-traffic-table">
-  <thead><tr><th>When</th><th>Pages</th><th>Time</th><th>Came from</th><th></th></tr></thead>
+  <thead><tr><th class="c-when">When</th><th class="c-text">Pages</th><th class="c-num">Time</th><th class="c-key">Came from</th><th class="c-num"></th></tr></thead>
   <tbody>
     <?php foreach ($recent as $s): ?>
     <tr>
-      <td class="a-count"><?= esc(central_time($s['start'])) ?></td>
-      <td class="a-traffic-ref"><?= esc(implode(' → ', $s['pages'])) ?></td>
-      <td class="a-count"><?= $s['count'] > 1 ? esc($fmtDur($s['seconds'])) : '—' ?></td>
-      <td class="a-traffic-ref"><?= $s['via'] !== '' ? '<strong>via ' . esc($s['via']) . '</strong>' : ($s['referrer'] !== '' ? esc(preg_replace('/^(www|m|l|lm)\./', '', parse_url($s['referrer'], PHP_URL_HOST) ?: $s['referrer'])) : '<span class="a-count">direct</span>') ?></td>
-      <td class="a-count"><?= $s['verified'] ? '✓' : '' ?><?= $s['mobile'] ? ' ☎' : '' ?></td>
+      <td class="c-when a-count"><?= esc(central_time($s['start'])) ?></td>
+      <td class="c-text a-traffic-ref"><?= esc(implode(' → ', $s['pages'])) ?></td>
+      <td class="c-num a-count"><?= $s['count'] > 1 ? esc($fmtDur($s['seconds'])) : '—' ?></td>
+      <td class="c-key a-traffic-ref"><?= $s['via'] !== '' ? '<strong>via ' . esc($s['via']) . '</strong>' : ($s['referrer'] !== '' ? esc(preg_replace('/^(www|m|l|lm)\./', '', parse_url($s['referrer'], PHP_URL_HOST) ?: $s['referrer'])) : '<span class="a-count">direct</span>') ?></td>
+      <td class="c-num a-count"><?= $s['verified'] ? '✓' : '' ?><?= $s['mobile'] ? ' ☎' : '' ?></td>
     </tr>
     <?php endforeach; ?>
   </tbody>

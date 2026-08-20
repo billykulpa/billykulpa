@@ -75,7 +75,7 @@ $companies = require APP_DIR . '/jobwatch-companies.php';
         probe dead get skipped and reported as prune candidates. ---- */
 $fixFile = APP_DIR . '/cache/jobwatch-fixes.json';
 $fixes = is_file($fixFile) ? (json_decode((string) @file_get_contents($fixFile), true) ?: []) : [];
-$fixes += ['fixed' => [], 'dead' => [], 'auto' => [], 'filed' => [], 'v' => 1];
+$fixes += ['fixed' => [], 'dead' => [], 'auto' => [], 'filed' => [], 'loc' => [], 'v' => 1];
 /* v2: heals recorded before the non-empty rule were unreliable. Drop them
    once and let the prober rebuild the map under the stricter rule. */
 if ((int) $fixes['v'] < 2) { $fixes['fixed'] = []; $fixes['dead'] = []; $fixes['v'] = 2; }
@@ -308,6 +308,7 @@ $pruneCandidates = array_keys(array_filter($fixes['dead'], fn($n) => $n >= 2));
         Everything here is best-effort: the poll never fails because of it. ---- */
 $autoFiled = [];
 $autoRetired = [];
+$locationFlags = [];
 try {
     require_once APP_DIR . '/db.php';
     $pdo = db();
@@ -343,8 +344,6 @@ try {
         $url = (string) ($j['url'] ?? '');
         if ($url !== '') $liveUrls[$url] = true;
         if (($j['tier'] ?? '') !== 'bar') continue;
-        $loc = (string) ($j['location'] ?? '');
-        if (!$isRemoteUs($loc)) continue;
         if (preg_match($skipTitleRx, (string) $j['title'])) continue;
         $co = (string) ($j['company'] ?? '');
         if ($co === '' || in_array(strtolower($co), $avoidCos, true)) continue;
@@ -352,6 +351,21 @@ try {
         /* Never file the same URL twice, even if Billy deleted the row. */
         if (isset($fixes['filed'][$url])) continue;
         $pretty = ($j['ats'] === 'aggregator') ? $co : ucwords(str_replace(['-', '_'], ' ', $co));
+        $loc = (string) ($j['location'] ?? '');
+        if (!$isRemoteUs($loc)) {
+            /* Office or hybrid bar-tier role: never auto-filed, but Billy
+               would move for the right job, so surface each one ONCE in
+               location_flags (the fixes['loc'] memory stops repeats). The
+               Chime lesson, Aug 2026: a real remote CD role wore a city
+               string on Greenhouse and died unseen behind this filter. */
+            if (!isset($fixes['loc'][$url])) {
+                $fixes['loc'][$url] = date('Y-m-d');
+                $filedDirty = true;
+                $locationFlags[] = ['company' => $pretty, 'title' => (string) $j['title'],
+                                    'location' => $loc, 'salary' => (string) ($j['salary'] ?? ''), 'url' => $url];
+            }
+            continue;
+        }
         $note = '[auto] Filed by jobwatch ' . date('Y-m-d') . ' from ' . $j['ats'] . '; live on the board at filing. Location: ' . $loc . '.';
         $stmt = $pdo->prepare('INSERT INTO applications (company, role, comp, remote, url, status, applied_on, notes, letter)
                                VALUES (?,?,?,?,?, "found", NULL, ?, NULL)');
@@ -408,6 +422,7 @@ $out = json_encode([
     'harvested_this_run' => $harvested,
     'auto_filed' => $autoFiled,
     'auto_retired' => $autoRetired,
+    'location_flags' => $locationFlags,
     'auto_watchlist' => $fixes['auto'],
     'matches' => $jobs,
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

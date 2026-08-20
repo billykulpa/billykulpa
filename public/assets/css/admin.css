@@ -329,6 +329,7 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
 .a-traffic-table .c-when { width: 136px; min-width: 136px; white-space: nowrap; }
 .a-traffic-table .c-num  { width: 84px;  min-width: 84px; font-variant-numeric: tabular-nums; }
 .a-traffic-table .c-text { min-width: 260px; }
+.a-traffic-table .c-icons { font-size: 19px; line-height: 1; letter-spacing: 2px; white-space: nowrap; }
 .a-traffic-table--narrow { min-width: 0; }
 .a-traffic-ref { overflow-wrap: anywhere; word-break: break-word; }
 .a-table-scroll .a-traffic-table { min-width: 560px; }

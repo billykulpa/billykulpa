@@ -400,6 +400,12 @@ function admin_route(string $route): void
                     $error = 'A title is required.';
                 } else {
                     $html = markdown_to_html($md);
+                    /* Clamp to the columns' real limits so a long paste degrades
+                       to truncation instead of a strict-mode save failure. */
+                    $slug = mb_substr($slug, 0, 190);
+                    $title = mb_substr($title, 0, 255);
+                    $metaTitle = mb_substr(trim($_POST['meta_title'] ?? ''), 0, 255);
+                    $metaDesc = mb_substr(trim($_POST['meta_description'] ?? ''), 0, 500);
                     try {
                         if ($post['id']) {
                             $stmt = db()->prepare(
@@ -409,8 +415,7 @@ function admin_route(string $route): void
                                  WHERE id=?'
                             );
                             $stmt->execute([
-                                $slug, $title,
-                                trim($_POST['meta_title'] ?? ''), trim($_POST['meta_description'] ?? ''),
+                                $slug, $title, $metaTitle, $metaDesc,
                                 $md, $html, $status, $status, $post['id'],
                             ]);
                         } else {
@@ -419,8 +424,7 @@ function admin_route(string $route): void
                                  VALUES (?,?,?,?,?,?,?, IF(? = "published", NOW(), NULL))'
                             );
                             $stmt->execute([
-                                $slug, $title,
-                                trim($_POST['meta_title'] ?? ''), trim($_POST['meta_description'] ?? ''),
+                                $slug, $title, $metaTitle, $metaDesc,
                                 $md, $html, $status, $status,
                             ]);
                             $post['id'] = (int) db()->lastInsertId();
@@ -432,7 +436,7 @@ function admin_route(string $route): void
                     } catch (PDOException $e) {
                         $error = str_contains($e->getMessage(), 'Duplicate')
                             ? 'That slug is already in use — pick another.'
-                            : 'Could not save the post.';
+                            : 'Could not save the post. Database said: ' . $e->getMessage();
                         $post = array_merge($post, [
                             'slug' => $slug, 'title' => $title, 'body_md' => $md, 'status' => $status,
                             'meta_title' => trim($_POST['meta_title'] ?? ''),

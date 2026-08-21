@@ -37,7 +37,12 @@
   </div>
   <label class="a-label" for="url">Posting URL</label>
   <input type="text" id="url" name="url" value="<?= esc($app['url']) ?>">
-  <?php if ($app['id']): $tag = slugify($app['company']); $link = 'https://www.billykulpa.com?via=' . $tag; ?>
+  <label class="a-label" for="via">Referral tag</label>
+  <input type="text" id="via" name="via" value="<?= esc($app['via'] ?? '') ?>"
+         placeholder="<?= esc(slugify($app['company'] ?: 'company')) ?>"
+         pattern="[a-z0-9_-]*" title="Lowercase letters, numbers, hyphens, underscores">
+  <p class="a-hint">The exact tag you put after <code>?via=</code> on this application's link. Blank uses the company name. Two applications at one company? Give each its own tag, like <code>instrument-gcd</code> and <code>instrument-acd</code>.</p>
+  <?php if ($app['id']): $tag = ($app['via'] ?? '') !== '' ? $app['via'] : slugify($app['company']); $link = 'https://www.billykulpa.com?via=' . $tag; ?>
   <div class="a-tagged">
     <p class="a-label" style="margin-top:18px">Your link for this application</p>
     <p class="a-tagged-row"><code id="tagged-link"><?= esc($link) ?></code> <button type="button" class="a-btn a-btn--ghost a-copy-mini" data-copy="#tagged-link">Copy</button></p>

@@ -1,4 +1,4 @@
-<?php /** @var array $days @var array $entries @var array $paths @var array $refs @var array $vias @var array $recent @var bool $isMe @var bool $v2 @var bool $tableMissing @var bool $meOk */
+<?php /** @var array $days @var array $entries @var array $paths @var array $refs @var array $vias @var array $viaApps @var array $recent @var bool $isMe @var bool $v2 @var bool $tableMissing @var bool $meOk */
 $fmtDur = function (int $s): string {
   if ($s < 60) return $s . 's';
   return intdiv($s, 60) . 'm ' . ($s % 60) . 's';
@@ -29,7 +29,7 @@ $fmtDur = function (int $s): string {
 Bots and your own devices are excluded from every number except their own columns. Times are US&nbsp;Central.</p>
 
 <h2 class="a-traffic-h">Applications: who opened the link</h2>
-<p class="a-sub">Each application gets its own link, <code>billykulpa.com?via=company</code>, on the resume and in the form. When it's opened, it shows up here and on the application's row in the tracker.</p>
+<p class="a-sub">Each application gets its own link, <code>billykulpa.com?via=tag</code>, on the resume and in the form; the tag is recorded on the application (its Referral tag field), so two roles at one company stay tellable-apart. When a link is opened, it shows up here and on the application's row in the tracker.</p>
 <?php if (!$vias): ?>
 <p class="a-sub">No tagged links opened yet.</p>
 <?php else: ?>
@@ -39,7 +39,10 @@ Bots and your own devices are excluded from every number except their own column
   <tbody>
     <?php foreach ($vias as $v): ?>
     <tr>
-      <td class="c-key"><strong><?= esc($v['via']) ?></strong></td>
+      <td class="c-key"><strong><?= esc($v['via']) ?></strong>
+        <?php foreach (($viaApps ?? [])[$v['via']] ?? [] as $applabel): ?>
+        <span class="a-via-app"><?= esc($applabel) ?></span>
+        <?php endforeach; ?></td>
       <td class="c-num"><strong><?= (int) $v['sessions'] ?></strong></td>
       <td class="c-num a-count"><?= (int) $v['verified'] ?></td>
       <td class="c-when a-count"><?= esc(central_time($v['last'])) ?></td>

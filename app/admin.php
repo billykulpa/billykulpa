@@ -184,7 +184,8 @@ function admin_route(string $route): void
                 if ($c['status'] === 'found') $counts['found'] += (int) $c['n'];
                 $counts[in_array($c['status'], ['denied', 'abandoned'], true) ? 'closed' : 'active'] += (int) $c['n'];
             }
-            // Tagged-link opens per application: via tag = slugified company.
+            // Tagged-link opens per application: the row's own via tag, or the
+            // slugified company when no tag was recorded.
             $opens = [];
             try {
                 foreach (db()->query("SELECT via, COUNT(DISTINCT CONCAT(vhash, DATE(created_at))) n, MAX(created_at) last
@@ -199,7 +200,7 @@ function admin_route(string $route): void
         case $route === 'jobs/new':
             require_login();
             $app = ['id' => 0, 'company' => '', 'role' => '', 'comp' => '', 'remote' => '',
-                    'url' => '', 'status' => 'found', 'applied_on' => null, 'notes' => '', 'letter' => ''];
+                    'url' => '', 'via' => '', 'status' => 'found', 'applied_on' => null, 'notes' => '', 'letter' => ''];
             if ($route === 'jobs/edit') {
                 $stmt = db()->prepare('SELECT * FROM applications WHERE id = ?');
                 $stmt->execute([(int) ($_GET['id'] ?? 0)]);
@@ -209,22 +210,39 @@ function admin_route(string $route): void
             $saved = false;
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 verify_csrf();
+                /* The referral tag is whatever Billy actually put on the link:
+                   same character rules as the logger (visits.php) so the two
+                   always agree. Blank = fall back to the slugified company. */
+                $via = substr(preg_replace('/[^a-z0-9_-]/', '', strtolower(trim($_POST['via'] ?? ''))), 0, 40);
                 $fields = [
                     trim($_POST['company'] ?? ''), trim($_POST['role'] ?? ''),
                     trim($_POST['comp'] ?? ''), trim($_POST['remote'] ?? ''),
-                    trim($_POST['url'] ?? ''),
+                    trim($_POST['url'] ?? ''), $via,
                     in_array($_POST['status'] ?? '', ['found','applied','callback','interview','offer','denied','abandoned'], true) ? $_POST['status'] : 'found',
                     ($_POST['applied_on'] ?? '') !== '' ? $_POST['applied_on'] : null,
                     trim($_POST['notes'] ?? ''),
                     trim($_POST['letter'] ?? ''),
                 ];
-                if ($app['id']) {
-                    $stmt = db()->prepare('UPDATE applications SET company=?, role=?, comp=?, remote=?, url=?, status=?, applied_on=?, notes=?, letter=? WHERE id=?');
-                    $stmt->execute([...$fields, $app['id']]);
-                } else {
-                    $stmt = db()->prepare('INSERT INTO applications (company, role, comp, remote, url, status, applied_on, notes, letter) VALUES (?,?,?,?,?,?,?,?,?)');
-                    $stmt->execute($fields);
-                    $app['id'] = (int) db()->lastInsertId();
+                try {
+                    if ($app['id']) {
+                        $stmt = db()->prepare('UPDATE applications SET company=?, role=?, comp=?, remote=?, url=?, via=?, status=?, applied_on=?, notes=?, letter=? WHERE id=?');
+                        $stmt->execute([...$fields, $app['id']]);
+                    } else {
+                        $stmt = db()->prepare('INSERT INTO applications (company, role, comp, remote, url, via, status, applied_on, notes, letter) VALUES (?,?,?,?,?,?,?,?,?,?)');
+                        $stmt->execute($fields);
+                        $app['id'] = (int) db()->lastInsertId();
+                    }
+                } catch (PDOException $e) {
+                    /* via column not migrated yet: save everything else. */
+                    array_splice($fields, 5, 1);
+                    if ($app['id']) {
+                        $stmt = db()->prepare('UPDATE applications SET company=?, role=?, comp=?, remote=?, url=?, status=?, applied_on=?, notes=?, letter=? WHERE id=?');
+                        $stmt->execute([...$fields, $app['id']]);
+                    } else {
+                        $stmt = db()->prepare('INSERT INTO applications (company, role, comp, remote, url, status, applied_on, notes, letter) VALUES (?,?,?,?,?,?,?,?,?)');
+                        $stmt->execute($fields);
+                        $app['id'] = (int) db()->lastInsertId();
+                    }
                 }
                 $stmt = db()->prepare('SELECT * FROM applications WHERE id = ?');
                 $stmt->execute([$app['id']]);
@@ -236,7 +254,7 @@ function admin_route(string $route): void
                 try {
                     $st = db()->prepare("SELECT COUNT(DISTINCT CONCAT(vhash, DATE(created_at))) n, MAX(created_at) last, GROUP_CONCAT(DISTINCT path ORDER BY path SEPARATOR ', ') pages
                                          FROM visits WHERE via = ? AND who = 0");
-                    $st->execute([slugify($app['company'])]);
+                    $st->execute([($app['via'] ?? '') !== '' ? $app['via'] : slugify($app['company'])]);
                     $opens = $st->fetch() ?: null;
                 } catch (Throwable $e) { $opens = null; }
             }
@@ -328,8 +346,23 @@ function admin_route(string $route): void
             } catch (PDOException $e) {
                 $tableMissing = true;
             }
+            /* Which application(s) each tag belongs to: the row's recorded via
+               tag, falling back to the slugified company for older rows. Two
+               applications at one company get two tags and stay tellable-apart. */
+            $viaApps = [];
+            try {
+                try {
+                    $appRows = db()->query('SELECT company, role, via FROM applications')->fetchAll();
+                } catch (PDOException $e) {
+                    $appRows = db()->query("SELECT company, role, '' AS via FROM applications")->fetchAll();
+                }
+                foreach ($appRows as $r) {
+                    $tag = $r['via'] !== '' ? $r['via'] : slugify($r['company']);
+                    $viaApps[$tag][] = $r['company'] . ' · ' . $r['role'];
+                }
+            } catch (Throwable $e) { /* applications table absent: tags still list bare */ }
             render_admin('traffic', [
-                'days' => $days, 'entries' => $entries, 'paths' => $paths, 'refs' => $refs, 'vias' => $vias,
+                'days' => $days, 'entries' => $entries, 'paths' => $paths, 'refs' => $refs, 'vias' => $vias, 'viaApps' => $viaApps,
                 'recent' => $recent, 'isMe' => $isMe, 'v2' => $v2, 'tableMissing' => $tableMissing,
                 'meOk' => isset($_GET['me']), 'title' => 'Traffic',
             ]);

@@ -44,7 +44,7 @@ $statusColors = [
         <?php if ($a['comp'] !== ''): ?><span><?= esc($a['comp']) ?></span><?php endif; ?>
         <?php if ($a['remote'] !== ''): ?><span><?= esc($a['remote']) ?></span><?php endif; ?>
         <?php if ($a['status'] === 'found' && trim((string) ($a['letter'] ?? '')) !== ''): ?><span class="a-job-letter-flag">Letter ready</span><?php endif; ?>
-        <?php $o = ($opens ?? [])[slugify($a['company'])] ?? null; if ($o && $o['n'] > 0): ?><span class="a-job-opens" title="Tagged link opened; last <?= esc(central_time($o['last'])) ?>">Link opened <?= (int) $o['n'] ?>&times;</span><?php endif; ?>
+        <?php $o = ($opens ?? [])[($a['via'] ?? '') !== '' ? $a['via'] : slugify($a['company'])] ?? null; if ($o && $o['n'] > 0): ?><span class="a-job-opens" title="Tagged link opened; last <?= esc(central_time($o['last'])) ?>">Link opened <?= (int) $o['n'] ?>&times;</span><?php endif; ?>
       </p>
       <?php if ($a['applied_on']): ?><p class="a-job-applied">Applied <?= esc(nice_date($a['applied_on'])) ?></p><?php endif; ?>
     </div>

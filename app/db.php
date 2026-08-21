@@ -11,6 +11,13 @@ function db(): PDO
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
+            /* Pin the connection collation to the one the tables use.
+               Hostinger's MariaDB defaults the utf8mb4 connection to
+               general_ci while schema.sql builds unicode_ci tables; any
+               literal-vs-parameter comparison (e.g. the published_at IF in
+               the post editor) then dies with "illegal mix of collations".
+               One collation everywhere makes the class of bug impossible. */
+            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci',
         ]);
     }
     return $pdo;

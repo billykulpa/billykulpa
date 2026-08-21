@@ -19,7 +19,7 @@
     <nav class="a-nav" id="a-nav">
       <a href="/admin/pages">Pages</a>
       <a href="/admin/case-studies">Case Studies</a>
-      <a href="/admin/posts">Posts</a>
+      <a href="/admin/posts">Notes</a>
       <a href="/admin/jobs">Jobs</a>
       <a href="/admin/traffic">Traffic</a>
       <a href="/admin/portrait">Portrait</a>

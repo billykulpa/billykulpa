@@ -1,5 +1,5 @@
 <?php /** @var array $post */ /** @var bool $saved */ /** @var string $error */ ?>
-<h1><?= $post['id'] ? 'Edit post' : 'New post' ?></h1>
+<h1><?= $post['id'] ? 'Edit note' : 'New note' ?></h1>
 <?php if ($saved): ?><div class="a-flash a-flash--ok">Saved.
   <?php if ($post['status'] === 'published'): ?>
     <a href="/notes/<?= esc($post['slug']) ?>" target="_blank" rel="noopener" style="text-decoration:underline">View live &nearr;</a>

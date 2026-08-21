@@ -92,6 +92,6 @@ if (!empty($_COOKIE[config()['session_name']])) { $qa_user = current_user(); }
   <script src="/assets/js/main.js?v=<?= @filemtime(public_dir() . '/assets/js/main.js') ?: 0 ?>"></script>
   <script src="/assets/js/lightbox.js?v=<?= @filemtime(public_dir() . '/assets/js/lightbox.js') ?: 0 ?>" defer></script>
   <?php // Visit-log beacon: marks this visit "verified" (browsers run it, scrapers don't). No payload. See app/visits.php. ?>
-  <script>navigator.sendBeacon&&navigator.sendBeacon('/api/ping.php');</script>
+  <script>if(navigator.sendBeacon){navigator.sendBeacon('/api/ping.php');var _t0=Date.now(),_dw=function(){navigator.sendBeacon('/api/ping.php?t='+Math.round((Date.now()-_t0)/1000))};addEventListener('pagehide',_dw);addEventListener('visibilitychange',function(){document.visibilityState==='hidden'&&_dw()});}</script>
 </body>
 </html>

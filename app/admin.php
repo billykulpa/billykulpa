@@ -291,14 +291,21 @@ function admin_route(string $route): void
             $sessions = []; $days = []; $entries = []; $paths = []; $refs = []; $vias = []; $recent = [];
             try {
                 try {
-                    $rows = db()->query("SELECT id, path, referrer, ua, who, vhash, via, verified, created_at
+                    $rows = db()->query("SELECT id, path, referrer, ua, who, vhash, via, verified, dwell, created_at
                                           FROM visits WHERE created_at >= NOW() - INTERVAL 30 DAY
                                           ORDER BY created_at ASC")->fetchAll();
                 } catch (PDOException $e) {
-                    $v2 = false; // add-visit-v2.sql not run yet
-                    $rows = db()->query("SELECT id, path, referrer, ua, who, vhash, '' AS via, 0 AS verified, created_at
-                                          FROM visits WHERE created_at >= NOW() - INTERVAL 30 DAY
-                                          ORDER BY created_at ASC")->fetchAll();
+                    try {
+                        // add-visit-dwell.sql not run yet
+                        $rows = db()->query("SELECT id, path, referrer, ua, who, vhash, via, verified, 0 AS dwell, created_at
+                                              FROM visits WHERE created_at >= NOW() - INTERVAL 30 DAY
+                                              ORDER BY created_at ASC")->fetchAll();
+                    } catch (PDOException $e) {
+                        $v2 = false; // add-visit-v2.sql not run yet
+                        $rows = db()->query("SELECT id, path, referrer, ua, who, vhash, '' AS via, 0 AS verified, 0 AS dwell, created_at
+                                              FROM visits WHERE created_at >= NOW() - INTERVAL 30 DAY
+                                              ORDER BY created_at ASC")->fetchAll();
+                    }
                 }
                 $sessions = visit_sessions($rows);
                 $off = central_offset_minutes();
@@ -436,7 +443,7 @@ function admin_route(string $route): void
                     } catch (PDOException $e) {
                         $error = str_contains($e->getMessage(), 'Duplicate')
                             ? 'That slug is already in use — pick another.'
-                            : 'Could not save the post. Database said: ' . $e->getMessage();
+                            : 'Could not save the note. Database said: ' . $e->getMessage();
                         $post = array_merge($post, [
                             'slug' => $slug, 'title' => $title, 'body_md' => $md, 'status' => $status,
                             'meta_title' => trim($_POST['meta_title'] ?? ''),

@@ -124,6 +124,26 @@ function visit_verify(): void
 }
 
 /**
+ * Leave beacon: record how long the visitor's current page stayed open.
+ * Called by /api/ping.php?t=<seconds>. The browser may report several
+ * times as the tab hides and returns, so keep the largest. Only the
+ * visitor's newest row (their current page view) is touched.
+ */
+function visit_dwell(int $seconds): void
+{
+    $seconds = max(0, min($seconds, 7200)); // cap at 2h: parked tabs aren't reading
+    if ($seconds === 0) return;
+    try {
+        $stmt = db()->prepare('UPDATE visits SET dwell = GREATEST(dwell, ?)
+                               WHERE vhash = ? AND created_at > NOW() - INTERVAL 30 MINUTE
+                               ORDER BY id DESC LIMIT 1');
+        $stmt->execute([$seconds, visit_hash()]);
+    } catch (Throwable $e) {
+        // dwell column not migrated yet: ignore.
+    }
+}
+
+/**
  * Group raw rows (ordered by created_at ASC) into sessions: same vhash,
  * gaps under 30 minutes. Returns sessions newest-first with: vhash, who,
  * start, end, seconds, pages (ordered paths), entry, referrer (first
@@ -143,7 +163,7 @@ function visit_sessions(array $rows): array
                 'start' => $r['created_at'], 'end' => $r['created_at'],
                 'start_ts' => $t, 'end_ts' => $t,
                 'pages' => [], 'entry' => $r['path'],
-                'referrer' => '', 'via' => '', 'verified' => 0,
+                'referrer' => '', 'via' => '', 'verified' => 0, 'last_dwell' => 0,
                 'mobile' => (bool) preg_match('/Mobile|Android|iPhone|iPad/i', (string) $r['ua']),
             ];
             $idx = array_key_last($sessions);
@@ -153,6 +173,7 @@ function visit_sessions(array $rows): array
         $s['pages'][] = $r['path'];
         $s['end'] = $r['created_at'];
         $s['end_ts'] = $t;
+        $s['last_dwell'] = (int) ($r['dwell'] ?? 0); // newest row's time-on-page
         // Session class: self if any row is self; else human if any row is human; else bot.
         $w = (int) $r['who'];
         if ($w === 2 || $s['who'] === 2) $s['who'] = 2;
@@ -164,7 +185,9 @@ function visit_sessions(array $rows): array
         unset($s);
     }
     foreach ($sessions as &$s) {
-        $s['seconds'] = max(0, $s['end_ts'] - $s['start_ts']);
+        /* Gaps between page loads, plus the last page's reported dwell:
+           a one-page visit read for five minutes now shows five minutes. */
+        $s['seconds'] = max(0, $s['end_ts'] - $s['start_ts']) + $s['last_dwell'];
         $s['count'] = count($s['pages']);
     }
     unset($s);

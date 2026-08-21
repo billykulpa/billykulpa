@@ -143,7 +143,7 @@ Bots and your own devices are excluded from every number except their own column
     <tr>
       <td class="c-when a-count"><?= esc(central_time($s['start'])) ?></td>
       <td class="c-text a-traffic-ref"><?= esc(implode(' → ', $s['pages'])) ?></td>
-      <td class="c-num a-count"><?= $s['count'] > 1 ? esc($fmtDur($s['seconds'])) : '—' ?></td>
+      <td class="c-num a-count"><?= $s['seconds'] > 0 ? esc($fmtDur($s['seconds'])) : '—' ?></td>
       <td class="c-key a-traffic-ref"><?= $s['via'] !== '' ? '<strong>via ' . esc($s['via']) . '</strong>' : ($s['referrer'] !== '' ? esc(preg_replace('/^(www|m|l|lm)\./', '', parse_url($s['referrer'], PHP_URL_HOST) ?: $s['referrer'])) : '<span class="a-count">direct</span>') ?></td>
       <td class="c-num a-count c-icons"><?= $s['verified'] ? $icoBeacon : '' ?><?= $s['mobile'] ? $icoPhone : '' ?></td>
     </tr>

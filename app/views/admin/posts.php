@@ -1,10 +1,10 @@
 <?php /** @var array $posts */ ?>
 <div class="a-toolbar">
-  <h1 style="margin:0">Posts</h1>
-  <a class="a-btn" href="/admin/posts/new">New post</a>
+  <h1 style="margin:0">Notes</h1>
+  <a class="a-btn" href="/admin/posts/new">New note</a>
 </div>
 <?php if (!$posts): ?>
-  <p class="a-sub">No posts yet.</p>
+  <p class="a-sub">No notes yet.</p>
 <?php else: ?>
 <div class="a-table-scroll">
 <table>
@@ -17,7 +17,7 @@
       <td><span class="a-pill a-pill--<?= esc($p['status']) ?>"><?= esc($p['status']) ?></span></td>
       <td class="a-count"><?= esc(nice_date($p['published_at'])) ?></td>
       <td style="text-align:right">
-        <form method="post" action="/admin/posts/delete" onsubmit="return confirm('Delete this post permanently?')">
+        <form method="post" action="/admin/posts/delete" onsubmit="return confirm('Delete this note permanently?')">
           <?= csrf_field() ?>
           <input type="hidden" name="id" value="<?= (int) $p['id'] ?>">
           <button class="a-btn a-btn--danger" type="submit">Delete</button>

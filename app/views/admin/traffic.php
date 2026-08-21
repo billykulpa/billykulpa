@@ -3,6 +3,19 @@ $fmtDur = function (int $s): string {
   if ($s < 60) return $s . 's';
   return intdiv($s, 60) . 'm ' . ($s % 60) . 's';
 };
+/* Inline icons: one stroke weight, square corners, drawn in the page ink. */
+$icoBeacon = '<svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" aria-label="verified" role="img">'
+  . '<path d="M9.3 9 V5.9 L12 3.6 L14.7 5.9 V9"/>'
+  . '<path d="M8.2 9 H15.8"/>'
+  . '<path d="M9.9 9 L7.7 20 M14.1 9 L16.3 20"/>'
+  . '<path d="M6.3 20 H17.7"/>'
+  . '<path d="M12 20 V16.3"/>'
+  . '<path d="M5.6 5.8 L3.2 4.5 M5.6 10.6 L3.2 11.9 M18.4 5.8 L20.8 4.5 M18.4 10.6 L20.8 11.9"/>'
+  . '</svg>';
+$icoPhone = '<svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter" aria-label="mobile" role="img">'
+  . '<rect x="7" y="3" width="10" height="18"/>'
+  . '<path d="M10.2 17.6 H13.8"/>'
+  . '</svg>';
 ?>
 <div class="a-toolbar">
   <h1>Traffic</h1>
@@ -132,13 +145,13 @@ Bots and your own devices are excluded from every number except their own column
       <td class="c-text a-traffic-ref"><?= esc(implode(' → ', $s['pages'])) ?></td>
       <td class="c-num a-count"><?= $s['count'] > 1 ? esc($fmtDur($s['seconds'])) : '—' ?></td>
       <td class="c-key a-traffic-ref"><?= $s['via'] !== '' ? '<strong>via ' . esc($s['via']) . '</strong>' : ($s['referrer'] !== '' ? esc(preg_replace('/^(www|m|l|lm)\./', '', parse_url($s['referrer'], PHP_URL_HOST) ?: $s['referrer'])) : '<span class="a-count">direct</span>') ?></td>
-      <td class="c-num a-count c-icons"><?= $s['verified'] ? '✓' : '' ?><?= $s['mobile'] ? ' 📱' : '' ?></td>
+      <td class="c-num a-count c-icons"><?= $s['verified'] ? $icoBeacon : '' ?><?= $s['mobile'] ? $icoPhone : '' ?></td>
     </tr>
     <?php endforeach; ?>
   </tbody>
 </table>
 </div>
-<p class="a-sub" style="margin-top:12px">✓ verified by the beacon &middot; 📱 mobile</p>
+<p class="a-sub" style="margin-top:12px"><?= $icoBeacon ?> verified by the beacon &middot; <?= $icoPhone ?> mobile</p>
 <?php endif; ?>
 
 <?php endif; ?>

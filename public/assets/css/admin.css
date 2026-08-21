@@ -329,7 +329,9 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
 .a-traffic-table .c-when { width: 136px; min-width: 136px; white-space: nowrap; }
 .a-traffic-table .c-num  { width: 84px;  min-width: 84px; font-variant-numeric: tabular-nums; }
 .a-traffic-table .c-text { min-width: 260px; }
-.a-traffic-table .c-icons { font-size: 19px; line-height: 1; letter-spacing: 2px; white-space: nowrap; }
+.a-traffic-table .c-icons { line-height: 1; white-space: nowrap; }
+.a-ico { width: 18px; height: 18px; vertical-align: -4px; }
+.c-icons .a-ico + .a-ico { margin-left: 5px; }
 .a-via-app { display: block; font-size: 12px; font-weight: 400; color: var(--ink-soft, #6b6b66); margin-top: 2px; }
 .a-traffic-table--narrow { min-width: 0; }
 .a-traffic-ref { overflow-wrap: anywhere; word-break: break-word; }

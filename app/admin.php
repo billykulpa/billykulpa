@@ -375,21 +375,28 @@ function admin_route(string $route): void
             ]);
             break;
 
-        /* ----------------------------- Posts ------------------------------ */
-        case $route === 'posts':
-            require_login();
-            $posts = db()->query('SELECT id, slug, title, status, published_at, updated_at FROM posts ORDER BY COALESCE(published_at, created_at) DESC')->fetchAll();
-            render_admin('posts', ['posts' => $posts, 'title' => 'Posts']);
+        /* ----------------------------- Notes ------------------------------ */
+        // Public site calls them notes; the admin matches. The posts table
+        // name is the one deliberate holdover (renaming a table buys nothing).
+        case str_starts_with($route, 'posts'):
+            // Old URL shape: redirect muscle memory to the new one.
+            header('Location: /admin/notes' . substr($route, 5) . (isset($_GET['id']) ? '?id=' . (int) $_GET['id'] : ''));
             break;
 
-        case $route === 'posts/new':
-        case $route === 'posts/edit':
+        case $route === 'notes':
+            require_login();
+            $posts = db()->query('SELECT id, slug, title, status, published_at, updated_at FROM posts ORDER BY COALESCE(published_at, created_at) DESC')->fetchAll();
+            render_admin('notes', ['posts' => $posts, 'title' => 'Notes']);
+            break;
+
+        case $route === 'notes/new':
+        case $route === 'notes/edit':
             require_login();
             $post = [
                 'id' => 0, 'slug' => '', 'title' => '', 'meta_title' => '',
                 'meta_description' => '', 'body_md' => '', 'status' => 'draft',
             ];
-            if ($route === 'posts/edit') {
+            if ($route === 'notes/edit') {
                 $stmt = db()->prepare('SELECT * FROM posts WHERE id = ?');
                 $stmt->execute([(int) ($_GET['id'] ?? 0)]);
                 $post = $stmt->fetch();
@@ -452,18 +459,18 @@ function admin_route(string $route): void
                     }
                 }
             }
-            render_admin('post-edit', ['post' => $post, 'saved' => $saved, 'error' => $error,
-                'title' => $post['id'] ? 'Edit post' : 'New post']);
+            render_admin('note-edit', ['post' => $post, 'saved' => $saved, 'error' => $error,
+                'title' => $post['id'] ? 'Edit note' : 'New note']);
             break;
 
-        case $route === 'posts/delete':
+        case $route === 'notes/delete':
             require_login();
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 verify_csrf();
                 $stmt = db()->prepare('DELETE FROM posts WHERE id = ?');
                 $stmt->execute([(int) ($_POST['id'] ?? 0)]);
             }
-            header('Location: /admin/posts');
+            header('Location: /admin/notes');
             break;
 
         default:

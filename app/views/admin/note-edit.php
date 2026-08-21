@@ -6,7 +6,7 @@
   <?php endif; ?></div><?php endif; ?>
 <?php if ($error): ?><div class="a-flash a-flash--err"><?= esc($error) ?></div><?php endif; ?>
 
-<form method="post" action="/admin/posts/<?= $post['id'] ? 'edit?id=' . (int) $post['id'] : 'new' ?>">
+<form method="post" action="/admin/notes/<?= $post['id'] ? 'edit?id=' . (int) $post['id'] : 'new' ?>">
   <?= csrf_field() ?>
 
   <label class="a-label" for="title">Title</label>

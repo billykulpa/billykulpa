@@ -29,7 +29,7 @@ $fmtDur = function (int $s): string {
 Bots and your own devices are excluded from every number except their own columns. Times are US&nbsp;Central.</p>
 
 <h2 class="a-traffic-h">Applications: who opened the link</h2>
-<p class="a-sub">Each application gets its own link, <code>billykulpa.com/?via=company</code>, on the resume and in the form. When it's opened, it shows up here and on the application's row in the tracker.</p>
+<p class="a-sub">Each application gets its own link, <code>billykulpa.com?via=company</code>, on the resume and in the form. When it's opened, it shows up here and on the application's row in the tracker.</p>
 <?php if (!$vias): ?>
 <p class="a-sub">No tagged links opened yet.</p>
 <?php else: ?>

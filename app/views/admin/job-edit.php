@@ -37,7 +37,7 @@
   </div>
   <label class="a-label" for="url">Posting URL</label>
   <input type="text" id="url" name="url" value="<?= esc($app['url']) ?>">
-  <?php if ($app['id']): $tag = slugify($app['company']); $link = 'https://www.billykulpa.com/?via=' . $tag; ?>
+  <?php if ($app['id']): $tag = slugify($app['company']); $link = 'https://www.billykulpa.com?via=' . $tag; ?>
   <div class="a-tagged">
     <p class="a-label" style="margin-top:18px">Your link for this application</p>
     <p class="a-tagged-row"><code id="tagged-link"><?= esc($link) ?></code> <button type="button" class="a-btn a-btn--ghost a-copy-mini" data-copy="#tagged-link">Copy</button></p>

@@ -504,6 +504,22 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
    (see work-supporting-local-music); breathe between them. */
 .prose-grid + .prose-grid { margin-top: clamp(40px, 7vw, 88px); padding-top: clamp(32px, 5vw, 56px); border-top: 1px solid var(--rule); }
 
+/* Headline-out variant: the h2 is a direct grid child (before the aside in
+   the DOM), so on desktop it still sits over the main column only, while on
+   mobile the natural stack becomes headline, then sidebar, then body — the
+   summary stays attached to its project instead of dangling at the bottom. */
+.prose-grid--h { row-gap: 0; }
+.prose-grid--h > .prose-h {
+  grid-column: 1; margin: 0 0 12px;
+  font-size: 26px; font-weight: 700; letter-spacing: -0.015em;
+}
+.prose-grid--h > .prose { grid-column: 1; }
+.prose-grid--h > .prose-aside { grid-column: 2; grid-row: 1 / span 2; }
+@media (max-width: 820px) {
+  .prose-grid--h > .prose-h, .prose-grid--h > .prose, .prose-grid--h > .prose-aside { grid-column: 1; }
+  .prose-grid--h > .prose-aside { grid-row: auto; margin-bottom: 24px; }
+}
+
 .prose { max-width: 68ch; }
 .prose p, .prose ul, .prose ol, .prose blockquote, .prose pre { margin-bottom: 20px; }
 .prose h2, .prose h3, .prose h4 {

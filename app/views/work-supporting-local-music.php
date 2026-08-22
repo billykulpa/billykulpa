@@ -20,9 +20,16 @@
       <div><dt class="mono-label">Completed</dt><dd>2025&ndash;26</dd></div>
     </dl>
 
-    <div class="prose-grid">
+    <div class="prose-grid prose-grid--h">
+      <h2 class="prose-h">Summer 2026 concert poster</h2>
+      <aside class="prose-aside">
+        <div class="fact-stack">
+          <div><dt class="mono-label">Deliverables</dt><dd>11&times;17 poster, Instagram and Facebook adaptations</dd></div>
+          <div><dt class="mono-label">Printing</dt><dd>CMYK print files with bleed; RGB exports for social</dd></div>
+          <div><dt class="mono-label">The show</dt><dd>June 20, 2026 &middot; Mary&rsquo;s Place, Rockford &middot; with Burgess Shale and Chai Teeth</dd></div>
+        </div>
+      </aside>
       <div class="prose">
-        <h2>Summer 2026 concert poster</h2>
         <p>My friends are in a Rockford, Illinois-based Midwest emo band
         called Joie de Vivre. Supporting bands like Joie is important to me,
         so when they booked a show at Mary&rsquo;s Place with Burgess Shale
@@ -57,18 +64,18 @@
           </figure>
         </div>
       </div>
-      <aside class="prose-aside">
-        <div class="fact-stack">
-          <div><dt class="mono-label">Deliverables</dt><dd>11&times;17 poster, Instagram and Facebook adaptations</dd></div>
-          <div><dt class="mono-label">Printing</dt><dd>CMYK print files with bleed; RGB exports for social</dd></div>
-          <div><dt class="mono-label">The show</dt><dd>June 20, 2026 &middot; Mary&rsquo;s Place, Rockford &middot; with Burgess Shale and Chai Teeth</dd></div>
-        </div>
-      </aside>
     </div>
 
-    <div class="prose-grid">
+    <div class="prose-grid prose-grid--h">
+      <h2 class="prose-h">The Anys at Mary&rsquo;s Place</h2>
+      <aside class="prose-aside">
+        <div class="fact-stack">
+          <div><dt class="mono-label">Deliverables</dt><dd>11&times;17 and 8.5&times;11 posters, Instagram and Facebook adaptations</dd></div>
+          <div><dt class="mono-label">Printing</dt><dd>CMYK print files with bleed; RGB exports for social</dd></div>
+          <div><dt class="mono-label">The show</dt><dd>August 29, 2026 &middot; Mary&rsquo;s Place, Rockford &middot; with Track &amp; Field and Mana Kintorso</dd></div>
+        </div>
+      </aside>
       <div class="prose">
-        <h2>The Anys at Mary&rsquo;s Place</h2>
         <p>Word gets around. After the Joie poster, The Anys asked for one for
         their August 29, 2026 show at Mary&rsquo;s Place with Track &amp; Field
         and Mana Kintorso. Three bands, three existing wordmarks in three
@@ -103,18 +110,19 @@
           </figure>
         </div>
       </div>
-      <aside class="prose-aside">
-        <div class="fact-stack">
-          <div><dt class="mono-label">Deliverables</dt><dd>11&times;17 and 8.5&times;11 posters, Instagram and Facebook adaptations</dd></div>
-          <div><dt class="mono-label">Printing</dt><dd>CMYK print files with bleed; RGB exports for social</dd></div>
-          <div><dt class="mono-label">The show</dt><dd>August 29, 2026 &middot; Mary&rsquo;s Place, Rockford &middot; with Track &amp; Field and Mana Kintorso</dd></div>
-        </div>
-      </aside>
     </div>
 
-    <div class="prose-grid">
+    <div class="prose-grid prose-grid--h">
+      <h2 class="prose-h">Recording Track &amp; Field</h2>
+      <aside class="prose-aside">
+        <div class="fact-stack">
+          <div><dt class="mono-label">The song</dt><dd>&ldquo;Bocce&rdquo; &middot; demo &middot; 2026</dd></div>
+          <div><dt class="mono-label">The mics</dt><dd>Shure Beta 52a on the kick; SM57s on everything else; Neumann U&nbsp;87&nbsp;Ai on vocals</dd></div>
+          <div><dt class="mono-label">Recorded in</dt><dd>Apple Logic Pro X</dd></div>
+          <div><dt class="mono-label">The band</dt><dd>AJ Shirley &middot; Jay Warner &middot; Jack Barnett &middot; Steve van Horn</dd></div>
+        </div>
+      </aside>
       <div class="prose">
-        <h2>Recording Track &amp; Field</h2>
         <p>Track &amp; Field, from that same Anys bill, needed demos, and I
         wanted the recording practice. So we tracked the band live in the
         room: five mics on the drums (kick, snare, both toms, one overhead),
@@ -141,19 +149,17 @@
         the whole thing in Apple Logic Pro X, and I&rsquo;m still learning,
         which is most of why it was so much fun.</p>
       </div>
-      <aside class="prose-aside">
-        <div class="fact-stack">
-          <div><dt class="mono-label">The song</dt><dd>&ldquo;Bocce&rdquo; &middot; demo &middot; 2026</dd></div>
-          <div><dt class="mono-label">The mics</dt><dd>Shure Beta 52a on the kick; SM57s on everything else; Neumann U&nbsp;87&nbsp;Ai on vocals</dd></div>
-          <div><dt class="mono-label">Recorded in</dt><dd>Apple Logic Pro X</dd></div>
-          <div><dt class="mono-label">The band</dt><dd>AJ Shirley &middot; Jay Warner &middot; Jack Barnett &middot; Steve van Horn</dd></div>
-        </div>
-      </aside>
     </div>
 
-    <div class="prose-grid">
+    <div class="prose-grid prose-grid--h">
+      <h2 class="prose-h">Career retrospective cassette release</h2>
+      <aside class="prose-aside">
+        <div class="fact-stack">
+          <div><dt class="mono-label">Release</dt><dd><em>Putting These to Rest: Recorded Output 2009&ndash;2015</em> &middot; Larry Records &middot; double cassette</dd></div>
+          <div><dt class="mono-label">Deliverables</dt><dd>J-card (cover, spine, back) and insert (front and back)</dd></div>
+        </div>
+      </aside>
       <div class="prose">
-        <h2>Career retrospective cassette release</h2>
         <p>The second project was packaging for
         <em>Putting These to Rest: Recorded Output 2009&ndash;2015</em>, a
         career-retrospective double cassette released by Larry Records. I
@@ -181,17 +187,17 @@
           </figure>
         </div>
       </div>
-      <aside class="prose-aside">
-        <div class="fact-stack">
-          <div><dt class="mono-label">Release</dt><dd><em>Putting These to Rest: Recorded Output 2009&ndash;2015</em> &middot; Larry Records &middot; double cassette</dd></div>
-          <div><dt class="mono-label">Deliverables</dt><dd>J-card (cover, spine, back) and insert (front and back)</dd></div>
-        </div>
-      </aside>
     </div>
 
-    <div class="prose-grid">
+    <div class="prose-grid prose-grid--h">
+      <h2 class="prose-h">Demara</h2>
+      <aside class="prose-aside">
+        <div class="fact-stack">
+          <div><dt class="mono-label">The mark</dt><dd>Hand-drawn logotype; not a font</dd></div>
+          <div><dt class="mono-label">Where it lives</dt><dd>Album covers, avatars, banners</dd></div>
+        </div>
+      </aside>
       <div class="prose">
-        <h2>Demara</h2>
         <p>One more small thing to add, since we&rsquo;re on the subject:
         Demara is the music project I was part of myself, and the name I
         now release my own music under. The logotype is hand-drawn: it
@@ -215,12 +221,6 @@
         reminder that the same craft that ships a trade-show brand can
         also put a bear in a space suit.</p>
       </div>
-      <aside class="prose-aside">
-        <div class="fact-stack">
-          <div><dt class="mono-label">The mark</dt><dd>Hand-drawn logotype; not a font</dd></div>
-          <div><dt class="mono-label">Where it lives</dt><dd>Album covers, avatars, banners</dd></div>
-        </div>
-      </aside>
     </div>
   </div>
 </section>

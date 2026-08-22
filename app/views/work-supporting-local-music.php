@@ -125,10 +125,12 @@
         Neumann U&nbsp;87&nbsp;Ai for those.</p>
 
         <figure class="case-fig">
-          <audio class="case-audio" controls preload="metadata">
-            <source src="/assets/audio/track-and-field-bocce.m4a" type="audio/mp4">
-            <source src="/assets/audio/track-and-field-bocce.mp3" type="audio/mpeg">
-          </audio>
+          <div class="bk-player">
+            <audio class="case-audio" controls preload="metadata">
+              <source src="/assets/audio/track-and-field-bocce.m4a" type="audio/mp4">
+              <source src="/assets/audio/track-and-field-bocce.mp3" type="audio/mpeg">
+            </audio>
+          </div>
           <figcaption class="mono-label">&ldquo;Bocce&rdquo; &middot; Track &amp; Field, demo, 2026. Recorded and mixed in Logic Pro.</figcaption>
         </figure>
 

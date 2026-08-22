@@ -64,3 +64,65 @@
     if (window.innerWidth > 960 && isOpen()) close(false);
   });
 })();
+
+/* ============================ Audio player ============================= */
+// Custom chrome for case-study audio (.bk-player): the browser's built-in
+// controls are rounded and gray-blue; the site is thin rules and square
+// corners. Progressive: markup ships a bare <audio controls>; when this
+// runs, the native controls come off and the square ones take over.
+(() => {
+  const fmt = (s) => {
+    if (!isFinite(s)) return '0:00';
+    s = Math.round(s);
+    return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  };
+  document.querySelectorAll('.bk-player').forEach((box) => {
+    const audio = box.querySelector('audio');
+    if (!audio) return;
+    audio.removeAttribute('controls');
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'bk-play';
+    btn.setAttribute('aria-label', 'Play');
+    btn.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true">'
+      + '<path class="bk-ico-play" d="M4 2 L13 8 L4 14 Z"/>'
+      + '<g class="bk-ico-pause"><rect x="4" y="2.5" width="3" height="11"/><rect x="9.5" y="2.5" width="3" height="11"/></g>'
+      + '</svg>';
+
+    const range = document.createElement('input');
+    range.type = 'range';
+    range.className = 'bk-seek';
+    range.min = 0; range.max = 1000; range.value = 0;
+    range.setAttribute('aria-label', 'Seek');
+
+    const time = document.createElement('span');
+    time.className = 'bk-time mono-label';
+    time.textContent = '0:00 / 0:00';
+
+    box.append(btn, range, time);
+    box.classList.add('is-ready');
+
+    const draw = () => {
+      const d = audio.duration || 0;
+      time.textContent = fmt(audio.currentTime) + ' / ' + fmt(d);
+      if (!seeking && d) range.value = Math.round(audio.currentTime / d * 1000);
+      box.classList.toggle('is-playing', !audio.paused);
+      btn.setAttribute('aria-label', audio.paused ? 'Play' : 'Pause');
+    };
+
+    let seeking = false;
+    btn.addEventListener('click', () => { audio.paused ? audio.play() : audio.pause(); });
+    range.addEventListener('input', () => {
+      seeking = true;
+      if (audio.duration) time.textContent = fmt(range.value / 1000 * audio.duration) + ' / ' + fmt(audio.duration);
+    });
+    range.addEventListener('change', () => {
+      if (audio.duration) audio.currentTime = range.value / 1000 * audio.duration;
+      seeking = false;
+    });
+    ['play', 'pause', 'ended', 'timeupdate', 'loadedmetadata', 'durationchange'].forEach((ev) =>
+      audio.addEventListener(ev, draw));
+    draw();
+  });
+})();

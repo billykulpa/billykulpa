@@ -425,6 +425,7 @@ a.work-card:hover { border-color: var(--accent); transform: translateY(-2px); }
 .case-fig { margin-bottom: clamp(24px, 4vw, 48px); }
 .case-fig img { width: 100%; height: auto; border: 1px solid var(--rule); }
 .case-audio { display: block; width: 100%; }
+.case-video { display: block; width: 100%; height: auto; border: 1px solid var(--rule); }
 
 /* Custom audio chrome: thin rules, square corners, site ink. The <audio>
    itself is hidden once main.js dresses the .bk-player box. */

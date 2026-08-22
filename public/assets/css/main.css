@@ -461,6 +461,9 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   align-items: start;
 }
 @media (max-width: 820px) { .prose-grid { grid-template-columns: 1fr; } }
+/* A page can stack one grid per project so each keeps its own sidebar
+   (see work-supporting-local-music); breathe between them. */
+.prose-grid + .prose-grid { margin-top: clamp(40px, 7vw, 88px); padding-top: clamp(32px, 5vw, 56px); border-top: 1px solid var(--rule); }
 
 .prose { max-width: 68ch; }
 .prose p, .prose ul, .prose ol, .prose blockquote, .prose pre { margin-bottom: 20px; }

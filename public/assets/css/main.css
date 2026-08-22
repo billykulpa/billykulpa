@@ -424,6 +424,7 @@ a.work-card:hover { border-color: var(--accent); transform: translateY(-2px); }
 
 .case-fig { margin-bottom: clamp(24px, 4vw, 48px); }
 .case-fig img { width: 100%; height: auto; border: 1px solid var(--rule); }
+.case-audio { display: block; width: 100%; }
 .case-fig figcaption { margin-top: 8px; }
 /* Captions are sentence case site-wide: keep the mono voice, drop the
    uppercase that .mono-label would otherwise impose. */

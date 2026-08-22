@@ -5,18 +5,18 @@
   <div class="wrap">
     <p class="mono-label hero-kicker">01 / Work / Local Music</p>
     <h1 class="hero-h1"><?= esc($pg['h1']) ?></h1>
-    <p class="hero-lede">A concert poster and a career-retrospective cassette
-    package for a Rockford, Illinois band, plus the hand-drawn mark I release
-    my own music under.</p>
+    <p class="hero-lede">Concert posters, a career-retrospective cassette
+    package, and a live-tracked band demo from the Rockford, Illinois music
+    scene, plus the hand-drawn mark I release my own music under.</p>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
     <dl class="case-meta">
-      <div><dt class="mono-label">Client</dt><dd>Joie de Vivre and The Anys, Rockford, Illinois</dd></div>
-      <div><dt class="mono-label">Role</dt><dd>Design, illustration, layout</dd></div>
-      <div><dt class="mono-label">Tools</dt><dd>Adobe Illustrator and Photoshop</dd></div>
+      <div><dt class="mono-label">Client</dt><dd>Joie de Vivre, The Anys, and Track &amp; Field, Rockford, Illinois</dd></div>
+      <div><dt class="mono-label">Role</dt><dd>Design, illustration, layout, recording and mixing</dd></div>
+      <div><dt class="mono-label">Tools</dt><dd>Adobe Illustrator and Photoshop; Apple Logic Pro X</dd></div>
       <div><dt class="mono-label">Completed</dt><dd>2025&ndash;26</dd></div>
     </dl>
 
@@ -92,6 +92,30 @@
           </figure>
         </div>
 
+        <h2>Recording Track &amp; Field</h2>
+        <p>Track &amp; Field, from that same Anys bill, needed demos, and I
+        wanted the recording practice. So we tracked the band live in the
+        room: five mics on the drums (kick, snare, both toms, one overhead),
+        one on each guitar amp, one on the bass amp, and a room mic to glue
+        it together. A Shure Beta 52A took the kick; everything else went
+        through the workhorse of live sound, the SM57. Vocals came later,
+        over a few nights a couple of weeks after.</p>
+
+        <figure class="case-fig">
+          <audio class="case-audio" controls preload="metadata">
+            <source src="/assets/audio/track-and-field-bocce.m4a" type="audio/mp4">
+            <source src="/assets/audio/track-and-field-bocce.mp3" type="audio/mpeg">
+          </audio>
+          <figcaption class="mono-label">&ldquo;Bocce&rdquo; &middot; Track &amp; Field, demo, 2026. Recorded and mixed in Logic Pro.</figcaption>
+        </figure>
+
+        <p>The band is AJ Shirley on guitar and vocals, Jay Warner on guitar,
+        Jack Barnett on bass and vocals, and Steve van Horn on drums. There
+        is a gang vocal at the end of the song; Brandon Lutmer of Joie de
+        Vivre and I joined AJ and Jack to shout it. I engineered and mixed
+        the whole thing in Apple Logic Pro X, and I&rsquo;m still learning,
+        which is most of why it was so much fun.</p>
+
         <h2>Career retrospective cassette release</h2>
         <p>The second project was packaging for
         <em>Putting These to Rest: Recorded Output 2009&ndash;2015</em>, a
@@ -146,7 +170,7 @@
       </div>
       <aside class="prose-aside">
         <div class="fact-stack">
-          <div><dt class="mono-label">Deliverables</dt><dd>11&times;17 and 8.5&times;11 posters, cassette J-card (cover, spine, back), insert (front and back), Instagram and Facebook adaptations, the Demara logotype</dd></div>
+          <div><dt class="mono-label">Deliverables</dt><dd>11&times;17 and 8.5&times;11 posters, cassette J-card (cover, spine, back), insert (front and back), Instagram and Facebook adaptations, a live-tracked band demo, the Demara logotype</dd></div>
           <div><dt class="mono-label">Printing</dt><dd>CMYK print files with bleed; RGB exports for social</dd></div>
           <div><dt class="mono-label">The show</dt><dd>June 20, 2026 &middot; Mary&rsquo;s Place, Rockford &middot; with Burgess Shale and Chai Teeth</dd></div>
         </div>

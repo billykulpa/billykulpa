@@ -125,4 +125,27 @@
       audio.addEventListener(ev, draw));
     draw();
   });
+
+  // Playlist wrapper: a .bk-playlist holds one .bk-player plus a .bk-tracks
+  // list of buttons carrying data-src. Clicking a track loads and plays it;
+  // a finished track advances to the next one.
+  document.querySelectorAll('.bk-playlist').forEach((list) => {
+    const audio = list.querySelector('.bk-player audio');
+    const tracks = Array.from(list.querySelectorAll('.bk-tracks button[data-src]'));
+    if (!audio || !tracks.length) return;
+    const select = (btn, andPlay) => {
+      tracks.forEach((b) => b.closest('li').classList.toggle('is-current', b === btn));
+      if (audio.getAttribute('src') !== btn.dataset.src) {
+        audio.src = btn.dataset.src;
+        audio.load();
+      }
+      if (andPlay) audio.play();
+    };
+    tracks.forEach((btn) => btn.addEventListener('click', () => select(btn, true)));
+    audio.addEventListener('ended', () => {
+      const i = tracks.findIndex((b) => b.closest('li').classList.contains('is-current'));
+      if (i > -1 && i < tracks.length - 1) select(tracks[i + 1], true);
+    });
+    select(tracks[0], false); // cue the first track without autoplaying
+  });
 })();

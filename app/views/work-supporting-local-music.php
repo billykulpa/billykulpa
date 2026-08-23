@@ -116,7 +116,7 @@
       <h2 class="prose-h">Recording Track &amp; Field</h2>
       <aside class="prose-aside">
         <div class="fact-stack">
-          <div><dt class="mono-label">The song</dt><dd>&ldquo;Bocce&rdquo; &middot; demo &middot; 2026</dd></div>
+          <div><dt class="mono-label">The demos</dt><dd>Six songs &middot; 2026 &middot; three first takes, three second takes</dd></div>
           <div><dt class="mono-label">The mics</dt><dd>Shure Beta 52a on the kick; SM57s on everything else; Neumann U&nbsp;87&nbsp;Ai on vocals</dd></div>
           <div><dt class="mono-label">Recorded in</dt><dd>Apple Logic Pro X</dd></div>
           <div><dt class="mono-label">The band</dt><dd>AJ Shirley &middot; Jay Warner &middot; Jack Barnett &middot; Steve van Horn</dd></div>
@@ -133,13 +133,20 @@
         Neumann U&nbsp;87&nbsp;Ai for those.</p>
 
         <figure class="case-fig">
-          <div class="bk-player">
-            <audio class="case-audio" controls preload="metadata">
-              <source src="/assets/audio/track-and-field-bocce.m4a" type="audio/mp4">
-              <source src="/assets/audio/track-and-field-bocce.mp3" type="audio/mpeg">
-            </audio>
+          <div class="bk-playlist">
+            <div class="bk-player">
+              <audio class="case-audio" controls preload="metadata" src="/assets/audio/tf-bocce.m4a"></audio>
+            </div>
+            <ol class="bk-tracks">
+              <li><button type="button" data-src="/assets/audio/tf-bocce.m4a"><span class="bk-n">01</span><span class="bk-t">Bocce</span><span class="bk-d">2:51</span></button></li>
+              <li><button type="button" data-src="/assets/audio/tf-wager.m4a"><span class="bk-n">02</span><span class="bk-t">Wager</span><span class="bk-d">3:40</span></button></li>
+              <li><button type="button" data-src="/assets/audio/tf-elisabeth.m4a"><span class="bk-n">03</span><span class="bk-t">Elisabeth</span><span class="bk-d">4:32</span></button></li>
+              <li><button type="button" data-src="/assets/audio/tf-adults.m4a"><span class="bk-n">04</span><span class="bk-t">Adults</span><span class="bk-d">3:57</span></button></li>
+              <li><button type="button" data-src="/assets/audio/tf-wikked.m4a"><span class="bk-n">05</span><span class="bk-t">Wikked</span><span class="bk-d">3:41</span></button></li>
+              <li><button type="button" data-src="/assets/audio/tf-chrysler-sebring.m4a"><span class="bk-n">06</span><span class="bk-t">Chrysler Sebring</span><span class="bk-d">5:36</span></button></li>
+            </ol>
           </div>
-          <figcaption class="mono-label">&ldquo;Bocce&rdquo; &middot; Track &amp; Field, demo, 2026. Recorded and mixed in Logic Pro.</figcaption>
+          <figcaption class="mono-label">The six demos &middot; Track &amp; Field, 2026. Recorded and mixed in Logic Pro.</figcaption>
         </figure>
 
         <p>The band is AJ Shirley on guitar and vocals, Jay Warner on guitar,

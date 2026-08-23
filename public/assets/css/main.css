@@ -465,6 +465,33 @@ a.work-card:hover { border-color: var(--accent); transform: translateY(-2px); }
 .bk-seek:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .bk-time { flex: none; font-size: 13px; color: var(--ink-soft); text-transform: none; font-variant-numeric: tabular-nums; }
 @media (max-width: 560px) { .bk-player { gap: 10px; padding: 10px; } }
+
+/* Playlist: the player above, a ruled tracklist below, same square chrome. */
+.bk-playlist .bk-player { border-bottom: none; }
+.bk-tracks {
+  list-style: none; margin: 0; padding: 0;
+  border: 1px solid var(--rule); background: #fff;
+}
+.bk-tracks li { border-bottom: 1px solid var(--rule); }
+.bk-tracks li:last-child { border-bottom: none; }
+.bk-tracks button {
+  display: flex; align-items: baseline; gap: 12px; width: 100%;
+  padding: 10px 14px; background: none; border: none; border-radius: 0;
+  font: inherit; font-size: 15px; color: var(--ink); text-align: left; cursor: pointer;
+}
+.bk-tracks button:hover { background: var(--paper-deep); }
+.bk-tracks button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.bk-tracks .bk-n {
+  font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.bk-tracks .bk-t { flex: 1; }
+.bk-tracks .bk-d {
+  font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.bk-tracks li.is-current button { font-weight: 700; }
+.bk-tracks li.is-current .bk-n { color: var(--accent); }
 .case-fig figcaption { margin-top: 8px; }
 /* Captions are sentence case site-wide: keep the mono voice, drop the
    uppercase that .mono-label would otherwise impose. */

@@ -164,6 +164,7 @@ function visit_sessions(array $rows): array
                 'start_ts' => $t, 'end_ts' => $t,
                 'pages' => [], 'entry' => $r['path'],
                 'referrer' => '', 'via' => '', 'verified' => 0, 'last_dwell' => 0,
+                'n_human' => 0, 'n_bot' => 0,
                 'mobile' => (bool) preg_match('/Mobile|Android|iPhone|iPad/i', (string) $r['ua']),
             ];
             $idx = array_key_last($sessions);
@@ -174,11 +175,17 @@ function visit_sessions(array $rows): array
         $s['end'] = $r['created_at'];
         $s['end_ts'] = $t;
         $s['last_dwell'] = (int) ($r['dwell'] ?? 0); // newest row's time-on-page
-        // Session class: self if any row is self; else human if any row is human; else bot.
+        // Session class: self if any row is self; otherwise a majority vote.
+        // A scanner that probes /login and /.env but also loads three real
+        // pages used to count as human ("any human row wins"); now its probe
+        // rows outvote the page hits. A real person who trips one 404 still
+        // reads as human, because their real page views hold the majority.
         $w = (int) $r['who'];
         if ($w === 2 || $s['who'] === 2) $s['who'] = 2;
-        elseif ($w === 0 || $s['who'] === 0) $s['who'] = 0;
-        else $s['who'] = 1;
+        else {
+            if ($w === 0) $s['n_human']++; else $s['n_bot']++;
+            $s['who'] = $s['n_bot'] > $s['n_human'] ? 1 : 0;
+        }
         if ($s['referrer'] === '' && $r['referrer'] !== '' && !str_contains((string) $r['referrer'], 'billykulpa.com')) $s['referrer'] = (string) $r['referrer'];
         if ($s['via'] === '' && !empty($r['via'])) $s['via'] = (string) $r['via'];
         if (!empty($r['verified'])) $s['verified'] = 1;

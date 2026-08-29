@@ -197,6 +197,51 @@ switch (true) {
         ]);
         break;
 
+    case $path === 'sitemap.xml':
+        /* Dynamic sitemap: static pages, every case study (hand-routed and
+           archive), and published notes, with lastmod from the database so
+           it stays current without maintenance. The resume is deliberately
+           absent (it renders with noindex by request), as is /admin. */
+        header('Content-Type: application/xml; charset=utf-8');
+        $base = 'https://www.billykulpa.com';
+        $mods = [];
+        try {
+            foreach (db()->query('SELECT slug, updated_at FROM pages') as $r) {
+                $mods[$r['slug']] = $r['updated_at'];
+            }
+        } catch (Throwable $e) {
+            // pages table unavailable: ship the sitemap without lastmod.
+        }
+        $paths = ['', 'about', 'work', 'contact', 'notes',
+                  'work/fma-email', 'work/fma-safety-conference', 'work/fma-social',
+                  'work/supporting-local-music', 'work/judes-reading-quest', 'work/restreak'];
+        $archive = json_decode(@file_get_contents(APP_DIR . '/work-archive.json'), true) ?: [];
+        foreach (array_keys($archive) as $slug) $paths[] = 'work/' . $slug;
+        $urls = [];
+        foreach (array_unique($paths) as $p) {
+            $urls[] = ['loc' => $base . '/' . $p, 'lastmod' => $mods[$p] ?? null];
+        }
+        try {
+            $q = db()->query("SELECT slug, COALESCE(updated_at, published_at, created_at) m
+                              FROM posts WHERE status = 'published'");
+            foreach ($q as $r) {
+                $urls[] = ['loc' => $base . '/notes/' . $r['slug'], 'lastmod' => $r['m']];
+            }
+        } catch (Throwable $e) {
+            // posts table unavailable: the static half still ships.
+        }
+        echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        foreach ($urls as $u) {
+            echo '  <url><loc>' . esc($u['loc']) . '</loc>';
+            if (!empty($u['lastmod'])) {
+                echo '<lastmod>' . date('Y-m-d', strtotime((string) $u['lastmod'])) . '</lastmod>';
+            }
+            echo '</url>' . "\n";
+        }
+        echo '</urlset>' . "\n";
+        break;
+
     default:
         http_response_code(404);
         render('404', ['pg' => ['h1' => 'Page not found', 'meta_title' => 'Not found — Billy Kulpa', 'meta_description' => ''], 'nav' => '']);

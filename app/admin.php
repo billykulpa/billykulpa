@@ -349,7 +349,11 @@ function admin_route(string $route): void
                 $paths = array_slice($paths, 0, 12, true);
                 $refs = array_slice($refs, 0, 15, true);
                 usort($vias, fn($a, $b) => strcmp($b['last'], $a['last']));
-                $recent = array_slice($human, 0, 40);
+                // Recent sessions: every human session from today, yesterday,
+                // or the day before — Central calendar days, not a rolling 72h.
+                $sinceDay = date('Y-m-d', time() + $off * 60 - 2 * 86400);
+                $recent = array_values(array_filter($human,
+                    fn($s) => date('Y-m-d', $s['start_ts'] + $off * 60) >= $sinceDay));
             } catch (PDOException $e) {
                 $tableMissing = true;
             }

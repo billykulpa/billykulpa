@@ -67,6 +67,29 @@ Bots and your own devices are excluded from every number except their own column
 </div>
 <?php endif; ?>
 
+<h2 class="a-traffic-h">Recent sessions (last three days)</h2>
+<?php if (!$recent): ?>
+<p class="a-sub">No human sessions today, yesterday, or the day before.</p>
+<?php else: ?>
+<div class="a-table-scroll">
+<table class="a-traffic-table">
+  <thead><tr><th class="c-when">When</th><th class="c-text">Pages</th><th class="c-num">Time</th><th class="c-key">Came from</th><th class="c-num"></th></tr></thead>
+  <tbody>
+    <?php foreach ($recent as $s): ?>
+    <tr>
+      <td class="c-when a-count"><?= esc(central_time($s['start'])) ?></td>
+      <td class="c-text a-traffic-ref"><?= esc(implode(' → ', $s['pages'])) ?></td>
+      <td class="c-num a-count"><?= $s['seconds'] > 0 ? esc($fmtDur($s['seconds'])) : '—' ?></td>
+      <td class="c-key a-traffic-ref"><?= $s['via'] !== '' ? '<strong>via ' . esc($s['via']) . '</strong>' : ($s['referrer'] !== '' ? esc(preg_replace('/^(www|m|l|lm)\./', '', parse_url($s['referrer'], PHP_URL_HOST) ?: $s['referrer'])) : '<span class="a-count">direct</span>') ?></td>
+      <td class="c-num a-count c-icons"><?= $s['verified'] ? $icoBeacon : '' ?><?= $s['mobile'] ? $icoPhone : '' ?></td>
+    </tr>
+    <?php endforeach; ?>
+  </tbody>
+</table>
+</div>
+<p class="a-sub" style="margin-top:12px"><?= $icoBeacon ?> verified by the beacon &middot; <?= $icoPhone ?> mobile</p>
+<?php endif; ?>
+
 <h2 class="a-traffic-h">Last 14 days</h2>
 <?php if (!$days): ?>
 <p class="a-sub">No sessions logged yet.</p>
@@ -129,29 +152,6 @@ Bots and your own devices are excluded from every number except their own column
   </tbody>
 </table>
 </div>
-<?php endif; ?>
-
-<h2 class="a-traffic-h">Recent sessions</h2>
-<?php if (!$recent): ?>
-<p class="a-sub">Nothing yet.</p>
-<?php else: ?>
-<div class="a-table-scroll">
-<table class="a-traffic-table">
-  <thead><tr><th class="c-when">When</th><th class="c-text">Pages</th><th class="c-num">Time</th><th class="c-key">Came from</th><th class="c-num"></th></tr></thead>
-  <tbody>
-    <?php foreach ($recent as $s): ?>
-    <tr>
-      <td class="c-when a-count"><?= esc(central_time($s['start'])) ?></td>
-      <td class="c-text a-traffic-ref"><?= esc(implode(' → ', $s['pages'])) ?></td>
-      <td class="c-num a-count"><?= $s['seconds'] > 0 ? esc($fmtDur($s['seconds'])) : '—' ?></td>
-      <td class="c-key a-traffic-ref"><?= $s['via'] !== '' ? '<strong>via ' . esc($s['via']) . '</strong>' : ($s['referrer'] !== '' ? esc(preg_replace('/^(www|m|l|lm)\./', '', parse_url($s['referrer'], PHP_URL_HOST) ?: $s['referrer'])) : '<span class="a-count">direct</span>') ?></td>
-      <td class="c-num a-count c-icons"><?= $s['verified'] ? $icoBeacon : '' ?><?= $s['mobile'] ? $icoPhone : '' ?></td>
-    </tr>
-    <?php endforeach; ?>
-  </tbody>
-</table>
-</div>
-<p class="a-sub" style="margin-top:12px"><?= $icoBeacon ?> verified by the beacon &middot; <?= $icoPhone ?> mobile</p>
 <?php endif; ?>
 
 <?php endif; ?>

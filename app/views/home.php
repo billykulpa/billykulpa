@@ -33,25 +33,25 @@
         <polygon class="face" fill="#fff" points="233.9,151.0 130.0,211.0 130.0,216.0 233.9,156.0"/>
         <polygon class="face" fill="#fff" points="26.1,151.0 130.0,211.0 130.0,216.0 26.1,156.0"/>
         <polygon class="face" fill="#fff" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0"/>
-        <polygon class="wf" points="117.9,104.0 211.4,158.0 201.0,164.0 107.5,110.0"/>
-        <polyline class="wf" points="116.1,109.0 133.5,119.0"/>
-        <polyline class="wf" points="175.0,143.0 202.7,159.0"/>
-        <polyline class="wf bold" points="100.6,116.0 156.0,148.0"/>
-        <polyline class="wf bold" points="92.8,120.5 134.3,144.5"/>
-        <polygon class="wf" points="85.0,125.0 123.1,147.0 90.2,166.0 52.1,144.0"/>
-        <polyline class="wf soft" points="85.0,125.0 90.2,166.0"/>
-        <polyline class="wf soft" points="123.1,147.0 52.1,144.0"/>
-        <polyline class="wf" points="128.3,154.0 171.6,179.0"/>
-        <polyline class="wf" points="120.5,158.5 163.8,183.5"/>
-        <polyline class="wf" points="112.7,163.0 156.0,188.0"/>
-        <polygon class="wf accent" points="105.8,167.0 131.7,182.0 121.3,188.0 95.4,173.0"/>
-        <polyline class="wf" points="41.7,150.0 131.7,202.0"/>
+        <polygon class="wf" points="119.6,105.0 202.7,153.0 192.4,159.0 109.2,111.0"/>
+        <polyline class="wf" points="117.9,110.0 135.2,120.0"/>
+        <polyline class="wf" points="169.8,140.0 194.1,154.0"/>
+        <polyline class="wf" points="102.3,117.0 154.2,147.0"/>
+        <polyline class="wf" points="94.5,121.5 132.6,143.5"/>
+        <polygon class="wf" points="86.7,126.0 121.3,146.0 88.4,165.0 53.8,145.0"/>
+        <polyline class="wf soft" points="86.7,126.0 88.4,165.0"/>
+        <polyline class="wf soft" points="121.3,146.0 53.8,145.0"/>
+        <polyline class="wf" points="126.5,153.0 162.9,174.0"/>
+        <polyline class="wf" points="118.7,157.5 155.1,178.5"/>
+        <polyline class="wf" points="110.9,162.0 147.3,183.0"/>
+        <polygon class="wf accent" points="104.0,166.0 128.3,180.0 117.9,186.0 93.6,172.0"/>
+        <polyline class="wf" points="43.4,151.0 123.1,197.0"/>
         <text class="lbl" x="240.7" y="154.0">the page</text>
         </g>
         <g class="layer l-chrome">
         <polygon class="face" fill="#fff" points="233.9,151.0 130.0,211.0 130.0,216.0 233.9,156.0"/>
         <polygon class="face" fill="#fff" points="26.1,151.0 130.0,211.0 130.0,216.0 26.1,156.0"/>
-        <polygon class="wf" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0"/>
+        <polygon class="glass" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0"/>
         <polygon class="face" fill="#fff" points="130.0,91.0 233.9,151.0 220.1,159.0 116.1,99.0"/>
         <circle class="wf dot" cx="130.0" cy="99.0" r="2"/>
         <circle class="wf dot" cx="136.9" cy="103.0" r="2"/>

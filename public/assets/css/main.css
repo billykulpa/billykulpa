@@ -257,6 +257,9 @@ img { max-width: 100%; display: block; }
   /* Full selector on purpose: must outrank the desktop `.site-nav a.nav-contact`
      button styling (border + fill hover) so Contact reads as a plain row here. */
   .site-nav a.nav-contact { border: 0; padding: 14px 24px !important; border-radius: 0; }
+  /* ...but `border: 0` also wipes the `> * + *` separator this row inherits,
+     which left Contact with no rule above it in the drawer. Put it back. */
+  .site-nav > * + a.nav-contact { border-top: 1px solid var(--rule); }
   .site-nav a.nav-contact:hover { background: none; color: var(--accent); }
   .site-nav a.nav-contact .nav-idx { display: inline; }
   /* In the drawer, Contact is a plain nav row -- no border to run a surge

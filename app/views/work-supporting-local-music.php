@@ -14,10 +14,10 @@
 <section class="section">
   <div class="wrap">
     <dl class="case-meta">
-      <div><dt class="mono-label">Client</dt><dd>Joie de Vivre, The Anys, and Track &amp; Field, Rockford, Illinois</dd></div>
+      <div><dt class="mono-label">Clients</dt><dd>Joie de Vivre, The Anys, Track &amp; Field, Demara, and any band in the greater Rockford, Illinois, area</dd></div>
       <div><dt class="mono-label">Role</dt><dd>Design, illustration, layout, recording and mixing</dd></div>
-      <div><dt class="mono-label">Tools</dt><dd>Adobe Illustrator and Photoshop; Apple Logic Pro X</dd></div>
-      <div><dt class="mono-label">Completed</dt><dd>2025&ndash;26</dd></div>
+      <div><dt class="mono-label">Tools</dt><dd>Adobe Illustrator and Photoshop; Apple Logic Pro X; Unsplash; Getty Images; Vecteezy</dd></div>
+      <div><dt class="mono-label">Status</dt><dd>Ongoing</dd></div>
     </dl>
 
     <div class="prose-grid prose-grid--h">

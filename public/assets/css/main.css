@@ -120,6 +120,8 @@ img { max-width: 100%; display: block; }
 .site-header {
   border-bottom: 1px solid var(--rule);
   position: sticky; top: 0; z-index: 50;
+  overflow-x: clip; /* the nav surge sweeps past the right edge; without this
+                       its tail creates a brief horizontal scrollbar */
   /* Solid background on purpose: backdrop-filter would create a containing
      block and trap the fixed-position mobile drawer inside the header. */
   background: var(--paper);
@@ -634,7 +636,7 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
    a quiet manuscript block instead of the accent-bar pull quote. */
 .prose blockquote.longform {
   border-left: 0;
-  background: var(--paper-deep);
+  background: #fff;
   border: 1px solid var(--rule);
   padding: clamp(24px, 4vw, 40px);
   margin: 32px 0 40px;

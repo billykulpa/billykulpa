@@ -228,14 +228,35 @@ function markdown_to_html(string $md): string
             continue;
         }
 
-        // Blockquote
+        // Blockquote — keeps paragraph breaks (a blank "> " line, or a blank
+        // line between two quoted blocks) and allows ## headings inside the
+        // quote. A quote with more than one block gets the .longform
+        // manuscript treatment; a single-paragraph quote stays a pull quote.
         if (preg_match('/^>\s?/', $line)) {
-            $quote = [];
-            while ($i < $n && preg_match('/^>\s?(.*)$/', $lines[$i], $m)) {
-                $quote[] = $m[1];
-                $i++;
+            $qlines = [];
+            while ($i < $n) {
+                if (preg_match('/^>\s?(.*)$/', $lines[$i], $m)) { $qlines[] = $m[1]; $i++; continue; }
+                if (trim($lines[$i]) === '' && $i + 1 < $n && preg_match('/^>\s?/', $lines[$i + 1])) { $qlines[] = ''; $i++; continue; }
+                break;
             }
-            $html[] = '<blockquote><p>' . md_inline(implode(' ', $quote)) . '</p></blockquote>';
+            $parts = [];
+            $para  = [];
+            $flush = function () use (&$para, &$parts) {
+                if ($para) { $parts[] = '<p>' . md_inline(implode(' ', $para)) . '</p>'; $para = []; }
+            };
+            foreach ($qlines as $ql) {
+                if (trim($ql) === '') { $flush(); continue; }
+                if (preg_match('/^(#{1,4})\s+(.*)$/', $ql, $m)) {
+                    $flush();
+                    $level   = min(strlen($m[1]) + 1, 5);
+                    $parts[] = "<h{$level}>" . md_inline($m[2]) . "</h{$level}>";
+                    continue;
+                }
+                $para[] = $ql;
+            }
+            $flush();
+            $cls    = count($parts) > 1 ? ' class="longform"' : '';
+            $html[] = "<blockquote{$cls}>" . implode('', $parts) . '</blockquote>';
             continue;
         }
 

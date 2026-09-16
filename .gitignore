@@ -13,3 +13,15 @@ figma-exports/
 # One-time SQL migrations are delivered and run in phpMyAdmin, not tracked;
 # schema.sql remains the canonical schema.
 add-*.sql
+
+# Capture masters. The 24-bit WAVs and raw iPhone .MOV files from the Track
+# & Field session are 600+ MB and blow past GitHub's 100 MB file limit. Keep
+# them on disk, back them up outside git. The WEB-READY derivatives that the
+# site actually serves -- tf-*.m4a, tf-*.mp4, tf-*-poster.jpg -- stay tracked.
+public/assets/audio/*.wav
+public/assets/audio/*.aif
+public/assets/audio/*.aiff
+public/assets/video/*.MOV
+public/assets/video/*.mov
+# Raw social downloads arrive with spaces and @handles in the filename.
+public/assets/video/@*

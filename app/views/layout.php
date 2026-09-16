@@ -23,7 +23,7 @@ if (!empty($_COOKIE[config()['session_name']])) { $qa_user = current_user(); }
   <?php /* Fonts are self-hosted (see @font-face at the top of main.css) so
            nothing render-blocks on a third party. Preload the two files
            almost every page paints with. */ ?>
-  <link rel="preload" href="/assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/archivo-latin-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/main.css?v=<?= @filemtime(public_dir() . '/assets/css/main.css') ?: 0 ?>">
   <?php // Analytics: first-party visit log only (app/visits.php). Google Analytics removed Aug 2026; the property keeps its history. ?>

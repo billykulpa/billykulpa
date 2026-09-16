@@ -973,8 +973,8 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 .xpl .l-page  { animation-name: bk-xmid; }
 .xpl .l-grid  { animation-name: bk-xbot; }
 .xpl .guides, .xpl .lbl { opacity: 0; animation: bk-xvis 18s linear infinite; }
-@keyframes bk-xtop { 0%,22% { transform: translateY(-14px); } 32%,44% { transform: translateY(-88px); } 52% { transform: translateY(-86px); } 62%,70% { transform: translateY(-88px); } 80%,100% { transform: translateY(-14px); } }
-@keyframes bk-xmid { 0%,23% { transform: translateY(-7px); } 33%,46% { transform: translateY(-46px); } 56% { transform: translateY(-44.5px); } 64%,71% { transform: translateY(-46px); } 81%,100% { transform: translateY(-7px); } }
+@keyframes bk-xtop { 0%,22% { transform: translateY(-10px); } 32%,44% { transform: translateY(-88px); } 52% { transform: translateY(-86px); } 62%,70% { transform: translateY(-88px); } 80%,100% { transform: translateY(-10px); } }
+@keyframes bk-xmid { 0%,23% { transform: translateY(-5px); } 33%,46% { transform: translateY(-46px); } 56% { transform: translateY(-44.5px); } 64%,71% { transform: translateY(-46px); } 81%,100% { transform: translateY(-5px); } }
 @keyframes bk-xbot { 0%,24% { transform: translateY(0); } 34%,72% { transform: translateY(6px); } 82%,100% { transform: translateY(0); } }
 @keyframes bk-xvis { 0%,26% { opacity: 0; } 34%,68% { opacity: 1; } 76%,100% { opacity: 0; } }
 
@@ -1035,8 +1035,8 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
     animation: none;
   }
   /* rest at the assembled stack, not a flat overlap */
-  .xpl .l-chrome { transform: translateY(-14px); }
-  .xpl .l-page  { transform: translateY(-7px); }
+  .xpl .l-chrome { transform: translateY(-10px); }
+  .xpl .l-page  { transform: translateY(-5px); }
   .xpl .charge { display: none; }
   .hero-facts::before { transform: scaleX(1); }
 }

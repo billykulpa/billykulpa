@@ -30,6 +30,10 @@ return [
     // its finds through it). Any long random string; leave it out to keep
     // the endpoint disabled. Never commit the real value.
     // 'jobtracker_key' => 'change-me',
+    // Read key for /api/jobwatch.php. One call fans out to ~363 ATS board
+    // polls, so this must not live in the (public) repo. Leave it out to
+    // keep the endpoint disabled.
+    // 'jobwatch_key' => 'change-me-as-well',
     // Optional: salt for the daily visitor digest in the traffic log
     // (falls back to the DB password, which is fine; never leaves the server).
     // 'visit_salt' => 'change-me-too',

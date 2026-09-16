@@ -6,15 +6,20 @@
  * across Greenhouse, Lever, Ashby, and SmartRecruiters in parallel (curl_multi,
  * ~10s for 120+ boards), filters for creative-leadership titles, and returns
  * JSON. Results are cached for 45 minutes so repeated checks don't hammer
- * anyone's API. Access requires ?k=<key>; the data is public job postings,
- * the key just keeps crawlers off. Append &fresh=1 to bypass the cache.
+ * anyone's API. Append &fresh=1 to bypass the cache.
+ *
+ * Access requires ?k=<key>, read from config.php ('jobwatch_key'). The DATA
+ * here is just public job postings, but one call fans out to ~363 outbound
+ * board polls, so a key in the open would be an amplifier pointed at this
+ * server. The key used to be a literal in this file; that was fine while the
+ * repo was private and stopped being fine when it went public (Sep 2026).
+ * Missing config key = the endpoint plays dead, same as a wrong key.
  */
 
 declare(strict_types=1);
 
 define('APP_DIR', is_dir(__DIR__ . '/../../app') ? __DIR__ . '/../../app' : __DIR__ . '/../app');
 
-const JOBWATCH_KEY = 'bk-jobwatch-2026';
 const CACHE_TTL = 2700; // 45 minutes
 /* TITLE_RX is the wide net (small companies call the top creative seat
    "art director" or "creative manager"); BAR_RX marks the titles that
@@ -25,7 +30,10 @@ const BAR_RX = '/creative\s+director|director[,]?\s+(of\s+)?creative|executive\s
 header('Content-Type: application/json; charset=utf-8');
 header('X-Robots-Tag: noindex, nofollow');
 
-if (($_GET['k'] ?? '') !== JOBWATCH_KEY) {
+require_once APP_DIR . '/db.php'; // for config(); the PDO connects lazily
+
+$key = config()['jobwatch_key'] ?? '';
+if ($key === '' || !hash_equals($key, (string) ($_GET['k'] ?? ''))) {
     http_response_code(404);
     echo json_encode(['error' => 'not found']);
     exit;

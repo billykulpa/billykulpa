@@ -948,15 +948,15 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
    Every animated stroke is 1px. Everything dies under reduced motion. */
 
 /* --- the exploded site (homepage hero) --- */
-.hero-side .xpl { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; }
-.xpl .face { stroke: var(--ink); stroke-width: 1.1; fill: #fff; stroke-linejoin: miter; }
-.xpl .wf { stroke: var(--ink); stroke-width: 1.1; fill: none; stroke-linecap: butt; stroke-linejoin: miter; }
+.hero-side .xpl { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; overflow: visible; }
+.xpl .face { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; fill: #fff; stroke-linejoin: miter; }
+.xpl .wf { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; fill: none; stroke-linecap: butt; stroke-linejoin: miter; }
 .xpl .wf.soft { stroke: var(--rule); }
-.xpl .wf.bold { stroke-width: 1.6; }
+.xpl .wf.bold { stroke-width: 1.5; }
 .xpl .wf.accent { stroke: var(--accent); }
 .xpl .dot { fill: var(--ink); stroke: none; }
 .xpl .lbl { font: 9px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; fill: var(--ink-soft); }
-.xpl .guide { stroke: var(--accent-soft); stroke-width: 1; stroke-dasharray: 2 4; }
+.xpl .guide { stroke: var(--accent-soft); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 2 4; }
 .xpl .layer { animation: 18s cubic-bezier(.5,0,.2,1) infinite; }
 .xpl .l-chrome { animation-name: bk-xtop; }
 .xpl .l-page  { animation-name: bk-xmid; }
@@ -989,12 +989,69 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 }
 @keyframes bk-glint { from { left: -9%; } to { left: 109%; } }
 
+
+/* --- charge lap: the current charges the idle stack, then it bursts --- */
+.xpl .charge { fill: none; stroke: var(--accent); stroke-width: 1;
+  vector-effect: non-scaling-stroke; stroke-linecap: butt;
+  stroke-dasharray: 12 88; stroke-dashoffset: 100;
+  animation: bk-charge 18s linear infinite; }
+@keyframes bk-charge {
+  0%   { stroke-dashoffset: 100; opacity: 1; }
+  21%  { stroke-dashoffset: 0;   opacity: 1; }
+  24%  { opacity: 0; }
+  76%  { opacity: 0; stroke-dashoffset: 100; }
+  80%  { opacity: 1; stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0;   opacity: 1; }
+}
+
+/* --- signal path seam: the current carries you from hero to work --- */
+.seam .sig { display: block; width: 100%; height: auto; }
+.seam .base { stroke: var(--rule); stroke-width: 1; fill: none; }
+.seam .node { fill: var(--paper); stroke: var(--ink-soft); stroke-width: 1; }
+.seam .run { stroke: var(--accent); stroke-width: 1; fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 8 92; stroke-dashoffset: 100;
+  animation: bk-lap 14s linear infinite; }
+.seam .run.v { stroke: var(--accent-2); animation-delay: -7s; }
+@keyframes bk-lap { to { stroke-dashoffset: 0; } }
+
+/* --- underline comet on featured section links --- */
+.section-more { position: relative; }
+.section-more:hover { text-decoration: none; }
+.section-more::before { content: ""; position: absolute; left: 0; right: 0;
+  bottom: -4px; height: 1px; background: var(--rule); }
+.section-more::after { content: ""; position: absolute; bottom: -4px;
+  left: 0; width: 26%; height: 1px; background: var(--accent);
+  animation: bk-comet 5s linear infinite; }
+@keyframes bk-comet { from { left: -26%; } to { left: 100%; } }
+
+/* --- power-on: the hero facts rule draws itself once per page view --- */
+.hero-facts { position: relative; }
+.hero-facts::before { content: ""; position: absolute; top: -1px; left: 0;
+  width: 100%; height: 1px; background: var(--ink-soft);
+  transform: scaleX(0); transform-origin: left;
+  animation: bk-poweron 1.4s cubic-bezier(.4,0,.2,1) .3s forwards; }
+@keyframes bk-poweron { to { transform: scaleX(1); } }
+
+/* --- the lighthouse sweeps (footer) --- */
+.footer-beacon { display: block; margin-bottom: 10px; }
+.footer-beacon .b-ico { stroke: var(--ink-soft); stroke-width: 1; fill: none;
+  stroke-linecap: butt; stroke-linejoin: miter; }
+.footer-beacon .b-beams path { stroke: var(--accent-soft); stroke-width: 1; opacity: 0; }
+.footer-beacon .b1 { animation: bk-sweep 6s linear infinite; }
+.footer-beacon .b2 { animation: bk-sweep 6s linear infinite 1s; }
+.footer-beacon .b3 { animation: bk-sweep 6s linear infinite 2s; }
+@keyframes bk-sweep { 0%, 40%, 100% { opacity: 0; } 12%, 26% { opacity: 1; } }
+
 @media (prefers-reduced-motion: reduce) {
-  .xpl .layer, .xpl .guides, .xpl .lbl, .btn--surge rect, .site-header::after {
+  .xpl .layer, .xpl .guides, .xpl .lbl, .xpl .charge, .btn--surge rect,
+  .site-header::after, .seam .run, .section-more::after,
+  .hero-facts::before, .footer-beacon .b-beams path {
     animation: none;
   }
   /* rest at the assembled stack, not a flat overlap */
   .xpl .l-chrome { transform: translateY(-14px); }
   .xpl .l-page  { transform: translateY(-7px); }
-  .site-header::after { display: none; }
+  .xpl .charge, .site-header::after, .section-more::after { display: none; }
+  .hero-facts::before { transform: scaleX(1); }
 }

@@ -10,7 +10,7 @@
       <div class="hero-side">
         <!-- The exploded site: browser / page / grid. Pure SVG; motion is
              three CSS transforms (see "Motion" in main.css). -->
-        <svg class="xpl" viewBox="0 0 316 240" aria-hidden="true">
+        <svg class="xpl" viewBox="0 64 316 158" aria-hidden="true">
         <g class="guides">
         <line class="guide" x1="130.0" y1="-1.0" x2="130.0" y2="97.0"/>
         <line class="guide" x1="233.9" y1="59.0" x2="233.9" y2="157.0"/>
@@ -58,6 +58,7 @@
         <circle class="wf dot" cx="143.9" cy="107.0" r="2"/>
         <polyline class="wf" points="152.5,112.0 220.1,151.0"/>
         <text class="lbl" x="240.7" y="154.0">the browser</text>
+        <polyline class="charge" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0 130.0,91.0" pathLength="100"/>
         </g>
         </svg>
         <dl class="hero-facts">
@@ -68,6 +69,21 @@
     </div>
   </div>
 </section>
+
+<div class="seam" aria-hidden="true">
+  <div class="wrap">
+    <svg class="sig" viewBox="0 0 640 60">
+      <path class="base" d="M0 30 H140 V12 H300 V46 H480 V30 H640"/>
+      <path class="run"   d="M0 30 H140 V12 H300 V46 H480 V30 H640" pathLength="100"/>
+      <path class="run v" d="M0 30 H140 V12 H300 V46 H480 V30 H640" pathLength="100"/>
+      <rect class="node" x="136" y="8"  width="8" height="8"/>
+      <rect class="node" x="296" y="8"  width="8" height="8"/>
+      <rect class="node" x="296" y="42" width="8" height="8"/>
+      <rect class="node" x="476" y="42" width="8" height="8"/>
+      <rect class="node" x="476" y="26" width="8" height="8"/>
+    </svg>
+  </div>
+</div>
 
 <section class="section">
   <div class="wrap">

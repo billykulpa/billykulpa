@@ -958,7 +958,9 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
      lede (the original hero geometry) and the diagram hangs absolutely in
      the empty column above them, beside the headline. 821px matches the
      .hero-grid breakpoint so the two rules can never disagree. */
-  .hero-side .xpl { position: absolute; bottom: calc(100% + 24px); left: 0; right: 0; margin: 0 auto; }
+  .hero-side .xpl { position: absolute; bottom: calc(100% + 24px); left: 0; right: 0; margin: 0 auto;
+    max-width: 370px; /* desktop only: the in-flow mobile cap stays 300px so the
+                         72px reserved headroom still covers the explosion */ }
 }
 .xpl .face { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; fill: #fff; stroke-linejoin: miter; }
 .xpl .wf { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; fill: none; stroke-linecap: butt; stroke-linejoin: miter; }
@@ -984,6 +986,22 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 @keyframes bk-xvis { 0%,26% { opacity: 0; } 34%,68% { opacity: 1; } 76%,100% { opacity: 0; } }
 
 /* --- surge button: the border idles, then a 1px pulse laps the edge --- */
+/* --- nav surge: the header's bottom rule takes a fast pulse every 12s.
+   A surge, not a lap: it idles dark, then one eased sweep rips across.
+   (The old continuous glint read as a loading bar; this is its event-class
+   replacement, per Billy's request.) --- */
+.site-header::after {
+  content: ""; position: absolute; left: -8%; bottom: -1px;
+  width: 7%; height: 1px; background: var(--accent); opacity: 0;
+  animation: bk-navsurge 12s cubic-bezier(.6,0,.3,1) infinite;
+}
+@keyframes bk-navsurge {
+  0%, 74% { left: -8%; opacity: 0; }
+  76%     { opacity: 1; }
+  94%     { left: 101%; opacity: 1; }
+  96%, 100% { left: 101%; opacity: 0; }
+}
+
 .btn--surge { position: relative; }
 .btn--surge svg { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); pointer-events: none; }
 .btn--surge rect { fill: none; stroke: var(--accent); stroke-width: 1;
@@ -1027,12 +1045,13 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 
 @media (prefers-reduced-motion: reduce) {
   .xpl .layer, .xpl .guides, .xpl .lbl, .xpl .charge, .btn--surge rect,
+  .site-header::after,
   .hero-facts::before {
     animation: none;
   }
   /* rest at the assembled stack, not a flat overlap */
   .xpl .l-chrome { transform: translateY(-10px); }
   .xpl .l-page  { transform: translateY(-5px); }
-  .xpl .charge { display: none; }
+  .xpl .charge, .site-header::after { display: none; }
   .hero-facts::before { transform: scaleX(1); }
 }

@@ -149,3 +149,15 @@
     select(tracks[0], false); // cue the first track without autoplaying
   });
 })();
+
+/* Surge borders on every .btn: progressive enhancement, so templates stay
+   clean. Buttons that already carry the SVG (the homepage CTA) are skipped. */
+(function () {
+  document.querySelectorAll('.btn').forEach(function (b) {
+    if (b.querySelector('svg')) { b.classList.add('btn--surge'); return; }
+    b.classList.add('btn--surge');
+    b.insertAdjacentHTML('beforeend',
+      '<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">' +
+      '<rect x="0.5" y="0.5" width="99" height="39" pathLength="100"/></svg>');
+  });
+})();

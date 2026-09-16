@@ -949,13 +949,15 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 
 /* --- the exploded site (homepage hero) --- */
 .hero-side { position: relative; }
-/* In-flow (below 1000px) the diagram needs its own headroom: the explosion
-   rises ~66 viewBox units above the cropped frame, ~68px at full render
-   width. Without this it climbs through the lede above it on mobile. */
+/* Single-column (mobile) the diagram is in-flow and needs its own headroom:
+   the explosion rises ~68px above the cropped frame at full render width.
+   Without this it climbs through the lede above it. */
 .hero-side .xpl { display: block; width: 100%; max-width: 300px; margin: 72px auto 10px; overflow: visible; }
-@media (min-width: 1000px) {
-  /* The facts stay top-aligned with the lede (the original hero geometry);
-     the diagram hangs in the empty column above them, beside the headline. */
+@media (min-width: 821px) {
+  /* Whenever the hero is two-column, the facts stay top-aligned with the
+     lede (the original hero geometry) and the diagram hangs absolutely in
+     the empty column above them, beside the headline. 821px matches the
+     .hero-grid breakpoint so the two rules can never disagree. */
   .hero-side .xpl { position: absolute; bottom: calc(100% + 24px); left: 0; right: 0; margin: 0 auto; }
 }
 .xpl .face { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; fill: #fff; stroke-linejoin: miter; }

@@ -53,9 +53,9 @@
         <polygon class="face" fill="#fff" points="26.1,151.0 130.0,211.0 130.0,216.0 26.1,156.0"/>
         <polygon class="glass" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0"/>
         <polygon class="face" fill="#fff" points="130.0,91.0 233.9,151.0 220.1,159.0 116.1,99.0"/>
-        <circle class="wf dot" cx="130.0" cy="99.0" r="2"/>
-        <circle class="wf dot" cx="136.9" cy="103.0" r="2"/>
-        <circle class="wf dot" cx="143.9" cy="107.0" r="2"/>
+        <circle class="dot d-r" cx="130.0" cy="99.0" r="2"/>
+        <circle class="dot d-y" cx="136.9" cy="103.0" r="2"/>
+        <circle class="dot d-g" cx="143.9" cy="107.0" r="2"/>
         <polyline class="wf" points="152.5,112.0 220.1,151.0"/>
         <text class="lbl" x="240.7" y="154.0">the browser</text>
         <polyline class="charge" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0 130.0,91.0" pathLength="100"/>

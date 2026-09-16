@@ -967,7 +967,10 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 .xpl .wf.accent { stroke: var(--accent); }
 .xpl .glass { fill: #fff; fill-opacity: .55; stroke: var(--ink); stroke-width: 1;
   vector-effect: non-scaling-stroke; stroke-linejoin: miter; }
-.xpl .dot { fill: var(--ink); stroke: none; }
+.xpl .dot { stroke: none; }
+.xpl .d-r { fill: #ff5f57; }  /* macOS close */
+.xpl .d-y { fill: #febc2e; }  /* macOS minimize */
+.xpl .d-g { fill: #28c840; }  /* macOS zoom */
 .xpl .lbl { font: 9px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; fill: var(--ink-soft); }
 .xpl .guide { stroke: var(--accent-soft); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 2 4; }
 .xpl .layer { animation: 18s cubic-bezier(.5,0,.2,1) infinite; }

@@ -33,19 +33,19 @@
         <polygon class="face" fill="#fff" points="233.9,151.0 130.0,211.0 130.0,216.0 233.9,156.0"/>
         <polygon class="face" fill="#fff" points="26.1,151.0 130.0,211.0 130.0,216.0 26.1,156.0"/>
         <polygon class="face" fill="#fff" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0"/>
-        <polygon class="wf" points="130.0,97.0 223.5,151.0 213.1,157.0 119.6,103.0"/>
-        <polyline class="wf" points="128.3,102.0 145.6,112.0"/>
-        <polyline class="wf" points="187.2,136.0 214.9,152.0"/>
-        <polyline class="wf bold" points="110.9,110.0 166.4,142.0"/>
-        <polyline class="wf bold" points="102.3,115.0 143.9,139.0"/>
-        <polygon class="wf" points="91.9,121.0 130.0,143.0 95.4,163.0 57.3,141.0"/>
-        <polyline class="wf soft" points="91.9,121.0 95.4,163.0"/>
-        <polyline class="wf soft" points="130.0,143.0 57.3,141.0"/>
-        <polyline class="wf" points="135.2,150.0 178.5,175.0"/>
-        <polyline class="wf" points="126.5,155.0 169.8,180.0"/>
-        <polyline class="wf" points="117.9,160.0 161.2,185.0"/>
-        <polygon class="wf accent" points="109.2,165.0 135.2,180.0 124.8,186.0 98.8,171.0"/>
-        <polyline class="wf" points="46.9,147.0 136.9,199.0"/>
+        <polygon class="wf" points="117.9,104.0 211.4,158.0 201.0,164.0 107.5,110.0"/>
+        <polyline class="wf" points="116.1,109.0 133.5,119.0"/>
+        <polyline class="wf" points="175.0,143.0 202.7,159.0"/>
+        <polyline class="wf bold" points="100.6,116.0 156.0,148.0"/>
+        <polyline class="wf bold" points="92.8,120.5 134.3,144.5"/>
+        <polygon class="wf" points="85.0,125.0 123.1,147.0 90.2,166.0 52.1,144.0"/>
+        <polyline class="wf soft" points="85.0,125.0 90.2,166.0"/>
+        <polyline class="wf soft" points="123.1,147.0 52.1,144.0"/>
+        <polyline class="wf" points="128.3,154.0 171.6,179.0"/>
+        <polyline class="wf" points="120.5,158.5 163.8,183.5"/>
+        <polyline class="wf" points="112.7,163.0 156.0,188.0"/>
+        <polygon class="wf accent" points="105.8,167.0 131.7,182.0 121.3,188.0 95.4,173.0"/>
+        <polyline class="wf" points="41.7,150.0 131.7,202.0"/>
         <text class="lbl" x="240.7" y="154.0">the page</text>
         </g>
         <g class="layer l-chrome">

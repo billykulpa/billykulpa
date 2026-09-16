@@ -120,8 +120,6 @@ img { max-width: 100%; display: block; }
 .site-header {
   border-bottom: 1px solid var(--rule);
   position: sticky; top: 0; z-index: 50;
-  overflow-x: clip; /* the nav surge sweeps past the right edge; without this
-                       its tail creates a brief horizontal scrollbar */
   /* Solid background on purpose: backdrop-filter would create a containing
      block and trap the fixed-position mobile drawer inside the header. */
   background: var(--paper);
@@ -988,21 +986,6 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 @keyframes bk-xvis { 0%,26% { opacity: 0; } 34%,68% { opacity: 1; } 76%,100% { opacity: 0; } }
 
 /* --- surge button: the border idles, then a 1px pulse laps the edge --- */
-/* --- nav surge: the header's bottom rule takes a fast pulse every 12s.
-   A surge, not a lap: it idles dark, then one eased sweep rips across.
-   (The old continuous glint read as a loading bar; this is its event-class
-   replacement, per Billy's request.) --- */
-.site-header::after {
-  content: ""; position: absolute; left: -8%; bottom: -1px;
-  width: 7%; height: 1px; background: var(--accent); opacity: 0;
-  animation: bk-navsurge 12s cubic-bezier(.6,0,.3,1) infinite;
-}
-@keyframes bk-navsurge {
-  0%, 74% { left: -8%; opacity: 0; }
-  76%     { opacity: 1; }
-  94%     { left: 101%; opacity: 1; }
-  96%, 100% { left: 101%; opacity: 0; }
-}
 
 .btn--surge { position: relative; }
 .btn--surge svg { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); pointer-events: none; }
@@ -1047,13 +1030,12 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 
 @media (prefers-reduced-motion: reduce) {
   .xpl .layer, .xpl .guides, .xpl .lbl, .xpl .charge, .btn--surge rect,
-  .site-header::after,
   .hero-facts::before {
     animation: none;
   }
   /* rest at the assembled stack, not a flat overlap */
   .xpl .l-chrome { transform: translateY(-10px); }
   .xpl .l-page  { transform: translateY(-5px); }
-  .xpl .charge, .site-header::after { display: none; }
+  .xpl .charge { display: none; }
   .hero-facts::before { transform: scaleX(1); }
 }

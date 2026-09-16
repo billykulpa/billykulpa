@@ -49,7 +49,11 @@
         <text class="lbl" x="240.7" y="154.0">the page</text>
         </g>
         <g class="layer l-chrome">
-        <polygon class="wf" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0"/>
+        <polygon class="face" fill="#fff" points="119.6,105.0 39.9,151.0 39.9,156.0 119.6,110.0"/>
+        <polygon class="face" fill="#fff" points="119.6,105.0 209.7,157.0 209.7,162.0 119.6,110.0"/>
+        <polygon class="face" fill="#fff" points="233.9,151.0 130.0,211.0 130.0,216.0 233.9,156.0"/>
+        <polygon class="face" fill="#fff" points="26.1,151.0 130.0,211.0 130.0,216.0 26.1,156.0"/>
+        <path class="face" fill="#fff" fill-rule="evenodd" d="M 130.0 91.0 L 233.9 151.0 L 130.0 211.0 L 26.1 151.0 Z M 119.6 105.0 L 209.7 157.0 L 130.0 203.0 L 39.9 151.0 Z"/>
         <polygon class="face" fill="#fff" points="233.9,147.0 220.1,155.0 220.1,159.0 233.9,151.0"/>
         <polygon class="face" fill="#fff" points="116.1,95.0 220.1,155.0 220.1,159.0 116.1,99.0"/>
         <polygon class="face" fill="#fff" points="130.0,87.0 233.9,147.0 220.1,155.0 116.1,95.0"/>

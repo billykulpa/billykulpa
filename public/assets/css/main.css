@@ -949,7 +949,10 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 
 /* --- the exploded site (homepage hero) --- */
 .hero-side { position: relative; }
-.hero-side .xpl { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; overflow: visible; }
+/* In-flow (below 1000px) the diagram needs its own headroom: the explosion
+   rises ~66 viewBox units above the cropped frame, ~68px at full render
+   width. Without this it climbs through the lede above it on mobile. */
+.hero-side .xpl { display: block; width: 100%; max-width: 300px; margin: 72px auto 10px; overflow: visible; }
 @media (min-width: 1000px) {
   /* The facts stay top-aligned with the lede (the original hero geometry);
      the diagram hangs in the empty column above them, beside the headline. */
@@ -987,14 +990,6 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   100% { stroke-dashoffset: 0; }
 }
 
-/* --- glint: a soft segment of current crosses the header rule --- */
-.site-header::after {
-  content: ""; position: absolute; left: 0; bottom: -1px;
-  width: 8%; height: 1px; background: var(--accent-soft);
-  animation: bk-glint 14s linear infinite;
-}
-@keyframes bk-glint { from { left: -9%; } to { left: 109%; } }
-
 
 /* --- charge lap: the current charges the idle stack, then it bursts --- */
 .xpl .charge { fill: none; stroke: var(--accent); stroke-width: 1;
@@ -1011,23 +1006,16 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 }
 
 
-/* --- underline comet on featured section links --- */
-.section-more { position: relative; }
-.section-more:hover { text-decoration: none; }
-.section-more::before { content: ""; position: absolute; left: 0; right: 0;
-  bottom: -4px; height: 1px; background: var(--rule); }
-.section-more::after { content: ""; position: absolute; bottom: -4px;
-  left: 0; width: 26%; height: 1px; background: var(--accent);
-  animation: bk-comet 5s linear infinite; }
-@keyframes bk-comet { from { left: -26%; } to { left: 100%; } }
-
-/* --- power-on: the hero facts rule draws itself once per page view --- */
+/* --- cycle progress: the facts' top rule fills with ink over one full
+   hero cycle (18s, same clock as the exploded diagram above it), then
+   resets as the stack reassembles. A deliberate progress bar, synced to
+   something real — unlike the removed comet/glint, which faked one. --- */
 .hero-facts { position: relative; }
 .hero-facts::before { content: ""; position: absolute; top: -1px; left: 0;
   width: 100%; height: 1px; background: var(--ink-soft);
   transform: scaleX(0); transform-origin: left;
-  animation: bk-poweron 1.4s cubic-bezier(.4,0,.2,1) .3s forwards; }
-@keyframes bk-poweron { to { transform: scaleX(1); } }
+  animation: bk-cycle 18s linear infinite; }
+@keyframes bk-cycle { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 /* --- the lighthouse sweeps (footer) --- */
 .footer-beacon { display: block; margin-bottom: 10px; }
@@ -1041,13 +1029,12 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 
 @media (prefers-reduced-motion: reduce) {
   .xpl .layer, .xpl .guides, .xpl .lbl, .xpl .charge, .btn--surge rect,
-  .site-header::after, .section-more::after,
   .hero-facts::before, .footer-beacon .b-beams path {
     animation: none;
   }
   /* rest at the assembled stack, not a flat overlap */
   .xpl .l-chrome { transform: translateY(-14px); }
   .xpl .l-page  { transform: translateY(-7px); }
-  .xpl .charge, .site-header::after, .section-more::after { display: none; }
+  .xpl .charge { display: none; }
   .hero-facts::before { transform: scaleX(1); }
 }

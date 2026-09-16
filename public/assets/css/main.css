@@ -948,7 +948,13 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
    Every animated stroke is 1px. Everything dies under reduced motion. */
 
 /* --- the exploded site (homepage hero) --- */
+.hero-side { position: relative; }
 .hero-side .xpl { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; overflow: visible; }
+@media (min-width: 1000px) {
+  /* The facts stay top-aligned with the lede (the original hero geometry);
+     the diagram hangs in the empty column above them, beside the headline. */
+  .hero-side .xpl { position: absolute; bottom: calc(100% + 24px); left: 0; right: 0; margin: 0 auto; }
+}
 .xpl .face { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; fill: #fff; stroke-linejoin: miter; }
 .xpl .wf { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; fill: none; stroke-linecap: butt; stroke-linejoin: miter; }
 .xpl .wf.soft { stroke: var(--rule); }
@@ -1004,16 +1010,6 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   100% { stroke-dashoffset: 0;   opacity: 1; }
 }
 
-/* --- signal path seam: the current carries you from hero to work --- */
-.seam .sig { display: block; width: 100%; height: auto; }
-.seam .base { stroke: var(--rule); stroke-width: 1; fill: none; }
-.seam .node { fill: var(--paper); stroke: var(--ink-soft); stroke-width: 1; }
-.seam .run { stroke: var(--accent); stroke-width: 1; fill: none;
-  vector-effect: non-scaling-stroke;
-  stroke-dasharray: 8 92; stroke-dashoffset: 100;
-  animation: bk-lap 14s linear infinite; }
-.seam .run.v { stroke: var(--accent-2); animation-delay: -7s; }
-@keyframes bk-lap { to { stroke-dashoffset: 0; } }
 
 /* --- underline comet on featured section links --- */
 .section-more { position: relative; }
@@ -1045,7 +1041,7 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 
 @media (prefers-reduced-motion: reduce) {
   .xpl .layer, .xpl .guides, .xpl .lbl, .xpl .charge, .btn--surge rect,
-  .site-header::after, .seam .run, .section-more::after,
+  .site-header::after, .section-more::after,
   .hero-facts::before, .footer-beacon .b-beams path {
     animation: none;
   }

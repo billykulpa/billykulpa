@@ -70,20 +70,6 @@
   </div>
 </section>
 
-<div class="seam" aria-hidden="true">
-  <div class="wrap">
-    <svg class="sig" viewBox="0 0 640 60">
-      <path class="base" d="M0 30 H140 V12 H300 V46 H480 V30 H640"/>
-      <path class="run"   d="M0 30 H140 V12 H300 V46 H480 V30 H640" pathLength="100"/>
-      <path class="run v" d="M0 30 H140 V12 H300 V46 H480 V30 H640" pathLength="100"/>
-      <rect class="node" x="136" y="8"  width="8" height="8"/>
-      <rect class="node" x="296" y="8"  width="8" height="8"/>
-      <rect class="node" x="296" y="42" width="8" height="8"/>
-      <rect class="node" x="476" y="42" width="8" height="8"/>
-      <rect class="node" x="476" y="26" width="8" height="8"/>
-    </svg>
-  </div>
-</div>
 
 <section class="section">
   <div class="wrap">

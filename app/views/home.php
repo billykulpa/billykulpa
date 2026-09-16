@@ -7,10 +7,64 @@
     <div class="hero-grid">
       <p class="hero-lede"><?= ($pg['lede'] ?? '') !== '' ? md_inline($pg['lede'])
         : 'Art direction is the job. Design, code, video, and copy are how I do it. More than twenty years across design and development; currently leading creative for a national trade association and building products on the side.' ?></p>
-      <dl class="hero-facts">
-        <div><dt class="mono-label">Currently</dt><dd>Senior Manager, Creative &middot; FMA</dd></div>
-        <div><dt class="mono-label">Based</dt><dd>Roscoe, Illinois</dd></div>
-      </dl>
+      <div class="hero-side">
+        <!-- The exploded site: browser / page / grid. Pure SVG; motion is
+             three CSS transforms (see "Motion" in main.css). -->
+        <svg class="xpl" viewBox="0 0 316 240" aria-hidden="true">
+        <g class="guides">
+        <line class="guide" x1="130.0" y1="-1.0" x2="130.0" y2="97.0"/>
+        <line class="guide" x1="233.9" y1="59.0" x2="233.9" y2="157.0"/>
+        <line class="guide" x1="26.1" y1="59.0" x2="26.1" y2="157.0"/>
+        <line class="guide" x1="130.0" y1="119.0" x2="130.0" y2="217.0"/>
+        </g>
+        <g class="layer l-grid">
+        <polygon class="face" fill="#fff" points="233.9,151.0 130.0,211.0 130.0,216.0 233.9,156.0"/>
+        <polygon class="face" fill="#fff" points="26.1,151.0 130.0,211.0 130.0,216.0 26.1,156.0"/>
+        <polygon class="face" fill="#fff" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0"/>
+        <polyline class="wf soft" points="150.8,109.0 57.3,163.0"/>
+        <polyline class="wf soft" points="176.8,124.0 83.2,178.0"/>
+        <polyline class="wf soft" points="202.7,139.0 109.2,193.0"/>
+        <polyline class="wf" points="83.2,168.0 83.2,154.0 107.5,154.0"/>
+        <polyline class="wf" points="100.6,178.0 124.8,178.0 124.8,164.0"/>
+        <polyline class="wf" points="93.6,178.0 114.4,154.0"/>
+        <text class="lbl" x="240.7" y="154.0">the grid</text>
+        </g>
+        <g class="layer l-page">
+        <polygon class="face" fill="#fff" points="233.9,151.0 130.0,211.0 130.0,216.0 233.9,156.0"/>
+        <polygon class="face" fill="#fff" points="26.1,151.0 130.0,211.0 130.0,216.0 26.1,156.0"/>
+        <polygon class="face" fill="#fff" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0"/>
+        <polygon class="wf" points="130.0,97.0 223.5,151.0 213.1,157.0 119.6,103.0"/>
+        <polyline class="wf" points="128.3,102.0 145.6,112.0"/>
+        <polyline class="wf" points="187.2,136.0 214.9,152.0"/>
+        <polyline class="wf bold" points="110.9,110.0 166.4,142.0"/>
+        <polyline class="wf bold" points="102.3,115.0 143.9,139.0"/>
+        <polygon class="wf" points="91.9,121.0 130.0,143.0 95.4,163.0 57.3,141.0"/>
+        <polyline class="wf soft" points="91.9,121.0 95.4,163.0"/>
+        <polyline class="wf soft" points="130.0,143.0 57.3,141.0"/>
+        <polyline class="wf" points="135.2,150.0 178.5,175.0"/>
+        <polyline class="wf" points="126.5,155.0 169.8,180.0"/>
+        <polyline class="wf" points="117.9,160.0 161.2,185.0"/>
+        <polygon class="wf accent" points="109.2,165.0 135.2,180.0 124.8,186.0 98.8,171.0"/>
+        <polyline class="wf" points="46.9,147.0 136.9,199.0"/>
+        <text class="lbl" x="240.7" y="154.0">the page</text>
+        </g>
+        <g class="layer l-chrome">
+        <polygon class="wf" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0"/>
+        <polygon class="face" fill="#fff" points="233.9,151.0 220.1,159.0 220.1,164.0 233.9,156.0"/>
+        <polygon class="face" fill="#fff" points="116.1,99.0 220.1,159.0 220.1,164.0 116.1,104.0"/>
+        <polygon class="face" fill="#fff" points="130.0,91.0 233.9,151.0 220.1,159.0 116.1,99.0"/>
+        <circle class="wf dot" cx="130.0" cy="99.0" r="2"/>
+        <circle class="wf dot" cx="136.9" cy="103.0" r="2"/>
+        <circle class="wf dot" cx="143.9" cy="107.0" r="2"/>
+        <polyline class="wf" points="152.5,112.0 220.1,151.0"/>
+        <text class="lbl" x="240.7" y="154.0">the browser</text>
+        </g>
+        </svg>
+        <dl class="hero-facts">
+          <div><dt class="mono-label">Currently</dt><dd>Senior Manager, Creative &middot; FMA</dd></div>
+          <div><dt class="mono-label">Based</dt><dd>Roscoe, Illinois</dd></div>
+        </dl>
+      </div>
     </div>
   </div>
 </section>
@@ -122,6 +176,6 @@
 <section class="section section--cta">
   <div class="wrap">
     <h2 class="cta-h2">Looking for a creative leader who can<br>run the meeting <em>and</em> read the diff?</h2>
-    <p><a class="btn" href="mailto:billy@billykulpa.com">billy@billykulpa.com</a></p>
+    <p><a class="btn btn--surge" href="mailto:billy@billykulpa.com">billy@billykulpa.com<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><rect x="0.5" y="0.5" width="99" height="39" pathLength="100"/></svg></a></p>
   </div>
 </section>

@@ -940,3 +940,61 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 
 /* Reading Quest card: the app is a night sky, so the card matches it. */
 .work-card-media--rq { background-color: #0e1230; }
+
+/* =========================== Motion ====================================
+   The site has an electrical current running through it; each animation is
+   a surge of electricity showing through. Laps are the ambient current
+   (continuous, linear, slow); surges are events (idle, pulse, idle).
+   Every animated stroke is 1px. Everything dies under reduced motion. */
+
+/* --- the exploded site (homepage hero) --- */
+.hero-side .xpl { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; }
+.xpl .face { stroke: var(--ink); stroke-width: 1.1; fill: #fff; stroke-linejoin: miter; }
+.xpl .wf { stroke: var(--ink); stroke-width: 1.1; fill: none; stroke-linecap: butt; stroke-linejoin: miter; }
+.xpl .wf.soft { stroke: var(--rule); }
+.xpl .wf.bold { stroke-width: 1.6; }
+.xpl .wf.accent { stroke: var(--accent); }
+.xpl .dot { fill: var(--ink); stroke: none; }
+.xpl .lbl { font: 9px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; fill: var(--ink-soft); }
+.xpl .guide { stroke: var(--accent-soft); stroke-width: 1; stroke-dasharray: 2 4; }
+.xpl .layer { animation: 18s cubic-bezier(.5,0,.2,1) infinite; }
+.xpl .l-chrome { animation-name: bk-xtop; }
+.xpl .l-page  { animation-name: bk-xmid; }
+.xpl .l-grid  { animation-name: bk-xbot; }
+.xpl .guides, .xpl .lbl { opacity: 0; animation: bk-xvis 18s linear infinite; }
+@keyframes bk-xtop { 0%,22% { transform: translateY(-14px); } 32%,44% { transform: translateY(-88px); } 52% { transform: translateY(-86px); } 62%,70% { transform: translateY(-88px); } 80%,100% { transform: translateY(-14px); } }
+@keyframes bk-xmid { 0%,23% { transform: translateY(-7px); } 33%,46% { transform: translateY(-46px); } 56% { transform: translateY(-44.5px); } 64%,71% { transform: translateY(-46px); } 81%,100% { transform: translateY(-7px); } }
+@keyframes bk-xbot { 0%,24% { transform: translateY(0); } 34%,72% { transform: translateY(6px); } 82%,100% { transform: translateY(0); } }
+@keyframes bk-xvis { 0%,26% { opacity: 0; } 34%,68% { opacity: 1; } 76%,100% { opacity: 0; } }
+
+/* --- surge button: the border idles, then a 1px pulse laps the edge --- */
+.btn--surge { position: relative; }
+.btn--surge svg { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); pointer-events: none; }
+.btn--surge rect { fill: none; stroke: var(--accent); stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 16 84; stroke-dashoffset: 100;
+  animation: bk-surge 9s cubic-bezier(.6,0,.3,1) infinite; }
+@keyframes bk-surge {
+  0%   { stroke-dashoffset: 100; }
+  38%  { stroke-dashoffset: 100; }
+  72%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* --- glint: a soft segment of current crosses the header rule --- */
+.site-header::after {
+  content: ""; position: absolute; left: 0; bottom: -1px;
+  width: 8%; height: 1px; background: var(--accent-soft);
+  animation: bk-glint 14s linear infinite;
+}
+@keyframes bk-glint { from { left: -9%; } to { left: 109%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .xpl .layer, .xpl .guides, .xpl .lbl, .btn--surge rect, .site-header::after {
+    animation: none;
+  }
+  /* rest at the assembled stack, not a flat overlap */
+  .xpl .l-chrome { transform: translateY(-14px); }
+  .xpl .l-page  { transform: translateY(-7px); }
+  .site-header::after { display: none; }
+}

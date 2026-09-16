@@ -1000,32 +1000,44 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 @keyframes bk-xvis { 0%,18% { opacity: 1; } 26%,74% { opacity: 0; } 82%,100% { opacity: 1; } }
 
 /* --- twinkles: a sparse field of line-art sparkles in the diagram's
-   negative space. They fire only during the holds -- the open hold at the
-   head and tail of the cycle, the closed hold in the middle -- so the piece
-   keeps a pulse while nothing is traveling, and go dark during the two
-   transits (22-34% and 70-82%) so they never compete with the collapse.
-   Each mark carries a narrow pop inside one shared 18s clock; the negative
-   delays are what place that pop in the cycle. --- */
+   negative space. Each mark is lit for a 2.5s window and SHIMMERS the whole
+   time it is lit -- a quarter turn plus two scale/opacity breaths -- so the
+   quiet parts of the cycle have continuous movement rather than a single
+   blip. The windows are staggered to overlap end to end, which keeps the
+   holds covered from first frame to last with never more than two marks
+   alight. All eight go dark during the two transits (22-34% and 70-82%) so
+   they never compete with the collapse.
+   One shared 18s clock; the negative delays are what place each window.
+   The quarter turn is free: a 4-point sparkle at 90 degrees is identical to
+   itself at 0, so the wrap back to the start is invisible. --- */
 .xpl .spark { fill: none; stroke: var(--ink-soft); stroke-width: 1;
   vector-effect: non-scaling-stroke; stroke-linecap: butt; stroke-linejoin: miter;
   opacity: 0; transform-box: fill-box; transform-origin: center;
-  animation: bk-twinkle 18s cubic-bezier(.4,0,.5,1) infinite; }
-.xpl .spark--dot { fill: var(--ink-soft); stroke: none; }
+  animation: bk-twinkle 18s linear infinite; }
+  /* linear on purpose: the quarter turn is a lap (constant), and the two
+     scale/opacity breaths below are what give it the surge shape. An ease
+     here slows the spin at every keyframe and reads as a stutter. */
 @keyframes bk-twinkle {
-  0%          { opacity: 0; transform: scale(.45); }
-  2.2%        { opacity: 1; transform: scale(1); }
-  7%, 100%    { opacity: 0; transform: scale(.45); }
+  0%         { opacity: 0;   transform: rotate(0deg)  scale(.30); }
+  2%         { opacity: 1;   transform: rotate(13deg) scale(1); }
+  5%         { opacity: .40; transform: rotate(32deg) scale(.62); }
+  8%         { opacity: 1;   transform: rotate(51deg) scale(.95); }
+  11%        { opacity: .45; transform: rotate(70deg) scale(.66); }
+  14%, 100%  { opacity: 0;   transform: rotate(90deg) scale(.30); }
 }
-/* delay = (target second) - 18s. Targets sit inside the holds:
-   open  0.0-3.96s and 14.4-18s, closed 6.12-12.6s. */
-.xpl .s1 { animation-delay: -3.4s; }   /* 14.6s  open hold, tail */
-.xpl .s2 { animation-delay: -2.1s; }   /* 15.9s  open hold, tail */
-.xpl .s3 { animation-delay: -17.6s; }  /*  0.4s  open hold, head */
-.xpl .s4 { animation-delay: -16.0s; }  /*  2.0s  open hold, head */
-.xpl .s5 { animation-delay: -15.4s; }  /*  2.6s  open hold, head */
-.xpl .s6 { animation-delay: -11.0s; }  /*  7.0s  closed hold */
-.xpl .s7 { animation-delay: -8.7s; }   /*  9.3s  closed hold */
-.xpl .s8 { animation-delay: -6.8s; }   /* 11.2s  closed hold */
+/* delay = (window start) - 18s; each window runs 2.5s from there. The open
+   hold wraps the loop (14.4-18s + 0-3.96s) and takes five marks 1.3s apart;
+   the closed hold (6.12-12.6s) takes three 1.9s apart. Consecutive windows
+   are assigned to marks on opposite sides of the diagram so the two that
+   overlap are never neighbors. */
+.xpl .s1 { animation-delay: -3.2s; }   /* 14.8-17.3s  open   left, high */
+.xpl .s5 { animation-delay: -2.0s; }   /* 16.0-18.5s  open   bottom right */
+.xpl .s7 { animation-delay: -0.8s; }   /* 17.2-19.7s  open   left, low */
+.xpl .s4 { animation-delay: -17.6s; }  /*  0.4-2.9s   open   right, high */
+.xpl .s3 { animation-delay: -16.6s; }  /*  1.4-3.9s   open   bottom left */
+.xpl .s6 { animation-delay: -11.85s; } /*  6.15-8.65s closed right */
+.xpl .s2 { animation-delay: -9.9s; }   /*  8.1-10.6s  closed bottom left */
+.xpl .s8 { animation-delay: -7.9s; }   /* 10.1-12.6s  closed right, mid */
 
 
 /* --- surge button: the border idles, then a 1px pulse laps the edge --- */

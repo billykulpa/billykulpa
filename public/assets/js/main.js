@@ -153,7 +153,7 @@
 /* Surge borders on every .btn: progressive enhancement, so templates stay
    clean. Buttons that already carry the SVG (the homepage CTA) are skipped. */
 (function () {
-  document.querySelectorAll('.btn').forEach(function (b) {
+  document.querySelectorAll('.btn, .site-nav .nav-contact').forEach(function (b) {
     if (b.querySelector('svg')) { b.classList.add('btn--surge'); return; }
     b.classList.add('btn--surge');
     b.insertAdjacentHTML('beforeend',

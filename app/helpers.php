@@ -239,22 +239,20 @@ function markdown_to_html(string $md): string
                 if (trim($lines[$i]) === '' && $i + 1 < $n && preg_match('/^>\s?/', $lines[$i + 1])) { $qlines[] = ''; $i++; continue; }
                 break;
             }
+            /* Each quoted LINE is its own paragraph: posts are written in
+               the admin textarea, which soft-wraps, so a newline inside a
+               quote is always an intentional break (a pasted story arrives
+               one paragraph per line). Blank quoted lines are skipped. */
             $parts = [];
-            $para  = [];
-            $flush = function () use (&$para, &$parts) {
-                if ($para) { $parts[] = '<p>' . md_inline(implode(' ', $para)) . '</p>'; $para = []; }
-            };
             foreach ($qlines as $ql) {
-                if (trim($ql) === '') { $flush(); continue; }
+                if (trim($ql) === '') { continue; }
                 if (preg_match('/^(#{1,4})\s+(.*)$/', $ql, $m)) {
-                    $flush();
                     $level   = min(strlen($m[1]) + 1, 5);
                     $parts[] = "<h{$level}>" . md_inline($m[2]) . "</h{$level}>";
                     continue;
                 }
-                $para[] = $ql;
+                $parts[] = '<p>' . md_inline($ql) . '</p>';
             }
-            $flush();
             $cls    = count($parts) > 1 ? ' class="longform"' : '';
             $html[] = "<blockquote{$cls}>" . implode('', $parts) . '</blockquote>';
             continue;

@@ -1019,19 +1019,10 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   animation: bk-cycle 18s linear infinite; }
 @keyframes bk-cycle { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
-/* --- the lighthouse sweeps (footer) --- */
-.footer-beacon { display: block; margin-bottom: 10px; }
-.footer-beacon .b-ico { stroke: var(--ink-soft); stroke-width: 1; fill: none;
-  stroke-linecap: butt; stroke-linejoin: miter; }
-.footer-beacon .b-beams path { stroke: var(--accent-soft); stroke-width: 1; opacity: 0; }
-.footer-beacon .b1 { animation: bk-sweep 6s linear infinite; }
-.footer-beacon .b2 { animation: bk-sweep 6s linear infinite 1s; }
-.footer-beacon .b3 { animation: bk-sweep 6s linear infinite 2s; }
-@keyframes bk-sweep { 0%, 40%, 100% { opacity: 0; } 12%, 26% { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
   .xpl .layer, .xpl .guides, .xpl .lbl, .xpl .charge, .btn--surge rect,
-  .hero-facts::before, .footer-beacon .b-beams path {
+  .hero-facts::before {
     animation: none;
   }
   /* rest at the assembled stack, not a flat overlap */

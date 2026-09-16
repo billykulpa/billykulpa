@@ -77,21 +77,7 @@ if (!empty($_COOKIE[config()['session_name']])) { $qa_user = current_user(); }
         </p>
       </div>
       <div class="footer-colophon">
-        <svg class="footer-beacon" width="40" height="40" viewBox="0 0 24 24" aria-hidden="true">
-          <g class="b-ico">
-            <path d="M9.3 9 V5.9 L12 3.6 L14.7 5.9 V9"/>
-            <path d="M8.2 9 H15.8"/>
-            <path d="M9.9 9 L7.7 20 M14.1 9 L16.3 20"/>
-            <path d="M6.3 20 H17.7"/>
-            <path d="M12 20 V16.3"/>
-          </g>
-          <g class="b-beams">
-            <path class="b1" d="M5.6 5.8 L3.2 4.5 M18.4 5.8 L20.8 4.5"/>
-            <path class="b2" d="M5.2 8.2 L2.4 8.2 M18.8 8.2 L21.6 8.2"/>
-            <path class="b3" d="M5.6 10.6 L3.2 11.9 M18.4 10.6 L20.8 11.9"/>
-          </g>
-        </svg>
-        <p class="mono-label">Colophon</p>
+                <p class="mono-label">Colophon</p>
         <p class="footer-line">Designed by me, built with Claude. PHP, MySQL, vanilla JS. No frameworks, no page builders.</p>
       </div>
     </div>

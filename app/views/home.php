@@ -50,13 +50,13 @@
         </g>
         <g class="layer l-chrome">
         <polygon class="wf" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0"/>
-        <polygon class="face" fill="#fff" points="233.9,151.0 220.1,159.0 220.1,164.0 233.9,156.0"/>
-        <polygon class="face" fill="#fff" points="116.1,99.0 220.1,159.0 220.1,164.0 116.1,104.0"/>
-        <polygon class="face" fill="#fff" points="130.0,91.0 233.9,151.0 220.1,159.0 116.1,99.0"/>
-        <circle class="wf dot" cx="130.0" cy="99.0" r="2"/>
-        <circle class="wf dot" cx="136.9" cy="103.0" r="2"/>
-        <circle class="wf dot" cx="143.9" cy="107.0" r="2"/>
-        <polyline class="wf" points="152.5,112.0 220.1,151.0"/>
+        <polygon class="face" fill="#fff" points="233.9,147.0 220.1,155.0 220.1,159.0 233.9,151.0"/>
+        <polygon class="face" fill="#fff" points="116.1,95.0 220.1,155.0 220.1,159.0 116.1,99.0"/>
+        <polygon class="face" fill="#fff" points="130.0,87.0 233.9,147.0 220.1,155.0 116.1,95.0"/>
+        <circle class="wf dot" cx="130.0" cy="95.0" r="2"/>
+        <circle class="wf dot" cx="136.9" cy="99.0" r="2"/>
+        <circle class="wf dot" cx="143.9" cy="103.0" r="2"/>
+        <polyline class="wf" points="152.5,108.0 220.1,147.0"/>
         <text class="lbl" x="240.7" y="154.0">the browser</text>
         <polyline class="charge" points="130.0,91.0 233.9,151.0 130.0,211.0 26.1,151.0 130.0,91.0" pathLength="100"/>
         </g>

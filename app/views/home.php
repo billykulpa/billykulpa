@@ -11,6 +11,16 @@
         <!-- The exploded site: browser / page / grid. Pure SVG; motion is
              three CSS transforms (see "Motion" in main.css). -->
         <svg class="xpl" viewBox="0 64 316 158" aria-hidden="true">
+        <g class="sparks">
+        <path class="spark s1" d="M13.0,101.5 Q13.0,107.0 18.5,107.0 Q13.0,107.0 13.0,112.5 Q13.0,107.0 7.5,107.0 Q13.0,107.0 13.0,101.5 Z"/>
+        <path class="spark s2 spark--tick" d="M31.5,194.0 H38.5 M35.0,190.5 V197.5"/>
+        <path class="spark s3" d="M58.0,204.5 Q58.0,209.0 62.5,209.0 Q58.0,209.0 58.0,213.5 Q58.0,209.0 53.5,209.0 Q58.0,209.0 58.0,204.5 Z"/>
+        <circle class="spark s4 spark--dot" cx="286.0" cy="90.0" r="1.3"/>
+        <path class="spark s5" d="M196.0,201.0 Q196.0,205.0 200.0,205.0 Q196.0,205.0 196.0,209.0 Q196.0,205.0 192.0,205.0 Q196.0,205.0 196.0,201.0 Z"/>
+        <path class="spark s6" d="M268.0,180.5 Q268.0,186.0 273.5,186.0 Q268.0,186.0 268.0,191.5 Q268.0,186.0 262.5,186.0 Q268.0,186.0 268.0,180.5 Z"/>
+        <path class="spark s7 spark--tick" d="M11.0,176.0 H17.0 M14.0,173.0 V179.0"/>
+        <path class="spark s8" d="M296.0,114.5 Q296.0,118.0 299.5,118.0 Q296.0,118.0 296.0,121.5 Q296.0,118.0 292.5,118.0 Q296.0,118.0 296.0,114.5 Z"/>
+        </g>
         <g class="guides">
         <line class="guide" x1="130.0" y1="-1.0" x2="130.0" y2="97.0"/>
         <line class="guide" x1="233.9" y1="59.0" x2="233.9" y2="157.0"/>
@@ -46,7 +56,7 @@
         <polyline class="wf" points="110.9,162.0 147.3,183.0"/>
         <polygon class="wf accent" points="104.0,166.0 128.3,180.0 117.9,186.0 93.6,172.0"/>
         <polyline class="wf" points="43.4,151.0 123.1,197.0"/>
-        <text class="lbl" x="240.7" y="154.0">the page</text>
+        <text class="lbl" x="240.7" y="154.0">the content</text>
         </g>
         <g class="layer l-chrome">
         <polygon class="face" fill="#fff" points="233.9,151.0 130.0,211.0 130.0,216.0 233.9,156.0"/>
@@ -137,19 +147,6 @@
           <h3>Supporting Local Music</h3>
           <p>Gig posters, cassette packaging, and a hand-drawn logotype from the Rockford music scene.</p>
           <p class="mono-label">Poster &middot; Packaging &middot; Illustration</p>
-        </div>
-      </a>
-      <a class="work-card" href="/work/judes-reading-quest">
-        <div class="work-card-media work-card-media--rq">
-          <img src="/assets/img/reading-quest/rq-card-wide.webp"
-               srcset="/assets/img/reading-quest/rq-card-wide-800w.webp 800w, /assets/img/reading-quest/rq-card-wide-1400w.webp 1400w, /assets/img/reading-quest/rq-card-wide.webp 1568w"
-               sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw"
-               alt="Jude's Reading Quest: the daily reading assignment screen" width="1568" height="657" loading="lazy">
-        </div>
-        <div class="work-card-body">
-          <h3>Jude's Reading Quest</h3>
-          <p>A read-to-unlock-screen-time app built for my son: daily chapters, quizzes, and push alerts to his parents.</p>
-          <p class="mono-label">Product design &middot; Game logic &middot; Parenting</p>
         </div>
       </a>
     </div>

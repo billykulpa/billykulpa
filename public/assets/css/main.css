@@ -948,7 +948,6 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 .about-portrait figcaption { margin-top: 8px; }
 
 /* Reading Quest card: the app is a night sky, so the card matches it. */
-.work-card-media--rq { background-color: #0e1230; }
 
 /* =========================== Motion ====================================
    The site has an electrical current running through it; each animation is
@@ -1000,6 +999,35 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
    and tail of the cycle and fade out while the stack is closed. */
 @keyframes bk-xvis { 0%,18% { opacity: 1; } 26%,74% { opacity: 0; } 82%,100% { opacity: 1; } }
 
+/* --- twinkles: a sparse field of line-art sparkles in the diagram's
+   negative space. They fire only during the holds -- the open hold at the
+   head and tail of the cycle, the closed hold in the middle -- so the piece
+   keeps a pulse while nothing is traveling, and go dark during the two
+   transits (22-34% and 70-82%) so they never compete with the collapse.
+   Each mark carries a narrow pop inside one shared 18s clock; the negative
+   delays are what place that pop in the cycle. --- */
+.xpl .spark { fill: none; stroke: var(--ink-soft); stroke-width: 1;
+  vector-effect: non-scaling-stroke; stroke-linecap: butt; stroke-linejoin: miter;
+  opacity: 0; transform-box: fill-box; transform-origin: center;
+  animation: bk-twinkle 18s cubic-bezier(.4,0,.5,1) infinite; }
+.xpl .spark--dot { fill: var(--ink-soft); stroke: none; }
+@keyframes bk-twinkle {
+  0%          { opacity: 0; transform: scale(.45); }
+  2.2%        { opacity: 1; transform: scale(1); }
+  7%, 100%    { opacity: 0; transform: scale(.45); }
+}
+/* delay = (target second) - 18s. Targets sit inside the holds:
+   open  0.0-3.96s and 14.4-18s, closed 6.12-12.6s. */
+.xpl .s1 { animation-delay: -3.4s; }   /* 14.6s  open hold, tail */
+.xpl .s2 { animation-delay: -2.1s; }   /* 15.9s  open hold, tail */
+.xpl .s3 { animation-delay: -17.6s; }  /*  0.4s  open hold, head */
+.xpl .s4 { animation-delay: -16.0s; }  /*  2.0s  open hold, head */
+.xpl .s5 { animation-delay: -15.4s; }  /*  2.6s  open hold, head */
+.xpl .s6 { animation-delay: -11.0s; }  /*  7.0s  closed hold */
+.xpl .s7 { animation-delay: -8.7s; }   /*  9.3s  closed hold */
+.xpl .s8 { animation-delay: -6.8s; }   /* 11.2s  closed hold */
+
+
 /* --- surge button: the border idles, then a 1px pulse laps the edge --- */
 
 .btn--surge { position: relative; }
@@ -1044,8 +1072,8 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 
 
 @media (prefers-reduced-motion: reduce) {
-  .xpl .layer, .xpl .guides, .xpl .lbl, .xpl .charge, .btn--surge rect,
-  .hero-facts::before {
+  .xpl .layer, .xpl .guides, .xpl .lbl, .xpl .charge, .xpl .spark,
+  .btn--surge rect, .hero-facts::before {
     animation: none;
   }
   /* rest exploded -- the cycle's own first frame, and the more explanatory
@@ -1054,6 +1082,6 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   .xpl .l-page  { transform: translateY(-46px); }
   .xpl .l-grid  { transform: translateY(6px); }
   .xpl .guides, .xpl .lbl { opacity: 1; }
-  .xpl .charge { display: none; }
+  .xpl .charge, .xpl .sparks { display: none; }
   .hero-facts::before { transform: scaleX(1); }
 }

@@ -988,11 +988,17 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 .xpl .l-chrome { animation-name: bk-xtop; }
 .xpl .l-page  { animation-name: bk-xmid; }
 .xpl .l-grid  { animation-name: bk-xbot; }
-.xpl .guides, .xpl .lbl { opacity: 0; animation: bk-xvis 18s linear infinite; }
-@keyframes bk-xtop { 0%,22% { transform: translateY(-10px); } 32%,70% { transform: translateY(-88px); } 80%,100% { transform: translateY(-10px); } }
-@keyframes bk-xmid { 0%,23% { transform: translateY(-5px); } 33%,71% { transform: translateY(-46px); } 81%,100% { transform: translateY(-5px); } }
-@keyframes bk-xbot { 0%,24% { transform: translateY(0); } 34%,72% { transform: translateY(6px); } 82%,100% { transform: translateY(0); } }
-@keyframes bk-xvis { 0%,26% { opacity: 0; } 34%,68% { opacity: 1; } 76%,100% { opacity: 0; } }
+.xpl .guides, .xpl .lbl { opacity: 1; animation: bk-xvis 18s linear infinite; }
+/* Open -> closed -> open. The exploded diagram is the resting state the
+   visitor arrives on; it collapses into the stack mid-cycle and opens back
+   up. Values are unchanged from the original assembled/exploded pair -- only
+   the phase is swapped -- so the stagger and easing feel identical. */
+@keyframes bk-xtop { 0%,22% { transform: translateY(-88px); } 32%,70% { transform: translateY(-10px); } 80%,100% { transform: translateY(-88px); } }
+@keyframes bk-xmid { 0%,23% { transform: translateY(-46px); } 33%,71% { transform: translateY(-5px); } 81%,100% { transform: translateY(-46px); } }
+@keyframes bk-xbot { 0%,24% { transform: translateY(6px); } 34%,72% { transform: translateY(0); } 82%,100% { transform: translateY(6px); } }
+/* Guides and labels belong to the open state, so they now show at the head
+   and tail of the cycle and fade out while the stack is closed. */
+@keyframes bk-xvis { 0%,18% { opacity: 1; } 26%,74% { opacity: 0; } 82%,100% { opacity: 1; } }
 
 /* --- surge button: the border idles, then a 1px pulse laps the edge --- */
 
@@ -1015,13 +1021,13 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   vector-effect: non-scaling-stroke; stroke-linecap: butt;
   stroke-dasharray: 12 88; stroke-dashoffset: 100;
   animation: bk-charge 18s linear infinite; }
+/* The charge laps the frame while the stack sits closed -- now the middle of
+   the cycle -- and is hidden while the layers are apart or in flight. */
 @keyframes bk-charge {
-  0%   { stroke-dashoffset: 100; opacity: 1; }
-  21%  { stroke-dashoffset: 0;   opacity: 1; }
-  24%  { opacity: 0; }
-  76%  { opacity: 0; stroke-dashoffset: 100; }
-  80%  { opacity: 1; stroke-dashoffset: 100; }
-  100% { stroke-dashoffset: 0;   opacity: 1; }
+  0%, 34%   { stroke-dashoffset: 100; opacity: 0; }
+  38%       { opacity: 1; }
+  70%       { stroke-dashoffset: 0;   opacity: 1; }
+  74%, 100% { stroke-dashoffset: 0;   opacity: 0; }
 }
 
 
@@ -1042,9 +1048,12 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   .hero-facts::before {
     animation: none;
   }
-  /* rest at the assembled stack, not a flat overlap */
-  .xpl .l-chrome { transform: translateY(-10px); }
-  .xpl .l-page  { transform: translateY(-5px); }
+  /* rest exploded -- the cycle's own first frame, and the more explanatory
+     of the two states since the labels read with it */
+  .xpl .l-chrome { transform: translateY(-88px); }
+  .xpl .l-page  { transform: translateY(-46px); }
+  .xpl .l-grid  { transform: translateY(6px); }
+  .xpl .guides, .xpl .lbl { opacity: 1; }
   .xpl .charge { display: none; }
   .hero-facts::before { transform: scaleX(1); }
 }

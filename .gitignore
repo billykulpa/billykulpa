@@ -25,3 +25,9 @@ public/assets/video/*.MOV
 public/assets/video/*.mov
 # Raw social downloads arrive with spaces and @handles in the filename.
 public/assets/video/@*
+
+# Contact-form mail log. contact.php writes to app/../logs when mail_mode is
+# 'log', so a local dev session with a real submission would otherwise commit
+# someone's name and email to a public repo. (Production resolves to ~/logs,
+# outside the repo, so this is a local-machine guard.)
+logs/

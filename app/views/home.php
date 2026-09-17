@@ -11,24 +11,6 @@
         <!-- The exploded site: browser / page / grid. Pure SVG; motion is
              three CSS transforms (see "Motion" in main.css). -->
         <svg class="xpl" viewBox="0 64 316 158" aria-hidden="true">
-        <g class="sky">
-        <g class="mk mk-a">
-        <line class="ray" x1="33.0" y1="178.0" x2="33.0" y2="206.0" pathLength="100"/>
-        <line class="ray" x1="22.9" y1="192.0" x2="43.1" y2="192.0" pathLength="100"/>
-        <line class="ray" x1="28.8" y1="187.8" x2="37.2" y2="196.2" pathLength="100"/>
-        <line class="ray" x1="28.8" y1="196.2" x2="37.2" y2="187.8" pathLength="100"/>
-        </g>
-        <g class="mk mk-b">
-        <line class="ray" x1="259.0" y1="170.0" x2="259.0" y2="196.0" pathLength="100"/>
-        <line class="ray" x1="249.6" y1="183.0" x2="268.4" y2="183.0" pathLength="100"/>
-        <line class="ray" x1="255.1" y1="179.1" x2="262.9" y2="186.9" pathLength="100"/>
-        <line class="ray" x1="255.1" y1="186.9" x2="262.9" y2="179.1" pathLength="100"/>
-        </g>
-        <g class="mk mk-c">
-        <line class="ray" x1="192.8" y1="212.8" x2="201.2" y2="221.2" pathLength="100"/>
-        <line class="ray" x1="192.8" y1="221.2" x2="201.2" y2="212.8" pathLength="100"/>
-        </g>
-        </g>
         <g class="guides">
         <line class="guide" x1="130.0" y1="-1.0" x2="130.0" y2="97.0"/>
         <line class="guide" x1="233.9" y1="59.0" x2="233.9" y2="157.0"/>

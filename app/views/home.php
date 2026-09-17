@@ -11,6 +11,40 @@
         <!-- The exploded site: browser / page / grid. Pure SVG; motion is
              three CSS transforms (see "Motion" in main.css). -->
         <svg class="xpl" viewBox="0 64 316 158" aria-hidden="true">
+        <g class="sky sky--lo">
+        <g class="mk mk-a">
+        <line class="ray" x1="33.0" y1="178.0" x2="33.0" y2="206.0" pathLength="100"/>
+        <line class="ray" x1="22.9" y1="192.0" x2="43.1" y2="192.0" pathLength="100"/>
+        <line class="ray" x1="29.6" y1="188.6" x2="36.4" y2="195.4" pathLength="100"/>
+        <line class="ray" x1="29.6" y1="195.4" x2="36.4" y2="188.6" pathLength="100"/>
+        </g>
+        <g class="mk mk-b">
+        <line class="ray" x1="259.0" y1="170.0" x2="259.0" y2="196.0" pathLength="100"/>
+        <line class="ray" x1="249.6" y1="183.0" x2="268.4" y2="183.0" pathLength="100"/>
+        <line class="ray" x1="255.9" y1="179.9" x2="262.1" y2="186.1" pathLength="100"/>
+        <line class="ray" x1="255.9" y1="186.1" x2="262.1" y2="179.9" pathLength="100"/>
+        </g>
+        <g class="mk mk-c">
+        <line class="ray" x1="192.8" y1="212.8" x2="201.2" y2="221.2" pathLength="100"/>
+        <line class="ray" x1="192.8" y1="221.2" x2="201.2" y2="212.8" pathLength="100"/>
+        </g>
+        </g>
+        <g class="sky sky--hi">
+        <g class="mk mk-a">
+        <line class="ray" x1="19.0" y1="11.0" x2="19.0" y2="45.0" pathLength="100"/>
+        <line class="ray" x1="6.8" y1="28.0" x2="31.2" y2="28.0" pathLength="100"/>
+        <line class="ray" x1="14.9" y1="23.9" x2="23.1" y2="32.1" pathLength="100"/>
+        <line class="ray" x1="14.9" y1="32.1" x2="23.1" y2="23.9" pathLength="100"/>
+        </g>
+        <g class="mk mk-b">
+        <line class="ray" x1="66.4" y1="50.4" x2="75.6" y2="59.6" pathLength="100"/>
+        <line class="ray" x1="66.4" y1="59.6" x2="75.6" y2="50.4" pathLength="100"/>
+        </g>
+        <g class="mk mk-c">
+        <line class="ray" x1="222.4" y1="30.4" x2="231.6" y2="39.6" pathLength="100"/>
+        <line class="ray" x1="222.4" y1="39.6" x2="231.6" y2="30.4" pathLength="100"/>
+        </g>
+        </g>
         <g class="guides">
         <line class="guide" x1="130.0" y1="-1.0" x2="130.0" y2="97.0"/>
         <line class="guide" x1="233.9" y1="59.0" x2="233.9" y2="157.0"/>

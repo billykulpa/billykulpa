@@ -999,47 +999,38 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
    and tail of the cycle and fade out while the stack is closed. */
 @keyframes bk-xvis { 0%,18% { opacity: 1; } 26%,74% { opacity: 0; } 82%,100% { opacity: 1; } }
 
-/* --- the sky: bold line-art stars and X marks around the diagram. Every
-   mark is built from lines THROUGH its center and drawn with a dash window
-   centered on the midpoint, so a twinkle is the rays EXPANDING outward from
-   the center in both directions at once -- not a fade.
+/* --- the sky: line-art stars and X marks below the diagram, drawn to
+   Billy's sketch. Every mark is built from lines THROUGH its center and
+   drawn with a dash window centered on the midpoint, so a twinkle is the
+   rays EXPANDING outward from the center in both directions at once.
      dasharray 0 100 / dashoffset -50  = collapsed to the center point
      dasharray 100 100 / dashoffset 0  = fully drawn
    (a dash of length L centered at 50 needs dashoffset L/2 - 50; both
    properties interpolate, so the window stays centered the whole way.)
    stroke-linecap MUST stay butt -- a round cap renders a dot at length 0.
 
-   Two groups, because the upper marks sit in airspace the chrome layer flies
-   through when the stack opens:
-     .sky--hi  draws on as the stack closes, twinkles once, retracts as it
-               opens. Invisible for the rest of the cycle, so no gate needed.
-     .sky--lo  below the bottom corners, clear of every layer at every point
-               in the cycle, so it stays lit the whole time and twinkles on
-               its own tempo. Three different durations (11 / 8.5 / 13.5s)
-               against the diagram's 18s means the marks never resync -- the
-               "random intervals" are just three coprime-ish clocks.
-   These are 2px, not the system's 1px: they are marks, not wireframe. --- */
-.xpl .ray { stroke: var(--ink); stroke-width: 2; vector-effect: non-scaling-stroke;
+   The marks belong to the OPEN state. They retract to nothing just before
+   the stack starts collapsing (20-26%, the collapse begins at 22%) and draw
+   back on through the last third of the opening (74-80%, the stack finishes
+   at 82%), so the illustration is bare the whole time it is stacked up.
+   Every ray of a mark moves together -- no per-ray stagger. Offsetting them
+   means a long vertical against a stubby horizontal, which reads as badly
+   drawn rather than as animated. The marks are staggered against each other
+   instead (0 / -.3s / -.6s), which is small enough to leave the collapsed
+   window fully covered. --- */
+.xpl .ray { stroke: var(--accent); stroke-width: 1.3; vector-effect: non-scaling-stroke;
   stroke-linecap: butt; stroke-dasharray: 100 100; stroke-dashoffset: 0; }
-.xpl .sky--hi line { animation: bk-ray-hi 18s cubic-bezier(.4,0,.25,1) infinite; }
-.xpl .sky--lo line { animation: bk-ray-lo 11s cubic-bezier(.4,0,.25,1) infinite; }
-.xpl .sky--lo .mk-b line { animation-duration: 8.5s; }
-.xpl .sky--lo .mk-c line { animation-duration: 13.5s; }
-/* the four rays of a star don't shoot out in lockstep */
-.xpl .sky .mk line:nth-child(2) { animation-delay: -.06s; }
-.xpl .sky .mk line:nth-child(3) { animation-delay: -.12s; }
-.xpl .sky .mk line:nth-child(4) { animation-delay: -.18s; }
-@keyframes bk-ray-hi {
-  0%, 30%   { stroke-dasharray: 0 100;   stroke-dashoffset: -50; }
-  36%, 52%  { stroke-dasharray: 100 100; stroke-dashoffset: 0; }
-  55%       { stroke-dasharray: 22 100;  stroke-dashoffset: -39; }
-  59%, 68%  { stroke-dasharray: 100 100; stroke-dashoffset: 0; }
-  73%, 100% { stroke-dasharray: 0 100;   stroke-dashoffset: -50; }
-}
-@keyframes bk-ray-lo {
-  0%, 76%   { stroke-dasharray: 100 100; stroke-dashoffset: 0; }
-  82%       { stroke-dasharray: 18 100;  stroke-dashoffset: -41; }
-  88%, 100% { stroke-dasharray: 100 100; stroke-dashoffset: 0; }
+.xpl .sky line { animation: bk-ray 18s cubic-bezier(.4,0,.25,1) infinite; }
+.xpl .sky .mk-b line { animation-delay: -.3s; }
+.xpl .sky .mk-c line { animation-delay: -.6s; }
+@keyframes bk-ray {
+  0%, 9%    { stroke-dasharray: 100 100; stroke-dashoffset: 0; }
+  13%       { stroke-dasharray: 25 100;  stroke-dashoffset: -37.5; }
+  17%, 20%  { stroke-dasharray: 100 100; stroke-dashoffset: 0; }
+  26%, 74%  { stroke-dasharray: 0 100;   stroke-dashoffset: -50; }
+  80%, 90%  { stroke-dasharray: 100 100; stroke-dashoffset: 0; }
+  94%       { stroke-dasharray: 25 100;  stroke-dashoffset: -37.5; }
+  98%, 100% { stroke-dasharray: 100 100; stroke-dashoffset: 0; }
 }
 
 
@@ -1097,6 +1088,6 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   .xpl .l-page  { transform: translateY(-46px); }
   .xpl .l-grid  { transform: translateY(6px); }
   .xpl .guides, .xpl .lbl { opacity: 1; }
-  .xpl .charge, .xpl .sky--hi { display: none; }
+  .xpl .charge { display: none; }
   .hero-facts::before { transform: scaleX(1); }
 }

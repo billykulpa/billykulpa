@@ -128,10 +128,10 @@
       </a>
       <a class="work-card" href="/work/supporting-local-music">
         <div class="work-card-media">
-          <img src="/assets/img/joie-de-vivre/jdv-facebook.webp"
-               srcset="/assets/img/joie-de-vivre/jdv-facebook-800w.webp 800w, /assets/img/joie-de-vivre/jdv-facebook-1400w.webp 1400w, /assets/img/joie-de-vivre/jdv-facebook.webp 3840w"
+          <img src="/assets/img/halloween-2026/facebook.webp"
+               srcset="/assets/img/halloween-2026/facebook-800w.webp 800w, /assets/img/halloween-2026/facebook-1400w.webp 1400w, /assets/img/halloween-2026/facebook.webp 3840w"
                sizes="(min-width: 1180px) 526px, (min-width: 681px) 50vw, 100vw"
-               alt="The Joie de Vivre poster art" width="3840" height="2010" loading="lazy">
+               alt="The Halloween cover-show poster art: a hooded skull figure beside a sunken cabin in cold blue-green woods" width="3840" height="2010" loading="lazy">
         </div>
         <div class="work-card-body">
           <h3>Supporting Local Music</h3>

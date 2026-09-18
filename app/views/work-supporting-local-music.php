@@ -46,6 +46,7 @@
       <aside class="prose-aside">
         <div class="fact-stack">
           <div><dt class="mono-label">Deliverables</dt><dd>11&times;17 and 8.5&times;11 posters, Instagram and Facebook adaptations</dd></div>
+          <div><dt class="mono-label">Type</dt><dd>Serif Gothic Std Black, throughout</dd></div>
           <div><dt class="mono-label">Output</dt><dd>Print files at both sizes; 2x RGB exports for screen</dd></div>
           <div><dt class="mono-label">The show</dt><dd>October 30, 2026 &middot; Mary&rsquo;s Place, Rockford &middot; The Hybrid Moments, No Warren Iran, and Track Sabbath</dd></div>
         </div>
@@ -63,18 +64,23 @@
         flat water, pushed cold and blue-green so the type could sit on top of
         it in a sour yellow. The Crimson Ghost rises out of the lower right,
         hooded, scaled like somebody standing next to you rather than like a
-        logo. All of it sits under a paper grain so the thing looks like it
-        has already been stapled to a pole for a week.</p>
-        <p>Band names are set in heavy condensed caps, each with its cover set
-        spelled out underneath in a small line so nobody turns up expecting
-        originals. Venue, address, date, time, age limit and cover price all
-        live in one block in the bottom left corner, in the smallest type on
-        the poster, because none of that has to be legible until you are
+        logo. All of it sits under a texture I built to look like
+        old newspaper stock, so the whole thing reads like something that has
+        already been out in the world for a while.</p>
+        <p>The type came out of a detour. I had been looking at the alternate
+        poster treatments people have made over the years for the original
+        <em>Texas Chainsaw Massacre</em>, and what stuck with me was the
+        lettering rather than any of the imagery. That sent me to Serif Gothic
+        Std Black, which ended up carrying the entire poster. Band names run in
+        the big weight, each with its cover set spelled out underneath in a
+        small line so nobody turns up expecting originals. Venue, address, date,
+        time, age limit and cover price all live in one block in the bottom
+        left corner, in the smallest type on the sheet, because none of that has to be legible until you are
         already close enough to read it.</p>
 
         <figure class="case-fig">
           <a class="fig-link" href="/assets/img/halloween-2026/poster-full.webp">
-            <img src="/assets/img/halloween-2026/poster.webp" alt="The Halloween cover-show poster: three band names in yellow condensed caps over a cold blue-green photograph of a sunken cabin in the woods, with a hooded skull figure rising from the lower right" width="1400" height="2164" loading="lazy">
+            <img src="/assets/img/halloween-2026/poster.webp" alt="The Halloween cover-show poster: three band names in heavy yellow display caps over a cold blue-green photograph of a sunken cabin in the woods, with a hooded skull figure rising from the lower right" width="1400" height="2164" loading="lazy">
           </a>
           <figcaption class="mono-label">The 11&times;17 poster (also run at 8.5&times;11). Click for full size.</figcaption>
         </figure>

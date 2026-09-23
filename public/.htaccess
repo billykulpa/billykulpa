@@ -2,14 +2,35 @@ Options -Indexes
 
 RewriteEngine On
 
+# ---------------------------------------------------------------- access ---
+# Everything below is a hard 403 before routing gets a look.
+
 # On hosts where app/ must live inside the web root, block all direct access.
+# This is the only thing standing between the public internet and
+# app/config.php, which holds the DB credentials and both API keys.
 RewriteRule ^app/ - [F,L]
 
+# Nothing beginning with a dot is ever served. Covers .git, .env, .gitignore
+# and .ftp-deploy-sync-state.json (the deploy action's manifest of every file
+# on the server, which was publicly readable until Sept 2026). .well-known is
+# excepted so ACME/SSL certificate validation still works.
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule (^|/)\. - [F,L]
+
+# Source, data and tooling files, even if a stray deploy drops them at the web
+# root again. Sept 2026: a Hostinger Git deployment cloned the whole repo into
+# public_html, leaving schema.sql, content-import.sql and logs/mail.log fully
+# downloadable. mail.log held contact-form submissions. This rule means the
+# next occurrence is inert rather than a disclosure.
+RewriteRule \.(sql|log|md|mjs|yml|yaml|lock)$ - [F,L]
+
+# --------------------------------------------------------------- routing ---
 # Serve real files (assets) directly; route everything else through index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [L]
 
+# --------------------------------------------------------------- caching ---
 # Caching for static assets. Everything under /assets is cache-busted by
 # name or by ?v=<filemtime>, so these can be long. Fonts were missing here
 # entirely, which is what PageSpeed's "efficient cache lifetimes" flagged.

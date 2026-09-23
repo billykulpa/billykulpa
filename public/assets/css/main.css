@@ -999,6 +999,49 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
    and tail of the cycle and fade out while the stack is closed. */
 @keyframes bk-xvis { 0%,18% { opacity: 1; } 26%,74% { opacity: 0; } 82%,100% { opacity: 1; } }
 
+/* --- rain: Morton-salt streaks, reversed. Lines and specks travel LOWER-LEFT
+   to UPPER-RIGHT along the isometric +u axis inverted, d = (cos30, -0.5) --
+   the same 30-degree rise as the slabs' top-left edges, so the weather runs
+   parallel to the drawing instead of cutting across it.
+
+   Each streak is ONE long line carrying a dash pattern. Animating
+   stroke-dashoffset slides the dashes along the line, so direction is baked
+   into the geometry and the loop is seamless as long as the offset travels a
+   whole number of dash periods. Offset runs 0 to -100 against pathLength=100,
+   which is 5 periods at 20 and 4 at 25. Specks are the same trick with a
+   zero-length dash and a round cap, the one sanctioned round end in the
+   system, because a dot has no other way to exist.
+
+   Speed and weight both answer the stack: fast and full while it is COLLAPSED
+   (34-70%), slow and faint while it is OPEN. The rate curve below is uneven
+   on purpose -- equal time slices would travel equal distance. --- */
+.xpl .rain { animation: bk-rain-fade 18s linear infinite; }
+.xpl .streak, .xpl .speck {
+  stroke: var(--rule); fill: none; vector-effect: non-scaling-stroke;
+  animation: bk-rain 18s linear infinite; }
+.xpl .streak { stroke-width: 1; stroke-linecap: butt; }
+.xpl .speck  { stroke-width: 1.8; stroke-linecap: round; }
+.xpl .streak.p20 { stroke-dasharray: 4 16; }
+.xpl .streak.p25 { stroke-dasharray: 5 20; }
+.xpl .speck.p20  { stroke-dasharray: 0 20; }
+.xpl .speck.p25  { stroke-dasharray: 0 25; }
+/* open holds move at ~1/3 the collapsed rate; transits split the difference.
+   Total travel is exactly -100 so the dash pattern lands back on itself. */
+@keyframes bk-rain {
+  0%   { stroke-dashoffset: 0; }
+  22%  { stroke-dashoffset: -11.2; }
+  34%  { stroke-dashoffset: -23.5; }
+  70%  { stroke-dashoffset: -78.6; }
+  82%  { stroke-dashoffset: -90.8; }
+  100% { stroke-dashoffset: -100; }
+}
+@keyframes bk-rain-fade {
+  0%, 22%   { opacity: .55; }
+  34%, 70%  { opacity: 1; }
+  82%, 100% { opacity: .55; }
+}
+
+
 /* --- surge button: the border idles, then a 1px pulse laps the edge --- */
 
 .btn--surge { position: relative; }
@@ -1053,6 +1096,6 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   .xpl .l-page  { transform: translateY(-46px); }
   .xpl .l-grid  { transform: translateY(6px); }
   .xpl .guides, .xpl .lbl { opacity: 1; }
-  .xpl .charge { display: none; }
+  .xpl .charge, .xpl .rain { display: none; }
   .hero-facts::before { transform: scaleX(1); }
 }

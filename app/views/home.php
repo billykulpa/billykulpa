@@ -11,6 +11,52 @@
         <!-- The exploded site: browser / page / grid. Pure SVG; motion is
              three CSS transforms (see "Motion" in main.css). -->
         <svg class="xpl" viewBox="0 64 316 158" aria-hidden="true">
+        <defs>
+        <mask id="bk-rainmask" maskUnits="userSpaceOnUse" x="-260" y="-260" width="900" height="900">
+        <rect fill="#fff" x="0" y="64" width="316" height="158"/>
+        <g class="layer l-grid">
+        <polygon fill="#000" points="130.0,85.0 244.3,151.0 244.3,162.0 130.0,228.0 15.7,162.0 15.7,151.0"/>
+        <rect fill="#000" x="234.7" y="145.0" width="86" height="15"/>
+        </g>
+        <g class="layer l-page">
+        <polygon fill="#000" points="130.0,85.0 244.3,151.0 244.3,162.0 130.0,228.0 15.7,162.0 15.7,151.0"/>
+        <rect fill="#000" x="234.7" y="145.0" width="86" height="15"/>
+        </g>
+        <g class="layer l-chrome">
+        <polygon fill="#000" points="130.0,85.0 244.3,151.0 244.3,162.0 130.0,228.0 15.7,162.0 15.7,151.0"/>
+        <rect fill="#000" x="234.7" y="145.0" width="86" height="15"/>
+        </g>
+        </mask>
+        </defs>
+        <g class="rain" mask="url(#bk-rainmask)">
+        <line class="streak p20" x1="-201.8" y1="119.8" x2="317.8" y2="-180.2" pathLength="100"/>
+        <line class="streak p25" x1="-191.3" y1="138.0" x2="328.3" y2="-162.0" pathLength="100"/>
+        <line class="speck p20" x1="-189.3" y1="141.4" x2="330.3" y2="-158.6" pathLength="100"/>
+        <line class="streak p25" x1="-177.8" y1="161.4" x2="341.8" y2="-138.6" pathLength="100"/>
+        <line class="streak p20" x1="-175.3" y1="165.7" x2="344.3" y2="-134.3" pathLength="100"/>
+        <line class="speck p25" x1="-163.3" y1="186.5" x2="356.3" y2="-113.5" pathLength="100"/>
+        <line class="streak p20" x1="-152.8" y1="204.7" x2="366.8" y2="-95.3" pathLength="100"/>
+        <line class="streak p25" x1="-150.8" y1="208.1" x2="368.8" y2="-91.9" pathLength="100"/>
+        <line class="speck p20" x1="-139.3" y1="228.0" x2="380.3" y2="-72.0" pathLength="100"/>
+        <line class="streak p25" x1="-137.3" y1="231.5" x2="382.3" y2="-68.5" pathLength="100"/>
+        <line class="streak p20" x1="-126.3" y1="250.6" x2="393.3" y2="-49.4" pathLength="100"/>
+        <line class="speck p25" x1="-115.8" y1="268.8" x2="403.8" y2="-31.2" pathLength="100"/>
+        <line class="streak p20" x1="-113.8" y1="272.2" x2="405.8" y2="-27.8" pathLength="100"/>
+        <line class="streak p25" x1="-102.3" y1="292.1" x2="417.3" y2="-7.9" pathLength="100"/>
+        <line class="speck p20" x1="-100.8" y1="294.7" x2="418.8" y2="-5.3" pathLength="100"/>
+        <line class="streak p25" x1="-86.3" y1="319.8" x2="433.3" y2="19.8" pathLength="100"/>
+        <line class="streak p20" x1="-82.8" y1="325.9" x2="436.8" y2="25.9" pathLength="100"/>
+        <line class="speck p25" x1="-72.8" y1="343.2" x2="446.8" y2="43.2" pathLength="100"/>
+        <line class="streak p20" x1="-62.3" y1="361.4" x2="457.3" y2="61.4" pathLength="100"/>
+        <line class="streak p25" x1="-61.8" y1="362.3" x2="457.8" y2="62.3" pathLength="100"/>
+        <line class="speck p20" x1="-50.8" y1="381.3" x2="468.8" y2="81.3" pathLength="100"/>
+        <line class="streak p25" x1="-47.8" y1="386.5" x2="471.8" y2="86.5" pathLength="100"/>
+        <line class="streak p20" x1="-34.3" y1="409.9" x2="485.3" y2="109.9" pathLength="100"/>
+        <line class="speck p25" x1="-29.3" y1="418.6" x2="490.3" y2="118.6" pathLength="100"/>
+        <line class="streak p20" x1="-23.3" y1="429.0" x2="496.3" y2="129.0" pathLength="100"/>
+        <line class="streak p25" x1="-10.3" y1="451.5" x2="509.3" y2="151.5" pathLength="100"/>
+        <line class="speck p20" x1="-9.8" y1="452.3" x2="509.8" y2="152.3" pathLength="100"/>
+        </g>
         <g class="guides">
         <line class="guide" x1="130.0" y1="-1.0" x2="130.0" y2="97.0"/>
         <line class="guide" x1="233.9" y1="59.0" x2="233.9" y2="157.0"/>

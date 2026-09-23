@@ -10,10 +10,10 @@
       <div class="hero-side">
         <!-- The exploded site: browser / page / grid. Pure SVG; motion is
              three CSS transforms (see "Motion" in main.css). -->
-        <svg class="xpl" viewBox="0 64 316 158" aria-hidden="true">
+        <svg class="xpl" viewBox="0 24 316 198" aria-hidden="true">
         <defs>
         <mask id="bk-rainmask" maskUnits="userSpaceOnUse" x="-260" y="-260" width="900" height="900">
-        <rect fill="#fff" x="0" y="64" width="316" height="158"/>
+        <rect fill="#fff" x="0" y="24" width="316" height="198"/>
         <g class="layer l-grid">
         <polygon fill="#000" points="130.0,85.0 244.3,151.0 244.3,162.0 130.0,228.0 15.7,162.0 15.7,151.0"/>
         <rect fill="#000" x="234.7" y="145.0" width="86" height="15"/>

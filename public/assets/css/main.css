@@ -957,10 +957,12 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 
 /* --- the exploded site (homepage hero) --- */
 .hero-side { position: relative; }
-/* Single-column (mobile) the diagram is in-flow and needs its own headroom:
-   the explosion rises ~68px above the cropped frame at full render width.
-   Without this it climbs through the lede above it. */
-.hero-side .xpl { display: block; width: 100%; max-width: 300px; margin: 72px auto 10px; overflow: visible; }
+/* Single-column (mobile) the diagram is in-flow and needs headroom for the
+   part of the explosion that sits above the frame. The viewBox was extended
+   40 units upward (Sept 2026) so the streaks could travel further out, which
+   pulled most of the explosion inside the frame: the overflow dropped from
+   ~68px to ~20px, and the old 72px margin left a visible gap under the lede. */
+.hero-side .xpl { display: block; width: 100%; max-width: 300px; margin: 28px auto 10px; overflow: visible; }
 @media (min-width: 821px) {
   /* Whenever the hero is two-column, the facts stay top-aligned with the
      lede (the original hero geometry) and the diagram hangs absolutely in

@@ -50,6 +50,8 @@
   --paper:      #faf9f5;
   --paper-deep: #f1efe8;
   --rule:       #dcd9cf;
+  --rain:       #cbc7b9;  /* one step down from --rule: the hero's streak
+                             field reads too faint at rule weight */
   --accent:      #0a70c2;  /* text-safe azure — 4.85:1 on paper (AA) */
   --accent-soft: #35b9ff;  /* true baby blue — large/decorative only; ink text on it is 8.3:1 */
   --accent-2:    #6b35ff;  /* violet hover accent — 5.57:1 on paper */
@@ -1010,23 +1012,36 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
    stroke-dashoffset slides the dashes along the line, so direction is baked
    into the geometry and the loop is seamless as long as the offset travels a
    whole number of dash periods. Offset runs 0 to -100 against pathLength=100,
-   which is 5 periods at 20 and 4 at 25. Specks are the same trick with a
-   zero-length dash and a round cap, the one sanctioned round end in the
-   system, because a dot has no other way to exist.
+   which is a whole number of periods for every period the field uses (20, 25
+   and 50 all divide 100). Specks are the same trick with a zero-length dash
+   and a round cap, the one sanctioned round end in the system, because a dot
+   has no other way to exist. A speck never gets its own strand: it is a
+   second line laid over a streak's line and slid along the travel direction
+   so its dot parks in a gap, leading or trailing that streak's dash. Both
+   copies run the same keyframes at the same rate, so the pairing is rigid.
 
    Speed and weight both answer the stack: fast and full while it is COLLAPSED
    (34-70%), slow and faint while it is OPEN. The rate curve below is uneven
    on purpose -- equal time slices would travel equal distance. --- */
 .xpl .rain { animation: bk-rain-fade 18s linear infinite; }
 .xpl .streak, .xpl .speck {
-  stroke: var(--rule); fill: none; vector-effect: non-scaling-stroke;
+  stroke: var(--rain); fill: none; vector-effect: non-scaling-stroke;
   animation: bk-rain 18s linear infinite; }
 .xpl .streak { stroke-width: 1; stroke-linecap: butt; }
 .xpl .speck  { stroke-width: 1.8; stroke-linecap: round; }
-.xpl .streak.p20 { stroke-dasharray: 4 16; }
-.xpl .streak.p25 { stroke-dasharray: 5 20; }
-.xpl .speck.p20  { stroke-dasharray: 0 20; }
-.xpl .speck.p25  { stroke-dasharray: 0 25; }
+/* Streak lengths. First number is the drawn dash, second the gap; they sum to
+   the period, which must divide 100. The line spans 680 user units at
+   pathLength 100, so a dash of 4 draws 27 user units and one of 16 draws 109.
+   A quarter of the field is l or xl. */
+.xpl .streak.len-xs { stroke-dasharray: 4 16; }
+.xpl .streak.len-s  { stroke-dasharray: 5 20; }
+.xpl .streak.len-m  { stroke-dasharray: 7 13; }
+.xpl .streak.len-l  { stroke-dasharray: 11 14; }
+.xpl .streak.len-xl { stroke-dasharray: 16 34; }
+/* A speck's period matches the streak it rides, or the two would drift apart. */
+.xpl .speck.per-20 { stroke-dasharray: 0 20; }
+.xpl .speck.per-25 { stroke-dasharray: 0 25; }
+.xpl .speck.per-50 { stroke-dasharray: 0 50; }
 /* open holds move at ~1/3 the collapsed rate; transits split the difference.
    Total travel is exactly -100 so the dash pattern lands back on itself. */
 @keyframes bk-rain {

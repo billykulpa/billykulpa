@@ -31,52 +31,52 @@
         <g class="rain" mask="url(#bk-rainmask)">
         <line class="streak len-xs" x1="-228.9" y1="152.8" x2="359.9" y2="-187.2" pathLength="100"/>
         <line class="speck per-20" x1="-236.7" y1="157.3" x2="352.2" y2="-182.7" pathLength="100"/>
-        <line class="streak len-s" x1="-219.9" y1="168.4" x2="368.9" y2="-171.6" pathLength="100"/>
-        <line class="speck per-25" x1="-182.7" y1="146.9" x2="406.2" y2="-193.1" pathLength="100"/>
-        <line class="streak len-m" x1="-219.4" y1="169.2" x2="369.4" y2="-170.8" pathLength="100"/>
-        <line class="streak len-xs" x1="-209.4" y1="186.6" x2="379.4" y2="-153.4" pathLength="100"/>
-        <line class="speck per-20" x1="-178.1" y1="168.5" x2="410.8" y2="-171.5" pathLength="100"/>
-        <line class="streak len-l" x1="-208.4" y1="188.3" x2="380.4" y2="-151.7" pathLength="100"/>
-        <line class="speck per-25" x1="-216.2" y1="192.8" x2="372.7" y2="-147.2" pathLength="100"/>
-        <line class="streak len-s" x1="-197.9" y1="206.5" x2="390.9" y2="-133.5" pathLength="100"/>
-        <line class="streak len-xs" x1="-188.9" y1="222.1" x2="399.9" y2="-117.9" pathLength="100"/>
-        <line class="speck per-20" x1="-196.7" y1="226.6" x2="392.2" y2="-113.4" pathLength="100"/>
-        <line class="streak len-m" x1="-188.4" y1="222.9" x2="400.4" y2="-117.1" pathLength="100"/>
-        <line class="speck per-20" x1="-139.4" y1="194.6" x2="449.5" y2="-145.4" pathLength="100"/>
-        <line class="streak len-xl" x1="-178.4" y1="240.3" x2="410.4" y2="-99.7" pathLength="100"/>
-        <line class="speck per-50" x1="-186.2" y1="244.8" x2="402.7" y2="-95.2" pathLength="100"/>
-        <line class="streak len-s" x1="-177.9" y1="241.1" x2="410.9" y2="-98.9" pathLength="100"/>
-        <line class="streak len-xs" x1="-168.4" y1="257.6" x2="420.4" y2="-82.4" pathLength="100"/>
-        <line class="speck per-20" x1="-137.1" y1="239.5" x2="451.8" y2="-100.5" pathLength="100"/>
-        <line class="streak len-l" x1="-159.4" y1="273.2" x2="429.4" y2="-66.8" pathLength="100"/>
-        <line class="speck per-25" x1="-167.2" y1="277.7" x2="421.7" y2="-62.3" pathLength="100"/>
-        <line class="streak len-m" x1="-158.9" y1="274.0" x2="429.9" y2="-66.0" pathLength="100"/>
-        <line class="streak len-s" x1="-148.9" y1="291.3" x2="439.9" y2="-48.7" pathLength="100"/>
-        <line class="speck per-25" x1="-111.7" y1="269.8" x2="477.2" y2="-70.2" pathLength="100"/>
-        <line class="streak len-xs" x1="-148.9" y1="291.3" x2="439.9" y2="-48.7" pathLength="100"/>
-        <line class="speck per-20" x1="-156.7" y1="295.8" x2="432.2" y2="-44.2" pathLength="100"/>
-        <line class="streak len-l" x1="-135.9" y1="313.9" x2="452.9" y2="-26.1" pathLength="100"/>
-        <line class="speck per-25" x1="-63.4" y1="272.0" x2="525.5" y2="-68.0" pathLength="100"/>
-        <line class="streak len-s" x1="-133.9" y1="317.3" x2="454.9" y2="-22.7" pathLength="100"/>
-        <line class="streak len-l" x1="-125.4" y1="332.1" x2="463.4" y2="-7.9" pathLength="100"/>
-        <line class="speck per-25" x1="-133.2" y1="336.6" x2="455.7" y2="-3.4" pathLength="100"/>
+        <line class="streak len-s" x1="-222.4" y1="164.0" x2="366.4" y2="-176.0" pathLength="100"/>
+        <line class="speck per-25" x1="-185.2" y1="142.5" x2="403.7" y2="-197.5" pathLength="100"/>
+        <line class="streak len-m" x1="-217.9" y1="171.8" x2="370.9" y2="-168.2" pathLength="100"/>
+        <line class="streak len-xs" x1="-209.9" y1="185.7" x2="378.9" y2="-154.3" pathLength="100"/>
+        <line class="speck per-20" x1="-178.6" y1="167.6" x2="410.3" y2="-172.4" pathLength="100"/>
+        <line class="streak len-l" x1="-204.4" y1="195.2" x2="384.4" y2="-144.8" pathLength="100"/>
+        <line class="speck per-25" x1="-212.2" y1="199.7" x2="376.7" y2="-140.3" pathLength="100"/>
+        <line class="streak len-s" x1="-197.4" y1="207.3" x2="391.4" y2="-132.7" pathLength="100"/>
+        <line class="streak len-xs" x1="-193.4" y1="214.3" x2="395.4" y2="-125.7" pathLength="100"/>
+        <line class="speck per-20" x1="-201.2" y1="218.8" x2="387.7" y2="-121.2" pathLength="100"/>
+        <line class="streak len-m" x1="-184.9" y1="229.0" x2="403.9" y2="-111.0" pathLength="100"/>
+        <line class="speck per-20" x1="-135.9" y1="200.7" x2="453.0" y2="-139.3" pathLength="100"/>
+        <line class="streak len-xl" x1="-178.9" y1="239.4" x2="409.9" y2="-100.6" pathLength="100"/>
+        <line class="speck per-50" x1="-186.7" y1="243.9" x2="402.2" y2="-96.1" pathLength="100"/>
+        <line class="streak len-s" x1="-173.9" y1="248.0" x2="414.9" y2="-92.0" pathLength="100"/>
+        <line class="streak len-xs" x1="-166.4" y1="261.0" x2="422.4" y2="-79.0" pathLength="100"/>
+        <line class="speck per-20" x1="-135.1" y1="242.9" x2="453.8" y2="-97.1" pathLength="100"/>
+        <line class="streak len-l" x1="-161.9" y1="268.8" x2="426.9" y2="-71.2" pathLength="100"/>
+        <line class="speck per-25" x1="-169.7" y1="273.3" x2="419.2" y2="-66.7" pathLength="100"/>
+        <line class="streak len-m" x1="-155.4" y1="280.1" x2="433.4" y2="-59.9" pathLength="100"/>
+        <line class="streak len-s" x1="-147.4" y1="293.9" x2="441.4" y2="-46.1" pathLength="100"/>
+        <line class="speck per-25" x1="-110.2" y1="272.4" x2="478.7" y2="-67.6" pathLength="100"/>
+        <line class="streak len-xs" x1="-141.9" y1="303.5" x2="446.9" y2="-36.5" pathLength="100"/>
+        <line class="speck per-20" x1="-149.7" y1="308.0" x2="439.2" y2="-32.0" pathLength="100"/>
+        <line class="streak len-l" x1="-137.9" y1="310.4" x2="450.9" y2="-29.6" pathLength="100"/>
+        <line class="speck per-25" x1="-65.4" y1="268.5" x2="523.5" y2="-71.5" pathLength="100"/>
+        <line class="streak len-s" x1="-130.9" y1="322.5" x2="457.9" y2="-17.5" pathLength="100"/>
+        <line class="streak len-l" x1="-124.9" y1="332.9" x2="463.9" y2="-7.1" pathLength="100"/>
+        <line class="speck per-25" x1="-132.7" y1="337.4" x2="456.2" y2="-2.6" pathLength="100"/>
         <line class="streak len-xs" x1="-116.4" y1="347.6" x2="472.4" y2="7.6" pathLength="100"/>
         <line class="speck per-20" x1="-85.1" y1="329.5" x2="503.8" y2="-10.5" pathLength="100"/>
-        <line class="streak len-xl" x1="-117.4" y1="345.9" x2="471.4" y2="5.9" pathLength="100"/>
-        <line class="streak len-m" x1="-107.9" y1="362.4" x2="480.9" y2="22.4" pathLength="100"/>
-        <line class="speck per-20" x1="-115.7" y1="366.9" x2="473.2" y2="26.9" pathLength="100"/>
-        <line class="streak len-s" x1="-106.4" y1="365.0" x2="482.4" y2="25.0" pathLength="100"/>
-        <line class="speck per-25" x1="-69.2" y1="343.5" x2="519.7" y2="3.5" pathLength="100"/>
-        <line class="streak len-xs" x1="-94.4" y1="385.7" x2="494.4" y2="45.7" pathLength="100"/>
-        <line class="speck per-20" x1="-102.2" y1="390.2" x2="486.7" y2="50.2" pathLength="100"/>
-        <line class="streak len-l" x1="-90.9" y1="391.8" x2="497.9" y2="51.8" pathLength="100"/>
-        <line class="streak len-m" x1="-86.4" y1="399.6" x2="502.4" y2="59.6" pathLength="100"/>
-        <line class="speck per-20" x1="-37.4" y1="371.3" x2="551.5" y2="31.3" pathLength="100"/>
-        <line class="streak len-xs" x1="-74.9" y1="419.5" x2="513.9" y2="79.5" pathLength="100"/>
-        <line class="speck per-20" x1="-82.7" y1="424.0" x2="506.2" y2="84.0" pathLength="100"/>
-        <line class="streak len-s" x1="-75.9" y1="417.8" x2="512.9" y2="77.8" pathLength="100"/>
-        <line class="speck per-25" x1="-38.7" y1="396.3" x2="550.2" y2="56.3" pathLength="100"/>
-        <line class="streak len-m" x1="-64.9" y1="436.8" x2="523.9" y2="96.8" pathLength="100"/>
+        <line class="streak len-xl" x1="-111.4" y1="356.3" x2="477.4" y2="16.3" pathLength="100"/>
+        <line class="streak len-m" x1="-104.9" y1="367.6" x2="483.9" y2="27.6" pathLength="100"/>
+        <line class="speck per-20" x1="-112.7" y1="372.1" x2="476.2" y2="32.1" pathLength="100"/>
+        <line class="streak len-s" x1="-100.4" y1="375.4" x2="488.4" y2="35.4" pathLength="100"/>
+        <line class="speck per-25" x1="-63.2" y1="353.9" x2="525.7" y2="13.9" pathLength="100"/>
+        <line class="streak len-xs" x1="-92.9" y1="388.3" x2="495.9" y2="48.3" pathLength="100"/>
+        <line class="speck per-20" x1="-100.7" y1="392.8" x2="488.2" y2="52.8" pathLength="100"/>
+        <line class="streak len-l" x1="-87.4" y1="397.9" x2="501.4" y2="57.9" pathLength="100"/>
+        <line class="streak len-m" x1="-79.4" y1="411.7" x2="509.4" y2="71.7" pathLength="100"/>
+        <line class="speck per-20" x1="-30.4" y1="383.4" x2="558.5" y2="43.4" pathLength="100"/>
+        <line class="streak len-xs" x1="-75.4" y1="418.7" x2="513.4" y2="78.7" pathLength="100"/>
+        <line class="speck per-20" x1="-83.2" y1="423.2" x2="505.7" y2="83.2" pathLength="100"/>
+        <line class="streak len-s" x1="-68.4" y1="430.8" x2="520.4" y2="90.8" pathLength="100"/>
+        <line class="speck per-25" x1="-31.2" y1="409.3" x2="557.7" y2="69.3" pathLength="100"/>
+        <line class="streak len-m" x1="-61.4" y1="442.9" x2="527.4" y2="102.9" pathLength="100"/>
         </g>
         <g class="guides">
         <line class="guide" x1="130.0" y1="-1.0" x2="130.0" y2="97.0"/>

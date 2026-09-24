@@ -13,28 +13,12 @@
 switch ($icon ?? '') {
 case 'work': ?>
   <svg class="pgi pgi--work" viewBox="0 0 100 100" aria-hidden="true">
-  <g transform="translate(47.60 38.99) scale(1.2587)">
-  <g class="pgi-base">
-  <polygon class="face" points="34.64,17.00 0.00,37.00 0.00,40.00 34.64,20.00"/>
-  <polygon class="face" points="-34.64,17.00 0.00,37.00 0.00,40.00 -34.64,20.00"/>
-  <polygon class="face" points="0.00,-3.00 34.64,17.00 0.00,37.00 -34.64,17.00"/>
-  </g>
-  <g class="pgi-riseB">
-  <polygon class="face" points="25.98,15.80 0.00,30.80 0.00,32.00 25.98,17.00"/>
-  <polygon class="face" points="-25.98,15.80 0.00,30.80 0.00,32.00 -25.98,17.00"/>
-  <polygon class="face" points="0.00,0.80 25.98,15.80 0.00,30.80 -25.98,15.80"/>
-  <line class="wf soft" x1="-2.60" y1="6.30" x2="12.12" y2="14.80"/>
-  <line class="wf soft" x1="-7.79" y1="9.30" x2="10.39" y2="19.80"/>
-  <line class="wf soft" x1="-12.99" y1="12.30" x2="-1.73" y2="18.80"/>
-  </g>
-  <g class="pgi-riseA">
-  <polygon class="face" points="32.91,13.50 0.00,32.50 0.00,35.00 32.91,16.00"/>
-  <polygon class="face" points="-32.91,13.50 0.00,32.50 0.00,35.00 -32.91,16.00"/>
-  <polygon class="face" points="0.00,-5.50 32.91,13.50 0.00,32.50 -32.91,13.50"/>
-  <polygon class="face" points="38.45,6.70 29.79,11.70 29.79,14.20 38.45,9.20"/>
-  <polygon class="face" points="15.24,3.30 29.79,11.70 29.79,14.20 15.24,5.80"/>
-  <polygon class="face" points="23.90,-1.70 38.45,6.70 29.79,11.70 15.24,3.30"/>
-  </g>
+  <g transform="translate(78.14 60.14) scale(1.1206)">
+  <polygon class="face" points="0.00,0.00 -13.86,-23.00 -64.09,6.00 -50.23,29.00"/>
+  <polygon class="face" points="-19.05,-20.00 -25.11,-30.10 -42.44,-20.10 -36.37,-10.00"/>
+  <g class="pgi-rest"><polygon class="face" points="-13.77,5.60 -20.78,-11.50 -46.77,3.50 -39.75,20.60"/></g>
+  <g class="pgi-drop"><polygon class="face" points="-10.48,3.25 -19.05,-17.00 -51.96,2.00 -43.39,22.25"/></g>
+  <polygon class="face" points="0.00,0.00 13.86,3.00 -36.37,32.00 -50.23,29.00"/>
   </g>
   </svg>
 <?php break;
@@ -82,7 +66,7 @@ case 'resume': ?>
 
 case 'about': ?>
   <svg class="pgi pgi--about" viewBox="0 0 100 100" aria-hidden="true">
-  <g transform="translate(45.82 44.51) scale(1.2072)">
+  <g transform="translate(45.82 47.28) scale(1.2072)">
   <polygon class="face" points="-13.86,32.00 -34.64,6.00 -34.64,8.50 -13.86,34.50"/>
   <polygon class="face" points="20.78,12.00 0.00,-14.00 -34.64,6.00 -13.86,32.00"/>
   <line class="wf soft" x1="7.52" y1="12.82" x2="-4.54" y2="-2.26"/>
@@ -98,34 +82,23 @@ case 'about': ?>
   <line class="wf soft" x1="2.88" y1="24.14" x2="14.93" y2="22.98"/>
   <line class="wf soft" x1="-3.19" y1="27.64" x2="5.54" y2="26.80"/>
   </g>
-  <g class="pgi-flip f1"><polygon class="face" points="20.78,12.00 41.57,10.00 6.93,30.00 -13.86,32.00"/></g>
-  <g class="pgi-flip f2"><polygon class="face" points="20.78,12.00 35.33,-6.20 0.69,13.80 -13.86,32.00"/></g>
-  <g class="pgi-flip f3"><polygon class="face" points="20.78,12.00 24.94,-20.60 -9.70,-0.60 -13.86,32.00"/></g>
-  <g class="pgi-flip f4"><polygon class="face" points="20.78,12.00 16.63,-25.40 -18.01,-5.40 -13.86,32.00"/></g>
-  <g class="pgi-flip f5"><polygon class="face" points="20.78,12.00 6.24,-23.00 -28.41,-3.00 -13.86,32.00"/></g>
-  <g class="pgi-flip f6"><polygon class="face" points="20.78,12.00 0.00,-14.00 -34.64,6.00 -13.86,32.00"/></g>
+  <g class="pgi-turn"><polygon class="face" points="20.78,12.00 41.57,10.00 6.93,30.00 -13.86,32.00"/></g>
   </g>
   </svg>
 <?php break;
 
 case 'contact': ?>
   <svg class="pgi pgi--contact" viewBox="0 0 100 100" aria-hidden="true">
-  <g transform="translate(50.00 40.70) scale(1.3279)">
-  <g class="pgi-fold fo3"><polygon class="face" points="0.00,-3.60 34.64,16.40 20.78,-16.00"/></g>
-  <polygon class="face" points="34.64,17.00 0.00,37.00 0.00,40.00 34.64,20.00"/>
-  <polygon class="face" points="-34.64,17.00 0.00,37.00 0.00,40.00 -34.64,20.00"/>
-  <polygon class="face" points="0.00,-3.00 34.64,17.00 0.00,37.00 -34.64,17.00"/>
-  <polyline class="wf" points="0.00,-3.00 0.00,17.00 34.64,17.00"/>
-  <g class="pgi-riseB">
-  <polygon class="face" points="24.25,15.80 0.00,29.80 0.00,31.00 24.25,17.00"/>
-  <polygon class="face" points="-24.25,15.80 0.00,29.80 0.00,31.00 -24.25,17.00"/>
-  <polygon class="face" points="0.00,1.80 24.25,15.80 0.00,29.80 -24.25,15.80"/>
-  <line class="wf soft" x1="-2.60" y1="7.30" x2="12.99" y2="16.30"/>
-  <line class="wf soft" x1="-7.79" y1="10.30" x2="10.39" y2="20.80"/>
-  <line class="wf soft" x1="-12.99" y1="13.30" x2="-0.87" y2="20.30"/>
+  <g transform="translate(45.33 43.10) scale(1.3484)">
+  <polygon class="face" points="-22.52,13.00 -22.52,6.00 -22.52,6.00 -22.30,3.34 -21.66,0.53 -20.62,-2.32 -19.22,-5.10 -17.51,-7.70 -15.57,-10.02 -13.45,-11.98 -11.26,-13.50 -9.06,-14.52 -6.95,-15.00 -5.00,-14.92 -3.30,-14.29 -1.90,-13.13 -0.86,-11.48 -0.22,-9.41 0.00,-7.00 0.00,0.00"/>
+  <polygon class="face" points="-22.52,6.00 -22.30,3.34 -21.66,0.53 -20.62,-2.32 -19.22,-5.10 -17.51,-7.70 -15.57,-10.02 -13.45,-11.98 -11.26,-13.50 -9.06,-14.52 -6.95,-15.00 -5.00,-14.92 -3.30,-14.29 -1.90,-13.13 -0.86,-11.48 -0.22,-9.41 0.00,-7.00 29.44,10.00 29.23,7.59 28.59,5.52 27.55,3.87 26.15,2.71 24.44,2.08 22.49,2.00 20.38,2.48 18.19,3.50 15.99,5.02 13.88,6.98 11.93,9.30 10.23,11.90 8.83,14.68 7.79,17.53 7.14,20.34 6.93,23.00"/>
+  <polygon class="face" points="-22.52,13.00 6.93,30.00 6.93,23.00 -22.52,6.00"/>
+  <polygon class="face" points="6.93,30.00 6.93,23.00 6.93,23.00 7.14,20.34 7.79,17.53 8.83,14.68 10.23,11.90 11.93,9.30 13.88,6.98 15.99,5.02 18.19,3.50 20.38,2.48 22.49,2.00 24.44,2.08 26.15,2.71 27.55,3.87 28.59,5.52 29.23,7.59 29.44,10.00 29.44,17.00"/>
+  <polygon class="wf soft" points="10.39,26.00 10.39,21.00 10.39,21.00 10.54,19.16 10.99,17.21 11.71,15.24 12.68,13.32 13.86,11.52 15.20,9.91 16.67,8.55 18.19,7.50 19.71,6.80 21.17,6.46 22.52,6.52 23.70,6.95 24.67,7.76 25.39,8.90 25.83,10.33 25.98,12.00 25.98,17.00"/>
+  <g class="pgi-flag">
+  <polyline class="wf" points="-0.87,23.50 10.48,39.23"/>
+  <polygon class="face" points="4.81,31.37 10.48,39.23 13.96,35.50 8.29,27.64"/>
   </g>
-  <g class="pgi-fold fo1"><polygon class="face" points="0.00,-3.60 34.64,16.40 0.00,16.40"/></g>
-  <g class="pgi-fold fo2"><polygon class="face" points="0.00,-3.60 34.64,16.40 6.93,-2.00"/></g>
   </g>
   </svg>
 <?php break;

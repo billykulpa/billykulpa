@@ -2,9 +2,9 @@
 
 <section class="hero hero--inner">
   <div class="wrap">
+    <?php $icon = 'contact'; require __DIR__ . '/page-icon.php'; ?>
     <p class="mono-label hero-kicker">04 / Contact</p>
     <h1 class="hero-h1"><?= esc($pg['h1'] ?: 'Hello there.') ?></h1>
-    <?php $icon = 'contact'; require __DIR__ . '/page-icon.php'; ?>
     <p class="hero-lede">Thank you for visiting. If you have questions, need help
     with a project, or would like to get in touch, fill out the form below.
     I&rsquo;ll get back to you as soon as possible.</p>

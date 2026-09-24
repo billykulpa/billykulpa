@@ -1054,29 +1054,20 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 
 
 /* --- page-header icons ---------------------------------------------------
-   One 100x100 isometric icon per landing page, right-justified in the header
-   band. Same world as the hero (gen3.py / icons.py): iso projection, 1px
+   One isometric icon per landing page, sitting ABOVE the kicker and left
+   aligned with it, in flow. It was 100px hard right in the header band first;
+   that needed a 821px cutoff because a 100px icon has nowhere to go next to a
+   wrapping h1. In flow above the kicker it works at every width, so there is
+   no breakpoint here at all.
+
+   Same world as the hero (gen3.py / icons.py): iso projection, 1px
    non-scaling strokes, miter joins, butt caps, white fills.
 
    Every icon is a LAP on one shared 9s clock: constant rate, long rest, no
    speed variation anywhere (see the ambient-motion rule). Three gesture
-   families across the five, so they do not all read as the hero: LIFT (work,
-   contact), WRITE (notes, resume), TURN (about).
-
-   Hidden below 821px, the same breakpoint .hero-grid uses. At phone width the
-   h1 wraps and a 100px icon has nowhere to go without colliding with it. --- */
-.pgi { display: none; }
-
-@media (min-width: 821px) {
-  .hero--inner .wrap { position: relative; }
-  .pgi { display: block; position: absolute; top: 0; right: var(--gutter);
-         width: 100px; height: 100px; overflow: visible; }
-  /* Reserve the corner so a long h1 never runs under the icon. NOT .hero-lede:
-     it already carries max-width 56ch, which is narrower than this at every
-     width the icon appears at, and overriding it blows out the measure. */
-  .hero--inner .hero-kicker,
-  .hero--inner .hero-h1 { max-width: calc(100% - 132px); }
-}
+   families, so they do not all read as the hero: DROP (work), WRITE (notes,
+   resume), FOLD (about, contact). --- */
+.pgi { display: block; width: 64px; height: 64px; margin: 0 0 16px; overflow: visible; }
 
 .pgi .face { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke;
              fill: #fff; stroke-linejoin: miter; }
@@ -1085,24 +1076,9 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 .pgi .wf.soft { stroke: var(--rule); }
 .pgi .wf.bold { stroke-width: 1.5; }
 
-/* LIFT: the folder lid and the envelope flap (A) come off further than the
-   sheet and the letter (B) rising underneath them. */
-.pgi-riseA { animation: bk-pi-rise-a 9s cubic-bezier(.5,0,.2,1) infinite; }
-.pgi-riseB { animation: bk-pi-rise-b 9s cubic-bezier(.5,0,.2,1) infinite; }
-@keyframes bk-pi-rise-a {
-  0%, 8%    { transform: translateY(0); }
-  24%, 60%  { transform: translateY(-17px); }
-  76%, 100% { transform: translateY(0); }
-}
-@keyframes bk-pi-rise-b {
-  0%, 8%    { transform: translateY(0); }
-  24%, 60%  { transform: translateY(-9px); }
-  76%, 100% { transform: translateY(0); }
-}
-
 /* WRITE: dasharray equals pathLength, so running the offset to 0 draws the
-   line on from its start. Lines are staggered by animation-delay, which
-   phase-shifts an infinite animation permanently. Opacity is 0 at both ends
+   line on from its start. Lines stagger by animation-delay, which
+   phase-shifts an infinite animation permanently. Opacity is 0 at BOTH ends
    of the loop so the reset is invisible. */
 .pgi .write { stroke-dasharray: 100 100; animation: bk-pi-write 9s linear infinite; }
 @keyframes bk-pi-write {
@@ -1112,43 +1088,72 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
   88%, 100% { stroke-dashoffset: 0;   opacity: 0; }
 }
 
-/* TURN: CSS cannot animate polygon points, so the turning page is six drawn
-   positions stepped through in sequence. The static right page cuts out while
-   the flyer covers it and cuts back in once the flyer is over on the left, so
-   the loop has no pop. 4% of 9s = 360ms per frame. */
-.pgi-flip { opacity: 0; animation: bk-pi-flip 9s steps(1, end) infinite; }
-@keyframes bk-pi-flip { 0%, 3.99% { opacity: 1; } 4%, 100% { opacity: 0; } }
-.pgi-flip.f1 { animation-delay: 4.50s; }
-.pgi-flip.f2 { animation-delay: 4.86s; }
-.pgi-flip.f3 { animation-delay: 5.22s; }
-.pgi-flip.f4 { animation-delay: 5.58s; }
-.pgi-flip.f5 { animation-delay: 5.94s; }
-.pgi-flip.f6 { animation-delay: 6.30s; }
+/* The book's right leaf cuts out while the turning page covers it and cuts
+   back in once the page is over on the left, so the turn has something to
+   have come from and the loop never pops. Tied to the turn window below. */
 .pgi-rpage { animation: bk-pi-rpage 9s steps(1, end) infinite; }
-@keyframes bk-pi-rpage { 0% { opacity: 1; } 52% { opacity: 0; } 67% { opacity: 1; } }
+@keyframes bk-pi-rpage { 0% { opacity: 1; } 50% { opacity: 0; } 66% { opacity: 1; } }
 
-/* FOLD: the envelope flap, same flipbook idea but it opens, holds and closes
-   on the lift clock instead of sweeping once. Frames 1-2 are drawn in front of
-   the envelope body and 3-4 behind it, and the handover happens at frame 3
-   where the flap is near vertical and the swap cannot be seen. */
-.pgi-fold { opacity: 0; animation: 9s steps(1, end) infinite; }
-.pgi-fold.fo1 { animation-name: bk-pi-fold-1; }
-.pgi-fold.fo2 { animation-name: bk-pi-fold-2; }
-.pgi-fold.fo3 { animation-name: bk-pi-fold-3; }
-@keyframes bk-pi-fold-1 { 0%, 9.9% { opacity: 1; } 10%, 73.9% { opacity: 0; } 74%, 100% { opacity: 1; } }
-@keyframes bk-pi-fold-2 { 0%, 9.9% { opacity: 0; } 10%, 19.9% { opacity: 1; } 20%, 63.9% { opacity: 0; } 64%, 73.9% { opacity: 1; } 74%, 100% { opacity: 0; } }
-@keyframes bk-pi-fold-3 { 0%, 19.9% { opacity: 0; } 20%, 63.9% { opacity: 1; } 64%, 100% { opacity: 0; } }
+/* GENERATED by morph/icons.py -- do not hand-edit between the markers.
+   Matrix samples for the two continuous folds. CSS interpolates
+   between adjacent samples, so 12 steps read as smooth motion. */
+.pgi-turn { opacity: 0; animation: bk-pi-turn 9s linear infinite; }
+@keyframes bk-pi-turn {
+  0%, 46.4% { transform: matrix(1.00000,0.00000,0.00000,1.00000,0.0000,0.0000); opacity: 0; }
+  47.00% { transform: matrix(1.00000,0.00000,0.00000,1.00000,0.0000,0.0000); opacity: 1; }
+  49.00% { transform: matrix(0.86088,-0.30774,-0.24095,0.46698,5.7829,12.7925); }
+  51.00% { transform: matrix(0.68981,-0.60273,-0.53727,-0.04396,12.8944,25.0549); }
+  53.00% { transform: matrix(0.49193,-0.87608,-0.88001,-0.51742,21.1202,36.4180); }
+  55.00% { transform: matrix(0.27320,-1.11956,-1.25885,-0.93914,30.2124,46.5393); }
+  57.00% { transform: matrix(0.04022,-1.32584,-1.66239,-1.29642,39.8973,55.1140); }
+  59.00% { transform: matrix(-0.20000,-1.48869,-2.07846,-1.57849,49.8831,61.8837); }
+  61.00% { transform: matrix(-0.44022,-1.60322,-2.49453,-1.77686,59.8688,66.6445); }
+  63.00% { transform: matrix(-0.67320,-1.66597,-2.89807,-1.88554,69.5537,69.2530); }
+  65.00% { transform: matrix(-0.89193,-1.67505,-3.27692,-1.90127,78.6460,69.6305); }
+  67.00% { transform: matrix(-1.08981,-1.63019,-3.61966,-1.82358,86.8718,67.7658); }
+  69.00% { transform: matrix(-1.26088,-1.53274,-3.91597,-1.65479,93.9832,63.7149); }
+  71.00% { transform: matrix(-1.40000,-1.38564,-4.15692,-1.40000,99.7661,57.6000); opacity: 1; }
+  71.6%, 100% { transform: matrix(-1.40000,-1.38564,-4.15692,-1.40000,99.7661,57.6000); opacity: 0; }
+}
+.pgi-flag { animation: bk-pi-flag 9s linear infinite; }
+@keyframes bk-pi-flag {
+  0%, 8% { transform: matrix(1.00000,0.00000,0.00000,1.00000,0.0000,0.0000); }
+  10.00% { transform: matrix(1.04192,-0.06755,0.07260,0.88300,-1.6698,2.6910); }
+  12.00% { transform: matrix(1.06279,-0.15639,0.10876,0.72912,-2.5015,6.2302); }
+  14.00% { transform: matrix(1.06132,-0.26096,0.10621,0.54801,-2.4429,10.3959); }
+  16.00% { transform: matrix(1.03760,-0.37471,0.06512,0.35099,-1.4978,14.9273); }
+  18.00% { transform: matrix(0.99311,-0.49051,-0.01194,0.15041,0.2747,19.5406); }
+  20.00% { transform: matrix(0.93063,-0.60112,-0.12015,-0.04118,2.7635,23.9470); }
+  22.00% { transform: matrix(0.85408,-0.69961,-0.25274,-0.21177,5.8129,27.8706); }
+  24.00% { transform: matrix(0.76826,-0.77982,-0.40139,-0.35068,9.2319,31.0657); }
+  60% { transform: matrix(0.76826,-0.77982,-0.40139,-0.35068,9.2319,31.0657); }
+  62.00% { transform: matrix(0.85264,-0.13771,-0.25523,0.76149,5.8703,5.4858); }
+  64.00% { transform: matrix(0.72122,-0.30681,-0.48287,0.46859,11.1059,12.2225); }
+  66.00% { transform: matrix(0.61395,-0.49673,-0.66866,0.13964,15.3792,19.7882); }
+  68.00% { transform: matrix(0.53756,-0.69556,-0.80098,-0.20474,18.4224,27.7091); }
+  70.00% { transform: matrix(0.49682,-0.89086,-0.87153,-0.54302,20.0452,35.4893); }
+  72.00% { transform: matrix(0.49430,-1.07040,-0.87590,-0.85399,20.1457,42.6417); }
+  74.00% { transform: matrix(0.53014,-1.22294,-0.81382,-1.11819,18.7178,48.7183); }
+  76.00% { transform: matrix(0.60211,-1.33892,-0.68916,-1.31907,15.8508,53.3386); }
+  76%, 100% { transform: matrix(0.60211,-1.33892,-0.68916,-1.31907,15.8508,53.3386); }
+}
+.pgi-drop { animation: bk-pi-drop 9s cubic-bezier(.4,0,.2,1) infinite; }
+@keyframes bk-pi-drop {
+  0%, 4%   { transform: translateY(-26px); opacity: 0; }
+  10%      { transform: translateY(-26px); opacity: 1; }
+  26%, 84% { transform: translateY(0); opacity: 1; }
+  94%, 100%{ transform: translateY(0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pgi-flag { transform: matrix(0.76826,-0.77982,-0.40139,-0.35068,9.2319,31.0657); }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .pgi-riseA, .pgi-riseB, .pgi .write,
-  .pgi-flip, .pgi-rpage, .pgi-fold { animation: none; }
-  .pgi-riseA { transform: translateY(-17px); }   /* rest open, like the hero */
-  .pgi-riseB { transform: translateY(-9px); }
+  .pgi .write, .pgi-drop, .pgi-turn, .pgi-rpage, .pgi-flag { animation: none; }
   .pgi .write { stroke-dashoffset: 0; opacity: 1; }
-  .pgi-flip { display: none; }
+  .pgi-drop { transform: none; opacity: 1; }
+  .pgi-turn { display: none; }
   .pgi-rpage { opacity: 1; }
-  .pgi-fold { display: none; }
-  .pgi-fold.fo3 { display: block; opacity: 1; }   /* envelope rests open */
 }
 
 

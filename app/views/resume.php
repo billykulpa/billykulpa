@@ -128,6 +128,7 @@ function resume_entries(array $entries): void { foreach ($entries as $e): ?>
   <div class="wrap">
     <p class="mono-label hero-kicker">Billy Kulpa / Roscoe, Illinois</p>
     <h1 class="hero-h1"><?= esc($pg['h1']) ?></h1>
+    <?php $icon = 'resume'; require __DIR__ . '/page-icon.php'; ?>
     <p class="hero-lede"><?= ($pg['lede'] ?? '') !== '' ? md_inline($pg['lede']) : esc($profile) ?></p>
     <nav class="resume-jump mono-label" aria-label="Resume sections">
       Jump to:

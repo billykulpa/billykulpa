@@ -4,6 +4,7 @@
   <div class="wrap">
     <p class="mono-label hero-kicker">01 / Work</p>
     <h1 class="hero-h1"><?= esc($pg['h1']) ?></h1>
+    <?php $icon = 'work'; require __DIR__ . '/page-icon.php'; ?>
   </div>
 </section>
 

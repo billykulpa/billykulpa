@@ -1053,6 +1053,105 @@ figcaption.mono-label { text-transform: none; letter-spacing: 0.02em; }
 }
 
 
+/* --- page-header icons ---------------------------------------------------
+   One 100x100 isometric icon per landing page, right-justified in the header
+   band. Same world as the hero (gen3.py / icons.py): iso projection, 1px
+   non-scaling strokes, miter joins, butt caps, white fills.
+
+   Every icon is a LAP on one shared 9s clock: constant rate, long rest, no
+   speed variation anywhere (see the ambient-motion rule). Three gesture
+   families across the five, so they do not all read as the hero: LIFT (work,
+   contact), WRITE (notes, resume), TURN (about).
+
+   Hidden below 821px, the same breakpoint .hero-grid uses. At phone width the
+   h1 wraps and a 100px icon has nowhere to go without colliding with it. --- */
+.pgi { display: none; }
+
+@media (min-width: 821px) {
+  .hero--inner .wrap { position: relative; }
+  .pgi { display: block; position: absolute; top: 0; right: var(--gutter);
+         width: 100px; height: 100px; overflow: visible; }
+  /* Reserve the corner so a long h1 never runs under the icon. NOT .hero-lede:
+     it already carries max-width 56ch, which is narrower than this at every
+     width the icon appears at, and overriding it blows out the measure. */
+  .hero--inner .hero-kicker,
+  .hero--inner .hero-h1 { max-width: calc(100% - 132px); }
+}
+
+.pgi .face { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke;
+             fill: #fff; stroke-linejoin: miter; }
+.pgi .wf   { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke;
+             fill: none; stroke-linecap: butt; stroke-linejoin: miter; }
+.pgi .wf.soft { stroke: var(--rule); }
+.pgi .wf.bold { stroke-width: 1.5; }
+
+/* LIFT: the folder lid and the envelope flap (A) come off further than the
+   sheet and the letter (B) rising underneath them. */
+.pgi-riseA { animation: bk-pi-rise-a 9s cubic-bezier(.5,0,.2,1) infinite; }
+.pgi-riseB { animation: bk-pi-rise-b 9s cubic-bezier(.5,0,.2,1) infinite; }
+@keyframes bk-pi-rise-a {
+  0%, 8%    { transform: translateY(0); }
+  24%, 60%  { transform: translateY(-17px); }
+  76%, 100% { transform: translateY(0); }
+}
+@keyframes bk-pi-rise-b {
+  0%, 8%    { transform: translateY(0); }
+  24%, 60%  { transform: translateY(-9px); }
+  76%, 100% { transform: translateY(0); }
+}
+
+/* WRITE: dasharray equals pathLength, so running the offset to 0 draws the
+   line on from its start. Lines are staggered by animation-delay, which
+   phase-shifts an infinite animation permanently. Opacity is 0 at both ends
+   of the loop so the reset is invisible. */
+.pgi .write { stroke-dasharray: 100 100; animation: bk-pi-write 9s linear infinite; }
+@keyframes bk-pi-write {
+  0%        { stroke-dashoffset: 100; opacity: 0; }
+  2%        { stroke-dashoffset: 100; opacity: 1; }
+  16%, 78%  { stroke-dashoffset: 0;   opacity: 1; }
+  88%, 100% { stroke-dashoffset: 0;   opacity: 0; }
+}
+
+/* TURN: CSS cannot animate polygon points, so the turning page is six drawn
+   positions stepped through in sequence. The static right page cuts out while
+   the flyer covers it and cuts back in once the flyer is over on the left, so
+   the loop has no pop. 4% of 9s = 360ms per frame. */
+.pgi-flip { opacity: 0; animation: bk-pi-flip 9s steps(1, end) infinite; }
+@keyframes bk-pi-flip { 0%, 3.99% { opacity: 1; } 4%, 100% { opacity: 0; } }
+.pgi-flip.f1 { animation-delay: 4.50s; }
+.pgi-flip.f2 { animation-delay: 4.86s; }
+.pgi-flip.f3 { animation-delay: 5.22s; }
+.pgi-flip.f4 { animation-delay: 5.58s; }
+.pgi-flip.f5 { animation-delay: 5.94s; }
+.pgi-flip.f6 { animation-delay: 6.30s; }
+.pgi-rpage { animation: bk-pi-rpage 9s steps(1, end) infinite; }
+@keyframes bk-pi-rpage { 0% { opacity: 1; } 52% { opacity: 0; } 67% { opacity: 1; } }
+
+/* FOLD: the envelope flap, same flipbook idea but it opens, holds and closes
+   on the lift clock instead of sweeping once. Frames 1-2 are drawn in front of
+   the envelope body and 3-4 behind it, and the handover happens at frame 3
+   where the flap is near vertical and the swap cannot be seen. */
+.pgi-fold { opacity: 0; animation: 9s steps(1, end) infinite; }
+.pgi-fold.fo1 { animation-name: bk-pi-fold-1; }
+.pgi-fold.fo2 { animation-name: bk-pi-fold-2; }
+.pgi-fold.fo3 { animation-name: bk-pi-fold-3; }
+@keyframes bk-pi-fold-1 { 0%, 9.9% { opacity: 1; } 10%, 73.9% { opacity: 0; } 74%, 100% { opacity: 1; } }
+@keyframes bk-pi-fold-2 { 0%, 9.9% { opacity: 0; } 10%, 19.9% { opacity: 1; } 20%, 63.9% { opacity: 0; } 64%, 73.9% { opacity: 1; } 74%, 100% { opacity: 0; } }
+@keyframes bk-pi-fold-3 { 0%, 19.9% { opacity: 0; } 20%, 63.9% { opacity: 1; } 64%, 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pgi-riseA, .pgi-riseB, .pgi .write,
+  .pgi-flip, .pgi-rpage, .pgi-fold { animation: none; }
+  .pgi-riseA { transform: translateY(-17px); }   /* rest open, like the hero */
+  .pgi-riseB { transform: translateY(-9px); }
+  .pgi .write { stroke-dashoffset: 0; opacity: 1; }
+  .pgi-flip { display: none; }
+  .pgi-rpage { opacity: 1; }
+  .pgi-fold { display: none; }
+  .pgi-fold.fo3 { display: block; opacity: 1; }   /* envelope rests open */
+}
+
+
 /* --- surge button: the border idles, then a 1px pulse laps the edge --- */
 
 .btn--surge { position: relative; }

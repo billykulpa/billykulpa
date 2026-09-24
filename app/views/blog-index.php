@@ -2,7 +2,6 @@
 
 <section class="hero hero--inner">
   <div class="wrap">
-    <?php $icon = 'notes'; require __DIR__ . '/page-icon.php'; ?>
     <p class="mono-label hero-kicker">02 / Notes</p>
     <h1 class="hero-h1"><?= esc($pg['h1']) ?></h1>
   </div>

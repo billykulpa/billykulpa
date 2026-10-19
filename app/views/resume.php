@@ -6,11 +6,10 @@
  * older roles trimmed. DRAFT — Billy: give it a voice pass.
  * Edit the arrays below; the markup renders itself.
  */
-$profile = 'Art direction is the job. Design, code, video, and copy are how
-I do it. For twenty-plus years I have led brands, teams, and campaigns across
+$profile = 'Creative direction is the job. Design, code, video, and copy are how
+I do it. For twenty-plus years, I have led brands, teams, and campaigns across
 design, development, and journalism; today I direct creative for a national
-trade association (the strategy decks, the identity, the templates, and the
-systems that ship them) and build products on the side.';
+trade association and build products on the side.';
 
 $highlights = [
     "Senior creative seat with final creative authority across a national trade association's family of brands: a parent brand, two publications, a workforce-development foundation, and dozens of event identities.",
@@ -22,7 +21,7 @@ $highlights = [
 ];
 
 $experience = [
-    ['title' => 'Senior Manager, Creative', 'dates' => 'November 2023–Present',
+    ['title' => 'Creative Director', 'dates' => 'November 2023–Present',
      'org' => 'Fabricators and Manufacturers Association', 'org_url' => 'https://www.fmamfg.org', 'loc' => 'Elgin, Illinois',
      'points' => [
         'Own all creative output for FMA and its family of brands (The Fabricator, SparkForce, and a full calendar of event subbrands) following the 2023 corporate rebrand: creative quality, brand integrity, and asset standards.',
@@ -41,7 +40,7 @@ $experience = [
         'Partnered cross-functionally with marketing, publications, expositions, and the foundation to retire outdated templates and deliver improved digital experiences.',
         'Developed and maintained site features using PHP, JavaScript, and frameworks including WordPress, Laravel, and Vue.js, balancing technical execution with UX best practices.',
      ]],
-    ['title' => 'Senior Manager, Creative Assets', 'dates' => 'April 2013–January 2018',
+    ['title' => 'Creative Director', 'dates' => 'April 2013–January 2018',
      'org' => 'Cleo', 'org_url' => 'https://www.cleo.com', 'loc' => 'Rockford, Illinois',
      'points' => [
         "Sole in-house creative: rebuilt Cleo's visual identity from the ground up and owned every customer-facing design output in both print and digital environments. I designed, built, and deployed every asset, from trade show materials to the website to the email lead-generation program.",

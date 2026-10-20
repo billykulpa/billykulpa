@@ -13,7 +13,7 @@ trade association and build products on the side.';
 
 $highlights = [
     "Senior creative seat with final creative authority across a national trade association's family of brands: a parent brand, two publications, a workforce-development foundation, and dozens of event identities.",
-    "Lead a team of print and digital designers and direct creative across the disciplines beyond it: videographers and web developers cross-departmentally, freelance illustrators (or my own illustration), and third-party agencies on large-scale branding work, where I serve as the organization's brand authority.",
+    "Lead a three-person team of print and digital designers through roughly 500 design projects a year, and direct creative across the disciplines beyond it: videographers and web developers cross-departmentally, freelance illustrators (or my own illustration), and third-party agencies on large-scale branding work, where I serve as the organization's brand authority.",
     'Own the template system and governance behind an email program of roughly 2,000,000 sends a year: 20-plus templates, staff training, and start-fresh rules that keep licensing and compliance current.',
     'Designed, built, and shipped Restreak (restreak.com), a daily sports trivia game, solo: identity, product design, and hand-built PHP, MySQL, and vanilla JavaScript.',
     "Previously led a 30-person team of designers and illustrators at Lee Enterprises' centralized design hub, and ran all creative for Cleo as the sole in-house creative directing agencies and freelancers.",
@@ -25,7 +25,7 @@ $experience = [
      'org' => 'Fabricators and Manufacturers Association', 'org_url' => 'https://www.fmamfg.org', 'loc' => 'Elgin, Illinois',
      'points' => [
         'Own all creative output for FMA and its family of brands (The Fabricator, SparkForce, and a full calendar of event subbrands) following the 2023 corporate rebrand: creative quality, brand integrity, and asset standards.',
-        'Lead and coach a team of print and digital designers closing roughly 500 design tickets a year, and direct creative across disciplines beyond the team: videographers and web developers cross-departmentally, and freelance illustrators.',
+        'Lead and coach a three-person team of print and digital designers closing roughly 500 design tickets a year, and direct creative across disciplines beyond the team: videographers and web developers cross-departmentally, and freelance illustrators.',
         "Serve as the organization's brand authority when third-party agencies are engaged for large-scale branding initiatives: briefing, creative direction, and final approval.",
         'Built the design system and governance behind an email program of roughly 2,000,000 sends a year: a 20-plus-template library, staff training, and rules that keep every send current on licensing, branding, and CASL/GDPR compliance.',
         'Rebranded flagship conferences (including the Advanced Laser Applications Workshop) and carried the identities across print, programmatic, social, and environmental applications season over season.',

@@ -94,9 +94,15 @@ switch (true) {
             'meta_title' => "Billy Kulpa's Resume",
             'meta_description' => 'The resume of Billy Kulpa, a creative director, designer, developer, and musician in Roscoe, Illinois',
         ];
+        // Unlinked from the primary nav (Oct 2026). Two belts: the meta tag
+        // via $noindex in layout.php, and this header, which search engines
+        // also honour on HEAD requests and on the PDF/print fetches that
+        // never parse the <head>. No robots.txt Disallow on purpose: blocking
+        // the crawl would stop either signal from ever being read.
+        header('X-Robots-Tag: noindex, nofollow');
         render('resume', [
             'pg' => $pg,
-            'noindex' => true, // linked in the nav, but kept out of search by request
+            'noindex' => true,
             'nav' => 'resume',
         ]);
         break;

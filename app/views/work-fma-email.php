@@ -5,9 +5,9 @@
   <div class="wrap">
     <p class="mono-label hero-kicker">01 / Work / FMA</p>
     <h1 class="hero-h1"><?= esc($pg['h1']) ?></h1>
-    <p class="hero-lede">Around two million emails a year, every brand in the
-    family, a two-designer team, and a template system that lets the whole
-    organization ship email without breaking anything.</p>
+    <p class="hero-lede">Around two million emails a year, across every brand
+    in the family. A two-designer team builds the templates. Everyone else
+    uses them, and nothing breaks.</p>
   </div>
 </section>
 
@@ -22,15 +22,13 @@
 
     <div class="prose-grid">
       <div class="prose">
-        <h2>A new platform, a fresh start</h2>
-        <p>When FMA moved its email program to Omeda, the easy path was to
-        port the old emails over and keep going. Instead, I treated the
-        migration as a chance to rebuild the entire library the right way:
-        every recurring email, for every brand, rebuilt as a proper template
-        with the design decisions locked in and the editable parts left
-        open. The first email our audience saw from the new platform was the
-        warm-up notice below, which was also the first proof of the new
-        system.</p>
+        <h2>Moving to Omeda</h2>
+        <p>When FMA moved its email program to Omeda, we could have ported the
+        old emails over and kept going. I rebuilt the library instead. Every
+        recurring email, for every brand, became a real template, with the
+        design decisions locked down and only the parts that should change
+        left editable. The warm-up notice below went out first. It was also
+        the first test of whether the system held.</p>
 
         <figure class="case-fig">
           <a class="fig-link" href="/assets/img/email/warmup-1-top.webp">
@@ -40,13 +38,13 @@
         </figure>
 
         <h2>A template for every brand</h2>
-        <p>The library now covers more than twenty templates: newsletters,
-        promos, renewals, showcases, and event emails across FMA,
-        The Fabricator, SparkForce, and the rest of the family. Each one
-        speaks its own brand&rsquo;s dialect (SparkForce&rsquo;s scaffolding
-        motif, The Fabricator&rsquo;s rust and photography, Fabrinomics in
-        plum and gold) while the underlying skeleton stays consistent, the
-        same way the social system works.</p>
+        <p>There are more than twenty templates now. Newsletters, promos,
+        renewals, showcases, event mail, across FMA, The Fabricator,
+        SparkForce and the rest of the family. Each one speaks its own
+        brand&rsquo;s dialect. SparkForce has the scaffolding motif, The
+        Fabricator runs on rust and photography, Fabrinomics is plum and
+        gold. Underneath, the skeleton is the same every time, the same way
+        the social system works.</p>
 
         <figure class="case-fig">
           <a class="fig-link" href="/assets/img/email/email-templates-trio.webp">
@@ -56,16 +54,13 @@
         </figure>
 
         <h2>Built to be operated by anyone</h2>
-        <p>The templates are designed for the people who use them, not the
-        person who made them. Image slots, headline patterns, and buttons are
-        pre-built and waiting; the marketing team drops in content and
-        ships. The best trick in the system: where an email varies week to
-        week (the SparkForce Top Five is sometimes a Top Three), every
-        variation is pre-built into the template, and the editor simply
-        deletes what the week doesn&rsquo;t need. Nobody ever has to fake a
-        &ldquo;4&rdquo; out of a &ldquo;5.&rdquo; Even the sponsored-content
-        slot is a designed module, so ad placements can&rsquo;t knock the
-        layout over.</p>
+        <p>Image slots, headline patterns and buttons are already built and
+        waiting. The marketing team drops in content and ships. Where an
+        email varies week to week, every variation is pre-built and the
+        editor deletes what that week does not need. The SparkForce Top Five
+        is sometimes a Top Three. Nobody ever has to fake a &ldquo;4&rdquo;
+        out of a &ldquo;5.&rdquo; The sponsored-content slot is a designed
+        module too, so an ad placement cannot knock the layout over.</p>
 
         <div class="gallery-scroll">
           <div class="gallery-track">
@@ -102,9 +97,9 @@
           </div>
         </div>
 
-        <p>Every template is responsive, and the breakpoints are part of the
-        system: the masthead, modules, and footer all restack for a phone
-        without anyone thinking about it.</p>
+        <p>Every template is responsive, and the breakpoints are built into the
+        system. Masthead, modules, footer, all of it restacks for a phone
+        without anyone having to think about it.</p>
 
         <div class="fig-row">
           <figure class="case-fig">
@@ -118,16 +113,15 @@
         </div>
 
         <h2>The rules that keep it safe</h2>
-        <p>At two million sends a year, governance is a design problem. The
-        rule I train hardest: never reuse last week&rsquo;s email; always
-        start fresh from the template. It sounds like extra work; it&rsquo;s
-        actually the safety system. A copied email carries everything with
-        it: an expired sponsorship, a licensed image whose term ended, a
-        retired brand mark, an outdated compliance line. Starting from the
-        template means every send inherits the current, correct version of
-        all of it, including the CASL and GDPR language and the
-        brand-family footer, which are baked in where nobody can lose
-        them.</p>
+        <p>At two million sends a year, governance is part of the design job.
+        The rule I train hardest is never to reuse last week&rsquo;s email.
+        Always start fresh from the template. People hear that as extra work.
+        It is the safety system. A copied email brings everything along with
+        it, including an expired sponsorship, a licensed image whose term ran
+        out, a retired brand mark, a compliance line that has since changed.
+        Start from the template and every send inherits the current version
+        of all of it, CASL and GDPR language and the brand-family footer
+        included, baked in where nobody can lose them.</p>
 
         <figure class="case-fig">
           <a class="fig-link" href="/assets/img/email/warmup-3-footer.webp">
@@ -136,11 +130,10 @@
           <figcaption class="mono-label">Compliance and the brand family, baked into every footer.</figcaption>
         </figure>
 
-        <p>Alongside the build-out, I trained the marketing staff on the
-        platform and the system: how to work the templates, and why the
-        rules exist. The measure of success is that email at this volume is
-        boring, in the best sense: on brand, on time, and nothing slips
-        through.</p>
+        <p>I also trained the marketing staff on the platform and the system,
+        both how to work the templates and why the rules exist. Success here
+        looks boring. On brand, on time, nothing slipping through, week after
+        week.</p>
       </div>
       <aside class="prose-aside">
         <div class="fact-stack">

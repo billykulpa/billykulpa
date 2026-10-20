@@ -154,7 +154,7 @@
         </div>
         <div class="work-card-body">
           <h3>Restreak</h3>
-          <p>A daily sports trivia game, designed, built, and shipped by one person: brand, product, and code.</p>
+          <p>A daily sports trivia game. I did the brand, the product design, and the code.</p>
           <p class="mono-label">Product design &middot; Front-end &middot; Identity</p>
         </div>
       </a>
@@ -167,7 +167,7 @@
         </div>
         <div class="work-card-body">
           <h3>FMA Social Brand Management</h3>
-          <p>One parent brand, two subbrands, and a system that stays fresh without breaking its own rules.</p>
+          <p>One parent brand, two subbrands, and a lot of posts. The system keeps them distinct without letting any of them drift.</p>
           <p class="mono-label">Brand systems &middot; Social &middot; Messaging</p>
         </div>
       </a>
@@ -177,7 +177,7 @@
         </div>
         <div class="work-card-body">
           <h3>The ALAW Rebrand</h3>
-          <p>Custom letterforms on a 100-point grid, carried through three seasons of print and digital.</p>
+          <p>Custom letterforms drawn on a 100-point grid. They ran three seasons, print and digital.</p>
           <p class="mono-label">Identity &middot; Print &middot; Campaigns</p>
         </div>
       </a>
@@ -189,7 +189,7 @@
         </div>
         <div class="work-card-body">
           <h3>Cleo Website and Brand Development</h3>
-          <p>A B2B software brand rebuilt from the logo up by a one-person creative team: identity, website, video, and print.</p>
+          <p>A B2B software brand rebuilt from the logo up. Identity, website, video, print, all of it by a one-person creative team.</p>
           <p class="mono-label">Identity &middot; Web &middot; Video</p>
         </div>
       </a>
@@ -202,7 +202,7 @@
         </div>
         <div class="work-card-body">
           <h3>Supporting Local Music</h3>
-          <p>Gig posters, cassette packaging, and a hand-drawn logotype from the Rockford music scene.</p>
+          <p>Gig posters and cassette packaging for the Rockford music scene. The logotype is hand-drawn.</p>
           <p class="mono-label">Poster &middot; Packaging &middot; Illustration</p>
         </div>
       </a>

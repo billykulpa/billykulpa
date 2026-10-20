@@ -28,7 +28,7 @@ $experience = [
         'Lead and coach a three-person team of print and digital designers closing roughly 500 design tickets a year, and direct creative across disciplines beyond the team: videographers and web developers cross-departmentally, and freelance illustrators.',
         "Serve as the organization's brand authority when third-party agencies are engaged for large-scale branding initiatives: briefing, creative direction, and final approval.",
         'Built the design system and governance behind an email program of roughly 2,000,000 sends a year: a 20-plus-template library, staff training, and rules that keep every send current on licensing, branding, and CASL/GDPR compliance.',
-        'Rebranded flagship conferences (including the Advanced Laser Applications Workshop) and carried the identities across print, programmatic, social, and environmental applications season over season.',
+        'Rebranded flagship conferences and carried each identity across print, programmatic, social, and environmental applications. The safety conference campaign ran to a sold-out show.',
         'Championed the adoption of AI technologies, embedding generative AI and automation into creative processes to improve speed, output volume, and ideation.',
         'Designed and manage a Jira-based creative operations system, enabling transparent prioritization, predictable delivery, and strong alignment with internal stakeholders.',
      ]],

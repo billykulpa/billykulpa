@@ -9,7 +9,8 @@ $published = $ranking['status'] === 'published'; ?>
 </p>
 <?php if ($flash): ?><div class="a-flash a-flash--<?= $flash['status'] === 'ok' ? 'ok' : 'err' ?>"><?= esc($flash['summary']) ?></div><?php endif; ?>
 
-<form method="post" action="/admin/mfl/rankings/edit?id=<?= (int) $ranking['id'] ?>" id="a-ranking-form"><?= csrf_field() ?>
+<form method="post" action="/admin/mfl/rankings/edit?id=<?= (int) $ranking['id'] ?>" id="a-ranking-form"
+      data-autosave="ranking-<?= (int) $ranking['id'] ?>"<?= isset($_GET['revision']) ? ' data-no-restore' : (($flash['status'] ?? '') === 'ok' ? ' data-saved' : '') ?>><?= csrf_field() ?>
   <div class="a-grid-2">
     <div>
       <label class="a-label" for="title">Title (optional)</label>

@@ -71,7 +71,6 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
   var form = document.getElementById('a-ranking-form');
   var status = document.getElementById('a-rank-status');
   var compact = document.getElementById('a-rank-compact');
-  var dirty = false;
 
   function items() { return Array.prototype.slice.call(list.children); }
   function teamName(li) { return li.querySelector('.a-rank-team').textContent; }
@@ -86,9 +85,9 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
   }
 
   function moved(li) {
-    dirty = true;
     renumber();
     status.textContent = teamName(li) + ' is now number ' + (items().indexOf(li) + 1);
+    form.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
   list.addEventListener('click', function (e) {
@@ -140,10 +139,8 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
     compact.setAttribute('aria-pressed', String(on));
   });
 
-  form.addEventListener('input', function () { dirty = true; });
-  form.addEventListener('submit', function () { dirty = false; });
-  window.addEventListener('beforeunload', function (e) { if (dirty) e.preventDefault(); });
-  setInterval(function () { fetch('/admin/mfl/keepalive', { credentials: 'same-origin' }); }, 300000);
+  /* Autosave reorders the list when it restores a copy. */
+  form.addEventListener('mfl:restored', renumber);
 
   renumber();
 })();
@@ -177,4 +174,183 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
     else row.querySelector('input').value = '';
     renumber();
   });
+})();
+
+/* Autosave for the MFL editors, so a lost sign-in or connection can't cost
+   anyone their writing. Each change is copied to this device until the server
+   confirms a save (the page comes back with data-saved). Before every save the
+   editor checks the sign-in and collects a fresh token, so a save can't vanish
+   into a redirect to the login page. */
+(function () {
+  var form = document.querySelector('form[data-autosave]');
+  if (!form) return;
+
+  var key = 'mfl-draft:' + form.getAttribute('data-autosave');
+  var timer = null;
+  var dirty = false;
+  var checked = false;
+  var banner = null;
+
+  function read() {
+    var fields = [];
+    new FormData(form).forEach(function (value, name) {
+      if (name !== '_csrf' && name !== 'action') fields.push([name, value]);
+    });
+    return fields;
+  }
+
+  function write() {
+    clearTimeout(timer);
+    timer = null;
+    try {
+      localStorage.setItem(key, JSON.stringify({ at: Date.now(), fields: read() }));
+    } catch (e) { /* storage full or blocked: the save button still works */ }
+  }
+
+  function forget(name) {
+    try { localStorage.removeItem(name); } catch (e) { /* nothing to clear */ }
+  }
+
+  function stored() {
+    try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; }
+  }
+
+  function showBanner(kind, text, actions) {
+    hideBanner();
+    banner = document.createElement('div');
+    banner.className = 'a-flash a-flash--' + kind + ' a-autosave-banner';
+    banner.setAttribute('role', 'alert');
+    banner.appendChild(document.createTextNode(text + ' '));
+    (actions || []).forEach(function (action) { banner.appendChild(action); });
+    form.insertBefore(banner, form.firstChild);
+  }
+
+  function hideBanner() {
+    if (banner) banner.remove();
+    banner = null;
+  }
+
+  function button(label, onClick) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'a-link-btn';
+    b.textContent = label;
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function restore(fields) {
+    var values = {};
+    fields.forEach(function (f) { (values[f[0]] = values[f[0]] || []).push(f[1]); });
+
+    /* Rankings: put the teams back in the saved order. */
+    var list = document.getElementById('a-rank-list');
+    if (list && values['order[]']) {
+      values['order[]'].forEach(function (id) {
+        var input = list.querySelector('input[name="order[]"][value="' + id + '"]');
+        if (input) list.appendChild(input.closest('.a-rank-item'));
+      });
+    }
+
+    /* Polls: match the number of answer rows, then fill them. */
+    var answers = document.getElementById('a-poll-answers');
+    var add = document.getElementById('a-poll-add');
+    if (answers && add && values['answers[]']) {
+      while (answers.children.length < values['answers[]'].length) add.click();
+      while (answers.children.length > values['answers[]'].length) answers.lastElementChild.remove();
+      answers.querySelectorAll('input').forEach(function (input, i) { input.value = values['answers[]'][i]; });
+    }
+
+    fields.forEach(function (f) {
+      if (f[0] === 'order[]' || f[0] === 'answers[]') return;
+      var el = form.elements[f[0]];
+      if (el) el.value = f[1];
+    });
+    form.dispatchEvent(new Event('mfl:restored'));
+    dirty = true;
+  }
+
+  /* 'ok', 'out' or 'offline'. A fresh token also rescues a form left open
+     across a sign-out and sign-in in another tab. */
+  function check() {
+    return fetch('/admin/mfl/keepalive', { credentials: 'same-origin', redirect: 'manual', cache: 'no-store' })
+      .then(function (r) {
+        if (!r.ok) return 'out';
+        return r.json().then(function (data) {
+          document.querySelectorAll('input[name="_csrf"]').forEach(function (input) { input.value = data.csrf; });
+          return 'ok';
+        });
+      })
+      .catch(function () { return 'offline'; });
+  }
+
+  function signedOut() {
+    var link = document.createElement('a');
+    link.className = 'a-link-btn';
+    link.textContent = 'Sign in';
+    link.href = '/admin/login?next=' + encodeURIComponent(location.pathname + location.search.replace(/&revision=\d+/, ''));
+    link.addEventListener('click', function () { write(); dirty = false; });
+    showBanner('err', "You've been signed out. Your work is saved on this device, and you can restore it after you sign in.", [link]);
+  }
+
+  function watch() {
+    check().then(function (state) {
+      if (state === 'out') signedOut();
+      else if (state === 'ok' && banner && banner.classList.contains('a-flash--err')) hideBanner();
+    });
+  }
+
+  /* A confirmed save ends the need for the copy. */
+  if (form.hasAttribute('data-saved')) {
+    forget(key);
+    (form.getAttribute('data-clear') || '').split(' ').forEach(function (name) { if (name) forget('mfl-draft:' + name); });
+  }
+
+  var copy = stored();
+  if (copy && !form.hasAttribute('data-no-restore')) {
+    if (JSON.stringify(copy.fields) === JSON.stringify(read())) {
+      forget(key);
+    } else {
+      showBanner('ok', 'You have unsaved work on this device from ' + new Date(copy.at).toLocaleString() + '.', [
+        button('Restore it', function () { restore(copy.fields); write(); hideBanner(); }),
+        button('Discard it', function () { forget(key); hideBanner(); })
+      ]);
+    }
+  }
+
+  form.addEventListener('input', function () {
+    dirty = true;
+    clearTimeout(timer);
+    timer = setTimeout(write, 800);
+  });
+
+  form.addEventListener('submit', function (e) {
+    if (checked) { dirty = false; return; }
+    e.preventDefault();
+    var submitter = e.submitter;
+    write();
+    check().then(function (state) {
+      if (state === 'ok') {
+        checked = true;
+        form.requestSubmit(submitter);
+      } else if (state === 'out') {
+        signedOut();
+      } else {
+        showBanner('err', "Can't reach the site right now. Your work is saved on this device, so try again in a moment.");
+      }
+    });
+  });
+
+  function flush() { if (timer) write(); }
+  window.addEventListener('pagehide', flush);
+  document.addEventListener('visibilitychange', function () {
+    flush();
+    if (document.visibilityState === 'visible') watch();
+  });
+  window.addEventListener('beforeunload', function (e) {
+    flush();
+    if (dirty) e.preventDefault();
+  });
+
+  setInterval(watch, 60000);
 })();

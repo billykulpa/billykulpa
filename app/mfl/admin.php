@@ -216,11 +216,13 @@ function mfl_admin_route(string $route): void
             render_admin('mfl/owners', ['saved' => $saved, 'franchises' => mfl_franchises(), 'title' => 'Owners']);
             break;
 
-        // The editor pings this so a long writing session can't outlive the
-        // PHP session and lose its work to a rejected token on save.
+        // The editors ping this to keep a long writing session alive, to notice
+        // a lost sign-in right away, and to collect a fresh token before saving.
         case 'mfl/keepalive':
             require_login(ROLES_ALL);
-            http_response_code(204);
+            header('Content-Type: application/json');
+            header('Cache-Control: no-store');
+            echo json_encode(['csrf' => csrf_token()]);
             break;
 
         default:

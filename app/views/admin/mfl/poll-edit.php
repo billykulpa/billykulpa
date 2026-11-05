@@ -12,7 +12,8 @@ $locked = $form['votes'] > 0; ?>
 <?php endif; ?>
 <?php if ($flash): ?><div class="a-flash a-flash--<?= $flash['status'] === 'ok' ? 'ok' : 'err' ?>"><?= esc($flash['summary']) ?></div><?php endif; ?>
 
-<form method="post" action="<?= esc($action) ?>"><?= csrf_field() ?>
+<form method="post" action="<?= esc($action) ?>"
+      data-autosave="poll-<?= $form['id'] ? (int) $form['id'] : 'new' ?>"<?= ($flash['status'] ?? '') === 'ok' ? ' data-saved data-clear="poll-new"' : '' ?>><?= csrf_field() ?>
   <label class="a-label" for="question">Title</label>
   <input type="text" id="question" name="question" required maxlength="200" value="<?= esc($form['question']) ?>"
          placeholder="Best Waiver Wire Pickup">

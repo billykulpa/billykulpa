@@ -37,7 +37,10 @@ function admin_route(string $route): void
 
         /* ------------------------------ Auth ------------------------------ */
         case $route === 'login':
-            if (current_user()) { header('Location: /admin'); exit; }
+            // Only MFL screens can be returned to, so this can't redirect off-site.
+            $next = (string) ($_POST['next'] ?? $_GET['next'] ?? '');
+            if (!preg_match('#^/admin/mfl(/[a-z/-]+)?(\?id=\d+)?$#', $next)) $next = '';
+            if (current_user()) { header('Location: ' . ($next ?: '/admin')); exit; }
             $error = '';
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 verify_csrf();
@@ -47,13 +50,13 @@ function admin_route(string $route): void
                 if ($user && password_verify($_POST['password'] ?? '', $user['password_hash'])) {
                     session_regenerate_id(true);
                     $_SESSION['user_id'] = (int) $user['id'];
-                    header('Location: /admin');
+                    header('Location: ' . ($next ?: '/admin'));
                     exit;
                 }
                 sleep(2); // flat cost per failed attempt — cheap, effective brute-force friction
                 $error = 'Wrong email or password.';
             }
-            render_admin('login', ['error' => $error, 'title' => 'Sign in']);
+            render_admin('login', ['error' => $error, 'next' => $next, 'title' => 'Sign in']);
             break;
 
         case $route === 'logout':

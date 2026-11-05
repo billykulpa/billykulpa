@@ -389,7 +389,10 @@ textarea.a-rank-writeup { display: block; width: calc(100% - 24px); min-height: 
 .a-rank-list.is-compact .a-rank-writeup { display: none; }
 .a-rank-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 .a-rank-delete { margin-top: 32px; }
-@media (max-width: 560px) { .a-rank-meta { display: none; } }
+@media (max-width: 560px) {
+  .a-rank-bar { flex-wrap: wrap; }
+  .a-rank-meta { order: 5; width: 100%; padding-left: 40px; }
+}
 
 /* MFL polls */
 input[type="datetime-local"] { width: 100%; max-width: 280px; font: inherit; font-size: 15px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 2px; background: #fff; color: var(--ink); }

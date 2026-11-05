@@ -23,7 +23,7 @@
     <summary class="mono-label">Show as a table</summary>
     <div class="table-scroll">
       <table>
-        <thead><tr><th scope="col">Team</th>
+        <thead><tr><th scope="col" class="sticky">Team</th>
           <?php foreach ($trend['sets'] as $s): ?><th scope="col" class="num" title="<?= esc($s['full']) ?>"><?= esc($s['short']) ?></th><?php endforeach; ?>
         </tr></thead>
         <tbody>
@@ -43,7 +43,7 @@
   <h2>All-time <span class="mono-label"><?= count($history) ?> <?= count($history) === 1 ? 'ranking' : 'rankings' ?></span></h2>
   <div class="table-scroll">
     <table>
-      <thead><tr><th scope="col">Team</th><th scope="col" class="num">Latest</th><th scope="col" class="num">Best</th>
+      <thead><tr><th scope="col" class="sticky">Team</th><th scope="col" class="num">Latest</th><th scope="col" class="num">Best</th>
         <th scope="col" class="num">Worst</th><th scope="col" class="num">Avg</th><th scope="col" class="num">Times #1</th></tr></thead>
       <tbody>
       <?php foreach ($teams as $t): ?>

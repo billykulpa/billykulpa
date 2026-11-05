@@ -12,13 +12,13 @@ $streakSpan = fn($s) => $s['from']['season'] . ' W' . $s['from']['week'] . ' –
     <table>
       <thead><tr>
         <th scope="col" class="num">#</th>
-        <?= mfl_sort_th('/records#all-time', $sort, $dir, 'name', 'Team', '') ?>
+        <?= mfl_sort_th('/records#all-time', $sort, $dir, 'name', 'Team', 'sticky') ?>
         <?= mfl_sort_th('/records#all-time', $sort, $dir, 'wins', 'W') ?>
         <?= mfl_sort_th('/records#all-time', $sort, $dir, 'losses', 'L') ?>
-        <?= mfl_sort_th('/records#all-time', $sort, $dir, 'ties', 'T', 'num wide-only') ?>
+        <?= mfl_sort_th('/records#all-time', $sort, $dir, 'ties', 'T', 'num') ?>
         <?= mfl_sort_th('/records#all-time', $sort, $dir, 'win_pct', 'Win %') ?>
         <?= mfl_sort_th('/records#all-time', $sort, $dir, 'pf', 'PF') ?>
-        <?= mfl_sort_th('/records#all-time', $sort, $dir, 'pa', 'PA', 'num wide-only') ?>
+        <?= mfl_sort_th('/records#all-time', $sort, $dir, 'pa', 'PA', 'num') ?>
       </tr></thead>
       <tbody>
       <?php foreach ($allTime as $i => $t): ?>
@@ -27,10 +27,10 @@ $streakSpan = fn($s) => $s['from']['season'] . ' W' . $s['from']['week'] . ' –
           <td class="team"><?= mfl_team_link((int) $t['id'], $t['name']) ?></td>
           <td class="num"><?= (int) $t['wins'] ?></td>
           <td class="num"><?= (int) $t['losses'] ?></td>
-          <td class="num wide-only"><?= (int) $t['ties'] ?></td>
+          <td class="num"><?= (int) $t['ties'] ?></td>
           <td class="num"><?= esc(mfl_pct($t['win_pct'])) ?></td>
           <td class="num"><?= number_format($t['pf'], 2) ?></td>
-          <td class="num wide-only"><?= number_format($t['pa'], 2) ?></td>
+          <td class="num"><?= number_format($t['pa'], 2) ?></td>
         </tr>
       <?php endforeach; ?>
       </tbody>

@@ -20,14 +20,14 @@
   <h2>Round <?= (int) $round ?></h2>
   <div class="table-scroll">
     <table>
-      <thead><tr><th scope="col">Pick</th><th scope="col">Player</th><th scope="col">Pos</th><th scope="col" class="wide-only">NFL</th><th scope="col">Team</th></tr></thead>
+      <thead><tr><th scope="col">Pick</th><th scope="col" class="sticky">Player</th><th scope="col">Pos</th><th scope="col">NFL</th><th scope="col">Team</th></tr></thead>
       <tbody>
       <?php foreach ($picks as $p): ?>
         <tr>
           <td><?= esc(mfl_pick_label($p)) ?></td>
           <td class="team"><?= esc($p['player_name']) ?></td>
           <td><?= esc($p['position']) ?></td>
-          <td class="wide-only"><?= esc($p['nfl_team']) ?></td>
+          <td><?= esc($p['nfl_team']) ?></td>
           <td><?= mfl_team_link((int) $p['franchise_id'], (string) $p['team_name']) ?></td>
         </tr>
       <?php endforeach; ?>

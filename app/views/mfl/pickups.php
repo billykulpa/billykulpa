@@ -45,11 +45,11 @@ $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'vie
     <table class="pickups">
       <thead><tr>
         <th scope="col" class="num">#</th>
-        <?= mfl_pickup_th($f, 'name', 'Player') ?>
+        <?= mfl_pickup_th($f, 'name', 'Player', 'sticky') ?>
         <th scope="col">Pos</th>
-        <th scope="col" class="wide-only">Picked up by</th>
-        <?= $byPlayer ? mfl_pickup_th($f, 'pickups', 'Pickups', 'num wide-only') : mfl_pickup_th($f, 'added_on', 'Added', 'wide-only') ?>
-        <?= mfl_pickup_th($f, 'starts', 'Started', 'num wide-only') ?>
+        <th scope="col">Picked up by</th>
+        <?= $byPlayer ? mfl_pickup_th($f, 'pickups', 'Pickups', 'num') : mfl_pickup_th($f, 'added_on', 'Added', '') ?>
+        <?= mfl_pickup_th($f, 'starts', 'Started', 'num') ?>
         <?= mfl_pickup_th($f, 'points', 'Points', 'num') ?>
         <?= mfl_pickup_th($f, 'per_start', 'Per start', 'num') ?>
       </tr></thead>
@@ -57,22 +57,18 @@ $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'vie
       <?php foreach ($rows as $i => $r): ?>
         <tr>
           <td class="num"><?= $i + 1 ?></td>
-          <td class="wrap">
+          <td class="wrap sticky">
             <span class="team"><?= esc($r['name']) ?></span>
             <?php if (!$byPlayer): ?><div class="row-note"><?= esc(mfl_pickup_note($r)) ?></div><?php endif; ?>
-            <div class="row-note narrow-only">
-              <?= $byPlayer ? esc(implode(', ', $r['teams'])) . ' · ' . (int) $r['pickups'] . ' ' . ((int) $r['pickups'] === 1 ? 'pickup' : 'pickups') : esc($r['team_name']) . ' · ' . esc(central_time($r['added_at'], 'M j')) ?>
-              · <?= (int) $r['starts'] ?> started
-            </div>
           </td>
           <td><?= esc($r['position']) ?></td>
-          <td class="wide-only wrap">
+          <td class="wrap">
             <?php if ($byPlayer): ?><?= implode(', ', array_map(fn($id, $name) => mfl_team_link((int) $id, $name), array_keys($r['teams']), $r['teams'])) ?>
             <?php else: ?><?= mfl_team_link($r['franchise_id'], $r['team_name']) ?><?php endif; ?>
           </td>
-          <?php if ($byPlayer): ?><td class="num wide-only"><?= (int) $r['pickups'] ?></td>
-          <?php else: ?><td class="wide-only"><?= esc(central_time($r['added_at'], 'M j')) ?></td><?php endif; ?>
-          <td class="num wide-only"><?= (int) $r['starts'] ?></td>
+          <?php if ($byPlayer): ?><td class="num"><?= (int) $r['pickups'] ?></td>
+          <?php else: ?><td><?= esc(central_time($r['added_at'], 'M j')) ?></td><?php endif; ?>
+          <td class="num"><?= (int) $r['starts'] ?></td>
           <td class="num"><?= number_format($r['points'], 2) ?></td>
           <td class="num"><?= number_format($r['per_start'], 1) ?></td>
         </tr>

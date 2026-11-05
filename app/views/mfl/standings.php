@@ -10,18 +10,18 @@ $year = (int) $season['season']; ?>
 <section>
   <div class="table-scroll">
     <table>
-      <thead><tr><th scope="col" class="num">#</th><th scope="col">Team</th><th scope="col" class="wide-only">Owner</th><th scope="col" class="num">Record</th>
-        <th scope="col" class="num">PF</th><th scope="col" class="num wide-only">PA</th><th scope="col" class="num wide-only">Finish</th></tr></thead>
+      <thead><tr><th scope="col" class="num">#</th><th scope="col" class="sticky">Team</th><th scope="col">Owner</th><th scope="col" class="num">Record</th>
+        <th scope="col" class="num">PF</th><th scope="col" class="num">PA</th><th scope="col" class="num">Finish</th></tr></thead>
       <tbody>
       <?php foreach ($rows as $i => $t): ?>
         <tr<?= $i + 1 === (int) $season['playoff_teams'] ? ' class="cutline"' : '' ?>>
           <td class="num"><?= $i + 1 ?></td>
           <td class="team"><?= mfl_team_link((int) $t['franchise_id'], $t['team_name']) ?></td>
-          <td class="wide-only"><?= mfl_owner_link($t['owner_name'], $t['real_name']) ?></td>
+          <td><?= mfl_owner_link($t['owner_name'], $t['real_name']) ?></td>
           <td class="num"><?= (int) $t['wins'] ?>–<?= (int) $t['losses'] ?><?= (int) $t['ties'] ? '–' . (int) $t['ties'] : '' ?></td>
           <td class="num"><?= number_format((float) $t['points_for'], 2) ?></td>
-          <td class="num wide-only"><?= number_format((float) $t['points_against'], 2) ?></td>
-          <td class="num wide-only"><?= esc($t['finish']) ?></td>
+          <td class="num"><?= number_format((float) $t['points_against'], 2) ?></td>
+          <td class="num"><?= esc($t['finish']) ?></td>
         </tr>
       <?php endforeach; ?>
       </tbody>

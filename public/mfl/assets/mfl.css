@@ -61,8 +61,26 @@ section { margin-bottom: 64px; }
 .link { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 .link:hover { color: var(--accent-2); }
 
-.table-scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+/* Every column stays on phones. Wide tables scroll sideways with the name column
+   pinned, and a soft shadow on the right edge says there's more until the end.
+   The shadow sits behind the table; the paper-colored layer scrolls with it and
+   covers the shadow at the end. Tables use separate borders because a collapsed
+   border doesn't travel with a pinned cell. */
+.table-scroll {
+  overflow-x: auto;
+  background:
+    linear-gradient(to left, var(--paper) 40%, rgba(250, 249, 245, 0)) 100% 0 / 32px 100% no-repeat local,
+    linear-gradient(to left, rgba(22, 21, 15, .16), rgba(22, 21, 15, 0)) 100% 0 / 16px 100% no-repeat scroll;
+}
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
+.table-scroll th.sticky, .table-scroll td.team, .table-scroll td.sticky { position: sticky; left: 0; z-index: 1; background: var(--paper); }
+@media (max-width: 900px) {
+  .table-scroll th.sticky, .table-scroll td.team, .table-scroll td.sticky { box-shadow: 1px 0 0 var(--rule); }
+}
+@media (max-width: 640px) {
+  .table-scroll td.team, .table-scroll td.sticky { white-space: normal; min-width: 120px; max-width: 44vw; }
+  .pickups td.sticky { min-width: 150px; }
+}
 th {
   text-align: left; font-family: var(--font-mono); font-size: 11px; font-weight: 500;
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft);
@@ -72,8 +90,7 @@ td { padding: 12px; border-bottom: 1px solid var(--rule); font-size: 16px; white
 .num { text-align: right; }
 td.team { font-weight: 600; }
 tr.cutline td { border-bottom: 2px solid var(--accent-soft); }
-/* Phones keep team, record and points on screen without sideways scrolling. */
-@media (max-width: 640px) { .wide-only { display: none; } td, th { padding-inline: 6px; } td { font-size: 15px; } th:first-child, td:first-child { padding-left: 0; } th:last-child, td:last-child { padding-right: 0; } }
+@media (max-width: 640px) { td, th { padding-inline: 6px; } td { font-size: 15px; } th:first-child, td:first-child { padding-left: 0; } th:last-child, td:last-child { padding-right: 0; } }
 .note { font-size: 14px; color: var(--ink-soft); margin-top: 12px; }
 
 .champions { list-style: none; border-top: 2px solid var(--ink); }
@@ -251,11 +268,7 @@ tr.cutline td { border-bottom: 2px solid var(--accent-soft); }
 th[aria-sort] .sort-link { color: var(--ink); }
 td.wrap { white-space: normal; }
 .row-note { font-size: 13px; color: var(--ink-soft); font-weight: 400; }
-.narrow-only { display: none; }
-@media (max-width: 640px) { .narrow-only { display: block; } }
 .pickups .team, .top-ranks .team { font-weight: 600; }
-/* Long team names wrap on phones so the points column stays on screen. */
-@media (max-width: 640px) { #all-time td.team, .teams-table td.team { white-space: normal; } }
 
 /* Trades */
 .trade { margin-bottom: 48px; }

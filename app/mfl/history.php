@@ -410,7 +410,13 @@ function mfl_records(): array
     $names = db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
     foreach (mfl_move_counts() as $fid => $c) $moves[] = $c + ['franchise_id' => $fid, 'team_name' => $names[$fid] ?? "Team $fid"];
 
+    $career = array_map(fn($t) => $t + ['franchise_id' => (int) $t['id'], 'team_name' => $t['name']], mfl_team_table());
+
     return [
+        'career_pf_most'  => $sorted($career, fn($t) => $t['pf']),
+        'career_pf_least' => $sorted($career, fn($t) => $t['pf'], false),
+        'career_pa_most'  => $sorted($career, fn($t) => $t['pa']),
+        'career_pa_least' => $sorted($career, fn($t) => $t['pa'], false),
         'high_scores'  => $sorted($played, fn($g) => $g['points']),
         'low_scores'   => $sorted($played, fn($g) => $g['points'], false),
         'blowouts'     => $sorted($decided, $margin),
@@ -418,10 +424,45 @@ function mfl_records(): array
         'most_wins'    => $sorted($seasonLines, fn($s) => [$s['win_pct'], $s['pf']]),
         'most_points'  => $sorted($seasonLines, fn($s) => $s['pf']),
         'fewest_points' => $sorted($seasonLines, fn($s) => $s['pf'], false),
+        'most_against'  => $sorted($seasonLines, fn($s) => $s['pa']),
+        'fewest_against' => $sorted($seasonLines, fn($s) => $s['pa'], false),
         'win_streaks'  => mfl_streaks('W'),
         'loss_streaks' => mfl_streaks('L'),
         'moves'        => $sorted($moves, fn($m) => $m['moves']),
     ];
+}
+
+const MFL_TEXT_COLUMNS = ['name', 'owner_name'];
+
+/** The sort column and direction from the URL. Text sorts A to Z first, numbers high to low. */
+function mfl_table_sort(array $columns, string $default): array
+{
+    $sort = in_array($_GET['sort'] ?? '', $columns, true) ? $_GET['sort'] : $default;
+    $dir = in_array($_GET['dir'] ?? '', ['asc', 'desc'], true) ? $_GET['dir'] : (in_array($sort, MFL_TEXT_COLUMNS, true) ? 'asc' : 'desc');
+    return [$sort, $dir];
+}
+
+/** The all-time team table, sorted by a column from the URL. */
+function mfl_all_time_table(string $sort, string $dir): array
+{
+    $rows = mfl_team_table();
+    $sign = $dir === 'asc' ? 1 : -1;
+    // Lowercased, so usernames sort as people read them rather than capitals first.
+    $value = fn($r) => is_string($r[$sort]) ? mb_strtolower($r[$sort]) : $r[$sort];
+    usort($rows, fn($a, $b) => $sign * ($value($a) <=> $value($b)) ?: $b['win_pct'] <=> $a['win_pct'] ?: $b['pf'] <=> $a['pf']);
+    return $rows;
+}
+
+/** A sortable heading. Clicking the current column flips it; $link is the page, with any #anchor. */
+function mfl_sort_th(string $link, string $sort, string $dir, string $key, string $label, string $class = 'num'): string
+{
+    $active = $sort === $key;
+    $next = $active ? ($dir === 'asc' ? 'desc' : 'asc') : (in_array($key, MFL_TEXT_COLUMNS, true) ? 'asc' : 'desc');
+    $aria = $active ? ' aria-sort="' . ($dir === 'asc' ? 'ascending' : 'descending') . '"' : '';
+    $arrow = $active ? ($dir === 'asc' ? ' ▲' : ' ▼') : '';
+    [$page, $anchor] = array_pad(explode('#', $link, 2), 2, '');
+    return '<th scope="col" class="' . esc($class) . '"' . $aria . '><a class="sort-link" href="' . esc($page) . '?'
+        . esc(http_build_query(['sort' => $key, 'dir' => $next])) . ($anchor ? '#' . esc($anchor) : '') . '">' . esc($label) . $arrow . '</a></th>';
 }
 
 /** "2025 · Week 6", with playoff rounds left as weeks. */
@@ -445,7 +486,8 @@ function mfl_owner_link(?string $username, ?string $realName): string
 function mfl_history_route(string $path): bool
 {
     if ($path === 'teams') {
-        mfl_render('teams', ['nav' => 'teams', 'title' => 'Teams', 'teams' => mfl_team_table()]);
+        [$sort, $dir] = mfl_table_sort(['name', 'owner_name', 'seasons', 'wins', 'win_pct', 'pf', 'pa', 'playoffs', 'titles'], 'titles');
+        mfl_render('teams', ['nav' => 'teams', 'title' => 'Teams', 'teams' => mfl_all_time_table($sort, $dir), 'sort' => $sort, 'dir' => $dir]);
         return true;
     }
 
@@ -532,7 +574,9 @@ function mfl_history_route(string $path): bool
     }
 
     if ($path === 'records') {
-        mfl_render('records', ['nav' => 'records', 'title' => 'Records', 'records' => mfl_records()]);
+        [$sort, $dir] = mfl_table_sort(['name', 'wins', 'losses', 'ties', 'win_pct', 'pf', 'pa'], 'wins');
+        mfl_render('records', ['nav' => 'records', 'title' => 'Records', 'records' => mfl_records(),
+            'allTime' => mfl_all_time_table($sort, $dir), 'sort' => $sort, 'dir' => $dir]);
         return true;
     }
 

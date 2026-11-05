@@ -254,3 +254,5 @@ td.wrap { white-space: normal; }
 .narrow-only { display: none; }
 @media (max-width: 640px) { .narrow-only { display: block; } }
 .pickups .team, .top-ranks .team { font-weight: 600; }
+/* Long team names wrap on phones so the points column stays on screen. */
+@media (max-width: 640px) { #all-time td.team, .teams-table td.team { white-space: normal; } }

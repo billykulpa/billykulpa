@@ -2,6 +2,7 @@
 /** @var int $seasons */ /** @var int $matchups */ /** @var int $picks */
 /** @var array $franchises */ /** @var array $syncs */ ?>
 <h1>Midwest Football League</h1>
+<?php require __DIR__ . '/_subnav.php'; ?>
 
 <?php if ($flash): ?>
 <div class="a-flash a-flash--<?= $flash['status'] === 'ok' ? 'ok' : 'err' ?>"><?= esc($flash['summary']) ?></div>
@@ -30,7 +31,7 @@
   <?php foreach ($franchises as $f): ?>
     <tr>
       <td><?= esc($f['name']) ?></td>
-      <td><?= esc($f['owner_name'] ?? 'Vacant') ?></td>
+      <td><?= esc(mfl_owner_label($f['owner_name'], $f['real_name'])) ?></td>
       <td><?= $f['start_season'] ? (int) $f['start_season'] . ((int) $f['start_week'] > 1 ? ', week ' . (int) $f['start_week'] : '') : '—' ?></td>
     </tr>
   <?php endforeach; ?>

@@ -62,3 +62,88 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
   });
 });
+
+/* MFL rankings editor. Reordering moves the list items; the hidden order[]
+   inputs travel with them, so the form posts the ranking in DOM order. */
+(function () {
+  var list = document.getElementById('a-rank-list');
+  if (!list) return;
+  var form = document.getElementById('a-ranking-form');
+  var status = document.getElementById('a-rank-status');
+  var compact = document.getElementById('a-rank-compact');
+  var dirty = false;
+
+  function items() { return Array.prototype.slice.call(list.children); }
+  function teamName(li) { return li.querySelector('.a-rank-team').textContent; }
+
+  function renumber() {
+    var all = items();
+    all.forEach(function (li, i) {
+      li.querySelector('.a-rank-no').textContent = i + 1;
+      li.querySelector('[data-dir="-1"]').disabled = i === 0;
+      li.querySelector('[data-dir="1"]').disabled = i === all.length - 1;
+    });
+  }
+
+  function moved(li) {
+    dirty = true;
+    renumber();
+    status.textContent = teamName(li) + ' is now number ' + (items().indexOf(li) + 1);
+  }
+
+  list.addEventListener('click', function (e) {
+    var btn = e.target.closest('.a-rank-move');
+    if (!btn) return;
+    var li = btn.closest('.a-rank-item');
+    if (btn.getAttribute('data-dir') === '-1') list.insertBefore(li, li.previousElementSibling);
+    else list.insertBefore(li.nextElementSibling, li);
+    moved(li);
+    (btn.disabled ? li.querySelector('.a-rank-move:not(:disabled)') : btn).focus();
+  });
+
+  /* Pointer events rather than HTML5 drag-and-drop, which doesn't fire on touch. */
+  list.addEventListener('pointerdown', function (e) {
+    var handle = e.target.closest('.a-rank-handle');
+    if (!handle) return;
+    e.preventDefault();
+    var li = handle.closest('.a-rank-item');
+    handle.setPointerCapture(e.pointerId);
+    li.classList.add('is-dragging');
+
+    function onMove(ev) {
+      /* A loop, because a fast drag can cross several rows in one event. */
+      var prev, next;
+      while ((prev = li.previousElementSibling) && ev.clientY < prev.getBoundingClientRect().top + prev.offsetHeight / 2) {
+        list.insertBefore(li, prev);
+      }
+      while ((next = li.nextElementSibling) && ev.clientY > next.getBoundingClientRect().top + next.offsetHeight / 2) {
+        list.insertBefore(next, li);
+      }
+      renumber();
+    }
+    function onEnd() {
+      handle.removeEventListener('pointermove', onMove);
+      handle.removeEventListener('pointerup', onEnd);
+      handle.removeEventListener('pointercancel', onEnd);
+      li.classList.remove('is-dragging');
+      moved(li);
+    }
+    handle.addEventListener('pointermove', onMove);
+    handle.addEventListener('pointerup', onEnd);
+    handle.addEventListener('pointercancel', onEnd);
+  });
+
+  /* Twelve open write-ups make the list too tall to drag across. */
+  compact.addEventListener('click', function () {
+    var on = list.classList.toggle('is-compact');
+    compact.textContent = on ? 'Show write-ups' : 'Hide write-ups';
+    compact.setAttribute('aria-pressed', String(on));
+  });
+
+  form.addEventListener('input', function () { dirty = true; });
+  form.addEventListener('submit', function () { dirty = false; });
+  window.addEventListener('beforeunload', function (e) { if (dirty) e.preventDefault(); });
+  setInterval(function () { fetch('/admin/mfl/keepalive', { credentials: 'same-origin' }); }, 300000);
+
+  renumber();
+})();

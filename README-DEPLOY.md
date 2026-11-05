@@ -87,6 +87,16 @@ is copied from Sleeper's public API by `app/mfl/sync.php`; no API key is needed.
 and their own password page. New CMS routes are admin-only unless they pass
 `ROLES_ALL` to `require_login()`.
 
+**Power rankings:** the MFL tab's Power Rankings screen starts a set for a week
+in the last published order. Save draft keeps it private; Publish rankings puts
+it on `/rankings`. Authors edit their own sets and the admin can edit any. There
+is one set per week. Records shown are through the week before the set's week.
+
+**Real names:** Sleeper doesn't share them. Enter them under MFL → Owners
+(admin only). The site shows Username (First Last), or the username if blank.
+
+**Each later phase** ships an `add-mfl-phaseN.sql`. Run it before pushing.
+
 **Owner changes:** a franchise is Sleeper's `roster_id`. The sync starts a new
 row in `mfl_tenures` when a roster's owner changes. Sleeper keeps no owner
 history, so the sync can only date a change from when it first sees it.

@@ -117,7 +117,8 @@ CREATE TABLE IF NOT EXISTS mfl_franchises (
 
 CREATE TABLE IF NOT EXISTS mfl_owners (
   id VARCHAR(32) PRIMARY KEY,                 -- Sleeper user_id
-  display_name VARCHAR(120) NOT NULL,
+  display_name VARCHAR(120) NOT NULL,         -- Sleeper username
+  real_name VARCHAR(120) NOT NULL DEFAULT '', -- entered in the CMS; Sleeper doesn't share it
   avatar VARCHAR(64) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -260,4 +261,39 @@ CREATE TABLE IF NOT EXISTS mfl_sync_log (
   user_id INT UNSIGNED NULL,
   summary VARCHAR(500) NOT NULL DEFAULT '',
   KEY idx_status_finished (status, finished_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- One official set of power rankings per week.
+-- week: 0 = preseason, 1-17 = that week, 18 = final.
+CREATE TABLE IF NOT EXISTS mfl_rankings (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  season SMALLINT UNSIGNED NOT NULL,
+  week TINYINT UNSIGNED NOT NULL,
+  title VARCHAR(160) NOT NULL DEFAULT '',     -- blank = "Week 9 Power Rankings"
+  intro_md TEXT NULL,
+  status ENUM('draft','published') NOT NULL DEFAULT 'draft',
+  author_user_id INT UNSIGNED NULL,           -- who may edit it
+  author_name VARCHAR(80) NOT NULL,           -- the byline; survives a removed account
+  created_at DATETIME NOT NULL,
+  published_at DATETIME NULL,
+  public_updated_at DATETIME NULL,            -- feeds the site's "last updated" line
+  UNIQUE KEY uq_week (season, week),
+  KEY idx_status (status),
+  FOREIGN KEY (season) REFERENCES mfl_seasons(season),
+  FOREIGN KEY (author_user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- team_name and owner_id are frozen at publish, so the archive keeps showing
+-- the team as it was that week.
+CREATE TABLE IF NOT EXISTS mfl_ranking_entries (
+  ranking_id INT UNSIGNED NOT NULL,
+  franchise_id TINYINT UNSIGNED NOT NULL,
+  rank_no TINYINT UNSIGNED NOT NULL,
+  team_name VARCHAR(120) NOT NULL,
+  owner_id VARCHAR(32) NULL,
+  writeup_md TEXT NULL,
+  PRIMARY KEY (ranking_id, franchise_id),
+  KEY idx_franchise (franchise_id),
+  FOREIGN KEY (ranking_id) REFERENCES mfl_rankings(id) ON DELETE CASCADE,
+  FOREIGN KEY (franchise_id) REFERENCES mfl_franchises(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

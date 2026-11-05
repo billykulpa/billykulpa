@@ -81,3 +81,83 @@ tr.cutline td { border-bottom: 2px solid var(--accent-soft); }
 .champions .owner { color: var(--ink-soft); font-size: 15px; }
 
 .site-footer { border-top: 1px solid var(--rule); padding: 32px 0 48px; }
+
+/* Navigation */
+.site-nav { display: flex; gap: 24px; font-size: 15px; font-weight: 600; margin-right: auto; margin-left: 16px; }
+.site-nav a:hover { color: var(--accent-2); }
+.site-nav a[aria-current="page"] { color: var(--accent); }
+
+/* Power rankings */
+:root { --up: #1a7f37; --down: #b42318; }
+.hero--tight { padding-bottom: 24px; }
+.byline { color: var(--ink-soft); font-size: 15px; margin-top: 12px; }
+.intro { margin-top: 24px; max-width: 720px; }
+.writeup p { margin-top: 10px; max-width: 720px; }
+.writeup .link { word-break: break-word; }
+
+.move { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
+.move--up { color: var(--up); }
+.move--down { color: var(--down); }
+.move--new { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.rank-list { list-style: none; border-top: 2px solid var(--ink); margin-bottom: 40px; }
+.rank-row { display: grid; grid-template-columns: 72px 1fr; gap: 8px; padding: 24px 0; border-bottom: 1px solid var(--rule); }
+.rank-no { font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.rank-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.rank-team { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; margin: 0; display: block; }
+.rank-owner { color: var(--ink-soft); font-size: 15px; margin-top: 2px; }
+.rank-trend { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.rank-trend .move { min-width: 44px; text-align: right; }
+.spark { display: block; overflow: visible; }
+.spark polyline { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.spark circle { fill: var(--accent); stroke: var(--paper); stroke-width: 2; }
+
+.pager { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 64px; font-size: 15px; }
+.pager span { min-width: 100px; }
+.pager span:last-child { text-align: right; }
+
+.top-ranks { list-style: none; border-top: 2px solid var(--ink); }
+.top-ranks li { display: flex; align-items: baseline; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.top-rank-no { font-weight: 800; min-width: 24px; font-variant-numeric: tabular-nums; }
+.top-ranks .team { font-weight: 600; flex: 1; }
+
+.archive { list-style: none; border-top: 2px solid var(--ink); }
+.archive li { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.archive-title { font-weight: 600; }
+.archive-title:hover { color: var(--accent); }
+
+/* Rank-over-time chart. Twelve lines can't each own a hue, so one team is
+   highlighted and the rest stay as gray context, labeled at the right. */
+.trend-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.trend-controls select {
+  font: inherit; font-size: 15px; padding: 8px 10px; background: #fff; color: var(--ink);
+  border: 1px solid var(--rule); border-radius: 2px; max-width: 100%;
+}
+.trend { position: relative; width: 100%; }
+.trend svg { display: block; width: 100%; overflow: visible; touch-action: pan-y; }
+.trend-grid { stroke: var(--paper-deep); stroke-width: 1; }
+.trend-axis { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-soft); }
+.trend-line { fill: none; stroke: #bdbaae; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.trend-line.is-focus { stroke: var(--accent); stroke-width: 2.5; }
+.trend-dot { fill: var(--accent); stroke: var(--paper); stroke-width: 2; }
+.trend-name { font-size: 13px; fill: var(--ink-soft); cursor: pointer; }
+.trend-name.is-focus { fill: var(--ink); font-weight: 700; }
+.trend-cross { stroke: var(--ink-soft); stroke-width: 1; }
+.trend-tip {
+  position: absolute; top: 0; z-index: 2; pointer-events: none; min-width: 180px; padding: 10px 12px;
+  background: #fff; border: 1px solid var(--rule); border-radius: 2px; font-size: 13px; box-shadow: 0 4px 16px rgba(22,21,15,.1);
+}
+.trend-tip-title { margin-bottom: 6px; }
+.trend-tip-row { display: flex; gap: 10px; line-height: 1.5; color: var(--ink-soft); }
+.trend-tip-row b { min-width: 16px; text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+.trend-tip-row.is-focus { color: var(--ink); font-weight: 700; }
+.trend-table { margin-top: 16px; }
+.trend-table summary { cursor: pointer; margin-bottom: 8px; }
+
+@media (max-width: 640px) {
+  .site-nav { order: 3; width: 100%; margin-left: 0; }
+  .rank-row { grid-template-columns: 48px 1fr; }
+  .rank-no { font-size: 32px; }
+  .rank-team { font-size: 19px; }
+  .rank-head { flex-direction: column; gap: 8px; }
+}

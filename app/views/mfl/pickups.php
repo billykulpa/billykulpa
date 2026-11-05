@@ -61,7 +61,7 @@ $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'vie
         <tr>
           <td class="num"><?= $i + 1 ?></td>
           <td class="wrap sticky">
-            <span class="team"><?= esc($r['name']) ?></span>
+            <span class="team"><?= mfl_player_link($r['player_id'], $r['name']) ?></span>
             <?php if (!$byPlayer): ?><div class="row-note"><?= esc(mfl_pickup_note($r)) ?></div><?php endif; ?>
           </td>
           <td><?= esc($r['position']) ?></td>

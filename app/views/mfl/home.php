@@ -73,7 +73,7 @@
     <?php foreach ($pickups as $i => $p): ?>
     <li>
       <span class="top-rank-no"><?= $i + 1 ?></span>
-      <span class="team"><?= esc($p['name']) ?> <span class="row-note">· <?= esc($p['team_name']) ?></span></span>
+      <span class="team"><?= mfl_player_link($p['player_id'], $p['name']) ?> <span class="row-note">· <?= esc($p['team_name']) ?></span></span>
       <span class="move"><?= number_format($p['points'], 2) ?></span>
     </li>
     <?php endforeach; ?>

@@ -58,7 +58,7 @@ $id = (int) $team['id']; $showTeam = false; ?>
     <div>
       <h3 class="mono-label"><?= esc($position) ?></h3>
       <ul class="plain-list">
-        <?php foreach ($players as $p): ?><li><?= esc($p['full_name'] ?: $p['id']) ?><?php if ($p['nfl_team'] && $p['position'] !== 'DEF'): ?> <span class="mono-label"><?= esc($p['nfl_team']) ?></span><?php endif; ?></li><?php endforeach; ?>
+        <?php foreach ($players as $p): ?><li><?= mfl_player_link($p['id'], $p['full_name'] ?: $p['id']) ?><?php if ($p['nfl_team'] && $p['position'] !== 'DEF'): ?> <span class="mono-label"><?= esc($p['nfl_team']) ?></span><?php endif; ?></li><?php endforeach; ?>
       </ul>
     </div>
     <?php endforeach; ?>
@@ -85,7 +85,7 @@ $id = (int) $team['id']; $showTeam = false; ?>
         <thead><tr><th scope="col">Pick</th><th scope="col" class="sticky">Player</th><th scope="col">Pos</th><th scope="col">NFL team</th></tr></thead>
         <tbody>
         <?php foreach ($list as $p): ?>
-          <tr><td><?= esc(mfl_pick_label($p)) ?></td><td class="team"><?= esc($p['player_name']) ?></td><td><?= esc($p['position']) ?></td><td><?= esc($p['nfl_team']) ?></td></tr>
+          <tr><td><?= esc(mfl_pick_label($p)) ?></td><td class="team"><?= mfl_player_link($p['player_id'], $p['player_name']) ?></td><td><?= esc($p['position']) ?></td><td><?= esc($p['nfl_team']) ?></td></tr>
         <?php endforeach; ?>
         </tbody>
       </table>

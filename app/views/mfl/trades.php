@@ -43,7 +43,7 @@
         <?php foreach ($side['assets'] as $a): $isPick = !empty($a['is_pick']); ?>
         <tr>
           <td class="wrap sticky">
-            <span class="team"><?= esc($a['name']) ?></span><?php if (!$isPick): ?> <span class="row-note"><?= esc($a['position']) ?></span><?php endif; ?>
+            <span class="team"><?= $isPick ? esc($a['name']) : mfl_player_link($a['player_id'], $a['name']) ?></span><?php if (!$isPick): ?> <span class="row-note"><?= esc($a['position']) ?></span><?php endif; ?>
             <?php if ($a['note'] !== ''): ?><div class="row-note"><?= esc($a['note']) ?></div><?php endif; ?>
             <div class="trade-status trade-status--<?= esc($a['status']['state']) ?>"><?= esc($a['status']['label']) ?></div>
             <?php if ($a['status']['path']): ?><div class="row-note"><?= implode(' → ', array_map(fn($step) => $step['href']

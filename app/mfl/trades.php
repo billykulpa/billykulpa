@@ -218,7 +218,7 @@ function mfl_trades(int $season): array
             $p = $players[$pid] ?? [];
             $stats = mfl_trade_stats((int) $fid, $pid, mfl_weeks_held((int) $fid, $pid, $season, (int) $t['week']), $season);
             $sides[(int) $fid]['assets'][] = $stats + [
-                'name' => ($p['full_name'] ?? '') ?: $pid, 'position' => $p['position'] ?? '', 'note' => '',
+                'player_id' => $pid, 'name' => ($p['full_name'] ?? '') ?: $pid, 'position' => $p['position'] ?? '', 'note' => '',
                 'status' => mfl_player_status($pid, (int) $fid, $at, $names),
             ];
             mfl_add_to_side($sides[(int) $fid], $stats);
@@ -235,7 +235,7 @@ function mfl_trades(int $season): array
                 $by = (int) $outcome['franchise_id'];
                 $stats = mfl_trade_stats($by, $pid, mfl_weeks_held($by, $pid, (int) $outcome['season'], 1), $season);
                 $sides[$fid]['assets'][] = $stats + [
-                    'name' => $outcome['player_name'], 'position' => $outcome['position'],
+                    'player_id' => $pid, 'name' => $outcome['player_name'], 'position' => $outcome['position'],
                     'note' => $label . ', used at ' . mfl_pick_label($outcome) . ($by !== $fid ? ' by ' . ($names[$by] ?? '') : ''),
                     'status' => mfl_player_status($pid, $by, (string) $outcome['started_at'], $names),
                 ];

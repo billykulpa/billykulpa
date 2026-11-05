@@ -25,7 +25,7 @@
       <?php foreach ($picks as $p): ?>
         <tr>
           <td><?= esc(mfl_pick_label($p)) ?></td>
-          <td class="team"><?= esc($p['player_name']) ?></td>
+          <td class="team"><?= mfl_player_link($p['player_id'], $p['player_name']) ?></td>
           <td><?= esc($p['position']) ?></td>
           <td><?= esc($p['nfl_team']) ?></td>
           <td><?= mfl_team_link((int) $p['franchise_id'], (string) $p['team_name']) ?></td>

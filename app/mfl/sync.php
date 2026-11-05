@@ -32,17 +32,18 @@ function mfl_sync(string $trigger, ?int $userId = null, bool $full = false): arr
             mfl_sync_season($league);
             $done[] = $season;
         }
-        $players = mfl_sync_players();
-        $summary = 'Synced ' . ($done ? implode(', ', $done) : 'nothing new') . '.'
-                 . ($players ? " Added {$players} player names." : '');
         // Sleeper doesn't document this feed, so losing it shouldn't cost the
         // rest of the sync. Season totals just stay as they were.
+        $statsNote = '';
         try {
             foreach ($chain as $league) mfl_sync_player_weeks($league);
         } catch (Throwable $e) {
             if (db()->inTransaction()) db()->rollBack();
-            $summary .= ' Season totals not updated.';
+            $statsNote = ' Season totals not updated.';
         }
+        $players = mfl_sync_players();
+        $summary = 'Synced ' . ($done ? implode(', ', $done) : 'nothing new') . '.'
+                 . ($players ? " Added {$players} player names." : '') . $statsNote;
         $result = ['status' => 'ok', 'summary' => $summary];
     } catch (Throwable $e) {
         if (db()->inTransaction()) db()->rollBack();
@@ -335,13 +336,15 @@ function mfl_sync_players(): int
         }
     }
     foreach (db()->query('SELECT player_id FROM mfl_draft_picks')->fetchAll(PDO::FETCH_COLUMN) as $pid) $ids[$pid] = true;
+    foreach (db()->query('SELECT DISTINCT player_id FROM mfl_player_weeks')->fetchAll(PDO::FETCH_COLUMN) as $pid) $ids[$pid] = true;
 
     $known = array_flip(db()->query('SELECT id FROM mfl_players')->fetchAll(PDO::FETCH_COLUMN));
     $missing = array_diff_key($ids, $known);
     if (!$missing) return 0;
 
     $lastFetch = (string) db()->query("SELECT MAX(started_at) FROM mfl_sync_log WHERE status = 'ok' AND summary LIKE '%player names%'")->fetchColumn();
-    if ($lastFetch !== '' && strtotime($lastFetch) > time() - 86400) return 0;
+    // One new name can wait for tomorrow's download. A big gap can't.
+    if (count($missing) < 50 && $lastFetch !== '' && strtotime($lastFetch) > time() - 86400) return 0;
 
     try {
         ini_set('memory_limit', '512M');

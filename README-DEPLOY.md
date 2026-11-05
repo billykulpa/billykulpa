@@ -122,6 +122,10 @@ team, after any review period. Each trade shows the season it happened and an
 all-time set that keeps growing while the team holds the player. The rules are
 in `app/mfl/trades.php`.
 
+**Players:** `/players` and `/players/<id>` split everything a player has scored
+into starter, bench and free agent, by team and season. The rules are in
+`app/mfl/players.php`. Sleeper's public player page is linked from each one.
+
 **Owner changes:** a franchise is Sleeper's `roster_id`. The sync starts a new
 row in `mfl_tenures` when a roster's owner changes. Sleeper keeps no owner
 history, so the sync can only date a change from when it first sees it.

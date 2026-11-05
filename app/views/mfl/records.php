@@ -6,6 +6,8 @@ $streakSpan = fn($s) => $s['from']['season'] . ' W' . $s['from']['week'] . ' –
   <p class="mono-label">All-time</p>
   <h1>Records</h1>
 </section>
+<p class="note records-link">Looking for individual players? <a class="link" href="/players">See the all-time player leaders</a></p>
+
 <section id="all-time">
   <h2>All-time standings</h2>
   <div class="table-scroll">

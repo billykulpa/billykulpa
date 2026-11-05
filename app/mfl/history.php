@@ -563,6 +563,28 @@ function mfl_history_route(string $path): bool
         return true;
     }
 
+    if ($path === 'players') {
+        $f = mfl_player_filters($_GET);
+        mfl_render('players', [
+            'nav' => 'players', 'title' => 'Players', 'script' => true, 'f' => $f, 'rows' => mfl_player_rows($f),
+            'cards' => mfl_player_leaders($f['counted']), 'seasons' => array_reverse(array_keys(mfl_seasons())),
+            'names' => db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR),
+            'holders' => mfl_current_rosters(),
+        ]);
+        return true;
+    }
+
+    if (preg_match('#^players/([A-Za-z0-9]{1,16})$#', $path, $m)) {
+        $p = mfl_player_data()[$m[1]] ?? null;
+        if (!$p || $p['name'] === '') return false;
+        mfl_render('player', [
+            'nav' => 'players', 'title' => $p['name'], 'p' => $p, 'holder' => mfl_current_rosters()[$m[1]] ?? null,
+            'names' => db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR),
+            'timeline' => mfl_player_timeline($m[1]), 'updated' => mfl_last_updated(),
+        ]);
+        return true;
+    }
+
     if ($path === 'trades') {
         $seasons = array_reverse(array_keys(mfl_seasons()));
         $season = in_array((int) ($_GET['season'] ?? 0), $seasons, true) ? (int) $_GET['season'] : ($seasons[0] ?? 0);

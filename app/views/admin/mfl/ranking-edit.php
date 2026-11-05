@@ -1,5 +1,6 @@
 <?php /** @var ?array $flash */ /** @var array $ranking */ /** @var array $rows */
 $published = $ranking['status'] === 'published'; ?>
+<?php require __DIR__ . '/_subnav.php'; ?>
 <h1><?= esc(mfl_ranking_title($ranking)) ?></h1>
 <p class="a-sub">
   <span class="a-pill a-pill--<?= esc($ranking['status']) ?>"><?= esc($ranking['status']) ?></span>

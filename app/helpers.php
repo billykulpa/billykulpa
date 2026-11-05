@@ -84,8 +84,13 @@ function central_offset_minutes(): int
  */
 function public_dir(): string
 {
-    $beside = dirname(APP_DIR) . '/public';
-    return is_dir($beside) ? $beside : dirname(APP_DIR);
+    // Look for a real asset, not just a folder called public: production has a
+    // stray public_html/public, which made every ?v=<filemtime> come out as 0.
+    // Assets are cached for a year, so ?v=0 froze them at Cloudflare.
+    foreach ([dirname(APP_DIR) . '/public', dirname(APP_DIR), $_SERVER['DOCUMENT_ROOT'] ?? ''] as $dir) {
+        if ($dir !== '' && is_file($dir . '/assets/css/main.css')) return $dir;
+    }
+    return dirname(APP_DIR);
 }
 
 /**

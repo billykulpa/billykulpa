@@ -62,13 +62,16 @@ function mfl_franchises(): array
 
 /**
  * The week a transaction belongs to. Sleeper files everything before the
- * season under week 1, so the calendar sorts those out: August to Labor Day is
- * Preseason, and anything earlier is Offseason.
+ * season under week 1, so the league calendar sorts those out: before that
+ * season's draft is Offseason, from the draft to Labor Day is Preseason. With
+ * no draft date on file yet, everything before Labor Day is Offseason.
  */
 function mfl_transaction_week(int $season, int $week, string $at): string
 {
-    $date = central_time($at, 'Y-m-d');
-    if ($date < "$season-08-01") return 'Offseason';
-    if ($date < date('Y-m-d', strtotime("first monday of september $season"))) return 'Preseason';
-    return "Week $week";
+    static $drafts = null;
+    $drafts ??= db()->query('SELECT season, MIN(started_at) FROM mfl_drafts GROUP BY season')->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    if (central_time($at, 'Y-m-d') >= date('Y-m-d', strtotime("first monday of september $season"))) return "Week $week";
+    $draft = $drafts[$season] ?? null;
+    return $draft && $at >= $draft ? 'Preseason' : 'Offseason';
 }

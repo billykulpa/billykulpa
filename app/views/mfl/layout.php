@@ -21,6 +21,7 @@
         <a href="/standings" <?= $nav === 'standings' ? 'aria-current="page"' : '' ?>>Standings</a>
         <a href="/teams" <?= $nav === 'teams' ? 'aria-current="page"' : '' ?>>Teams</a>
         <a href="/drafts" <?= $nav === 'drafts' ? 'aria-current="page"' : '' ?>>Drafts</a>
+        <a href="/pickups" <?= $nav === 'pickups' ? 'aria-current="page"' : '' ?>>Pickups</a>
         <a href="/records" <?= $nav === 'records' ? 'aria-current="page"' : '' ?>>Records</a>
       </nav>
       <p class="updated mono-label">

@@ -110,9 +110,9 @@ and points are regular season. Playoff records count the title path only, so
 third-place, fifth-place and losers-bracket games are left out. Places below the
 playoff teams aren't ranked, because the losers bracket doesn't set a final order.
 
-**Best Pickups:** MFL → Best Pickups ranks waiver and free-agent adds by
-regular-season points in the adding team's starting lineup. The rules are in
-`app/mfl/reports.php`.
+**Best Pickups:** `/pickups` ranks waiver and free-agent adds by regular-season
+points in the adding team's starting lineup. Each add is its own pickup, and a
+By player view combines them. The rules are in `app/mfl/reports.php`.
 
 **Owner changes:** a franchise is Sleeper's `roster_id`. The sync starts a new
 row in `mfl_tenures` when a roster's owner changes. Sleeper keeps no owner

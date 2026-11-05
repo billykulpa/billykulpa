@@ -5,6 +5,7 @@ require_once __DIR__ . '/data.php';
 require_once __DIR__ . '/rankings.php';
 require_once __DIR__ . '/polls.php';
 require_once __DIR__ . '/history.php';
+require_once __DIR__ . '/reports.php';
 
 function mfl_site_route(string $path): void
 {
@@ -23,6 +24,7 @@ function mfl_site_route(string $path): void
                 'champions'  => mfl_champions(),
                 'latest'     => $latest,
                 'latestRows' => $latest ? mfl_ranking_rows($latest, $history) : [],
+                'pickups'    => $season ? array_slice(mfl_pickup_rows(mfl_pickup_filters([], [(int) $season['season']])), 0, 5) : [],
             ]);
             break;
 

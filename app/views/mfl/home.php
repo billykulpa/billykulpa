@@ -1,4 +1,4 @@
-<?php /** @var ?array $season */ /** @var array $standings */ /** @var array $champions */ /** @var ?array $latest */ /** @var array $latestRows */ /** @var array $polls */ ?>
+<?php /** @var ?array $season */ /** @var array $standings */ /** @var array $champions */ /** @var ?array $latest */ /** @var array $latestRows */ /** @var array $polls */ /** @var array $pickups */ ?>
 <section class="hero">
   <p class="mono-label"><?= $season ? (int) $season['num_teams'] . ' teams · Dynasty · Est. 2025' : 'Dynasty · Est. 2025' ?></p>
   <h1>Midwest Football League</h1>
@@ -64,6 +64,21 @@
 </section>
 <?php else: ?>
 <p>League data hasn't been imported yet.</p>
+<?php endif; ?>
+
+<?php if ($pickups): ?>
+<section>
+  <h2>Best pickups <a class="link h2-link" href="/pickups">Full table</a></h2>
+  <ol class="top-ranks">
+    <?php foreach ($pickups as $i => $p): ?>
+    <li>
+      <span class="top-rank-no"><?= $i + 1 ?></span>
+      <span class="team"><?= esc($p['name']) ?> <span class="row-note">· <?= esc($p['team_name']) ?></span></span>
+      <span class="move"><?= number_format($p['points'], 2) ?></span>
+    </li>
+    <?php endforeach; ?>
+  </ol>
+</section>
 <?php endif; ?>
 
 <?php if ($champions): ?>

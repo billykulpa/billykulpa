@@ -521,6 +521,16 @@ function mfl_history_route(string $path): bool
         return true;
     }
 
+    if ($path === 'pickups') {
+        $seasons = array_reverse(array_keys(mfl_seasons()));
+        $f = mfl_pickup_filters($_GET, $seasons);
+        mfl_render('pickups', [
+            'nav' => 'pickups', 'title' => 'Best Pickups', 'script' => true, 'f' => $f, 'seasons' => $seasons,
+            'rows' => mfl_pickup_rows($f), 'teams' => mfl_standings($f['season']),
+        ]);
+        return true;
+    }
+
     if ($path === 'records') {
         mfl_render('records', ['nav' => 'records', 'title' => 'Records', 'records' => mfl_records()]);
         return true;

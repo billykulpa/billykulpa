@@ -1,7 +1,7 @@
 <?php
 $me = current_user();
 $here = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '', '/');
-$tabs = ['admin/mfl' => 'Overview', 'admin/mfl/rankings' => 'Power Rankings', 'admin/mfl/polls' => 'Polls', 'admin/mfl/pickups' => 'Best Pickups'];
+$tabs = ['admin/mfl' => 'Overview', 'admin/mfl/rankings' => 'Power Rankings', 'admin/mfl/polls' => 'Polls'];
 if ($me['role'] === 'admin') $tabs['admin/mfl/owners'] = 'Owners';
 ?>
 <nav class="a-subnav" aria-label="MFL">

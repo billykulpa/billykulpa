@@ -142,3 +142,10 @@
   if (window.ResizeObserver) new ResizeObserver(function () { if (root.clientWidth) draw(); }).observe(root);
   draw();
 })();
+
+/* Filters apply as soon as they change. The Apply button covers no-JS use. */
+(function () {
+  var form = document.querySelector('form[data-autosubmit]');
+  if (!form) return;
+  form.addEventListener('change', function () { form.submit(); });
+})();

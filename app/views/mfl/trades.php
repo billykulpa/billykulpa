@@ -13,7 +13,7 @@
 <section class="trade" id="trade-<?= esc($t['id']) ?>">
   <h2 class="trade-title">
     <span><?= implode(' <span class="trade-swap">⇄</span> ', array_map(fn($s) => mfl_team_link($s['franchise_id'], $s['team']['team_name'] ?? 'Team'), $t['sides'])) ?></span>
-    <span class="mono-label"><?= esc(central_time($t['completed_at'], 'M j, Y')) ?></span>
+    <span class="mono-label"><?= esc(central_time($t['completed_at'], 'M j, Y')) ?> · <?= esc($t['week_label']) ?></span>
   </h2>
   <div class="table-scroll">
     <table class="trade-table">

@@ -277,6 +277,7 @@ td.wrap { white-space: normal; }
 .trade:target .trade-title { color: var(--accent); }
 .trade-title { font-size: 20px; }
 .trade-swap { color: var(--accent); font-weight: 400; margin-inline: 4px; }
+@media (max-width: 640px) { .trade-title { flex-direction: column; gap: 4px; } }
 .trade-side th {
   background: var(--paper-deep); color: var(--ink); font-family: var(--font-sans); font-size: 14px; font-weight: 700;
   letter-spacing: 0; text-transform: none; border-bottom: 1px solid var(--rule); padding: 8px 12px; white-space: normal;

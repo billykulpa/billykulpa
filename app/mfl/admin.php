@@ -6,6 +6,7 @@
 
 require_once __DIR__ . '/data.php';
 require_once __DIR__ . '/rankings.php';
+require_once __DIR__ . '/polls.php';
 
 function mfl_admin_route(string $route): void
 {
@@ -90,7 +91,7 @@ function mfl_admin_route(string $route): void
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 verify_csrf();
                 $action = $_POST['action'] ?? 'save';
-                $error = mfl_ranking_save($ranking, $_POST, $action);
+                $error = mfl_ranking_save($ranking, $_POST, $action, $user);
                 if ($error === null) {
                     $_SESSION['mfl_flash'] = ['status' => 'ok', 'summary' => match ($action) {
                         'publish'   => 'Published.',
@@ -103,6 +104,15 @@ function mfl_admin_route(string $route): void
                 // Hand the typed text back, so a rejected save loses nothing.
                 $flash = ['status' => 'error', 'summary' => $error];
                 $posted = $_POST;
+            } elseif (isset($_GET['revision'])) {
+                // Loading a version only fills the form. Nothing changes until
+                // someone saves, and that save becomes a new row in the log.
+                $revision = mfl_ranking_revision((int) $ranking['id'], (int) $_GET['revision']);
+                if ($revision) {
+                    $posted = $revision['snapshot'];
+                    $flash = ['status' => 'ok', 'summary' => 'Loaded the version from '
+                        . central_time($revision['created_at'], 'M j, g:i a') . ' CT. Nothing changes until you save.'];
+                }
             }
             render_admin('mfl/ranking-edit', [
                 'flash'   => $flash,
@@ -112,6 +122,7 @@ function mfl_admin_route(string $route): void
                     'intro_md' => (string) ($posted['intro_md'] ?? ''),
                 ]) : $ranking,
                 'rows'    => mfl_editor_rows($ranking, $posted),
+                'revisions' => mfl_ranking_revisions((int) $ranking['id']),
                 'title'   => 'Edit rankings',
             ]);
             break;
@@ -129,6 +140,60 @@ function mfl_admin_route(string $route): void
                 }
             }
             header('Location: /admin/mfl/rankings');
+            break;
+
+        case 'mfl/polls':
+            $user = require_login(ROLES_ALL);
+            $flash = $_SESSION['mfl_flash'] ?? null;
+            unset($_SESSION['mfl_flash']);
+            render_admin('mfl/polls', ['flash' => $flash, 'user' => $user, 'polls' => mfl_admin_polls(), 'title' => 'Polls']);
+            break;
+
+        case 'mfl/polls/new':
+        case 'mfl/polls/edit':
+            $user = require_login(ROLES_ALL);
+            $poll = $route === 'mfl/polls/edit' ? mfl_poll_for_edit((int) ($_GET['id'] ?? 0), $user) : null;
+            $flash = $_SESSION['mfl_flash'] ?? null;
+            unset($_SESSION['mfl_flash']);
+            $posted = null;
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                verify_csrf();
+                $action = $_POST['action'] ?? 'save';
+                $result = mfl_poll_save($poll, $_POST, $action, $user);
+                if (is_int($result)) {
+                    $_SESSION['mfl_flash'] = ['status' => 'ok', 'summary' => match ($action) {
+                        'publish'   => 'Published.',
+                        'unpublish' => 'Unpublished. It is a draft again, and its votes are kept.',
+                        'close'     => 'Poll closed.',
+                        default     => 'Saved.',
+                    }];
+                    header("Location: /admin/mfl/polls/edit?id=$result");
+                    exit;
+                }
+                // Hand the typed text back, so a rejected save loses nothing.
+                $flash = ['status' => 'error', 'summary' => $result];
+                $posted = $_POST;
+            }
+            render_admin('mfl/poll-edit', [
+                'flash' => $flash,
+                'form'  => mfl_poll_form($poll, $posted),
+                'title' => $poll ? 'Edit poll' : 'New poll',
+            ]);
+            break;
+
+        case 'mfl/polls/delete':
+            $user = require_login(ROLES_ALL);
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                verify_csrf();
+                $poll = mfl_poll_for_edit((int) ($_POST['id'] ?? 0), $user);
+                // Same rule as rankings: unpublish first, so one click can't
+                // remove something the league has already seen.
+                if ($poll['status'] === 'draft') {
+                    db()->prepare('DELETE FROM mfl_polls WHERE id = ?')->execute([$poll['id']]);
+                    $_SESSION['mfl_flash'] = ['status' => 'ok', 'summary' => 'Poll deleted.'];
+                }
+            }
+            header('Location: /admin/mfl/polls');
             break;
 
         // Real names go on public pages, so entering them stays with the admin.

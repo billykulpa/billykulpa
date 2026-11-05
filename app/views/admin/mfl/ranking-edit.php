@@ -1,4 +1,4 @@
-<?php /** @var ?array $flash */ /** @var array $ranking */ /** @var array $rows */
+<?php /** @var ?array $flash */ /** @var array $ranking */ /** @var array $rows */ /** @var array $revisions */
 $published = $ranking['status'] === 'published'; ?>
 <?php require __DIR__ . '/_subnav.php'; ?>
 <h1><?= esc(mfl_ranking_title($ranking)) ?></h1>
@@ -73,4 +73,26 @@ $published = $ranking['status'] === 'published'; ?>
   <input type="hidden" name="id" value="<?= (int) $ranking['id'] ?>">
   <button class="a-btn a-btn--danger" type="submit" onclick="return confirm('Delete this draft?')">Delete draft</button>
 </form>
+<?php endif; ?>
+
+<?php if ($revisions): ?>
+<h2 class="a-section-head">Save history</h2>
+<p class="a-hint">Every change is kept. Loading a version fills the form above; nothing changes until you save.</p>
+<table class="a-history">
+  <thead><tr><th>When (CT)</th><th>Who</th><th>Action</th><th>Changes</th><th></th></tr></thead>
+  <tbody>
+  <?php foreach ($revisions as $i => $v): ?>
+    <tr>
+      <td><?= esc(central_time($v['created_at'], 'M j, g:i a')) ?></td>
+      <td><?= esc($v['user_name']) ?></td>
+      <td><?= esc(mfl_revision_label($v['action'])) ?></td>
+      <td><?= esc($v['summary'] ?: '—') ?></td>
+      <td class="a-row-actions">
+        <?php if ($i === 0): ?><span class="a-hint">Current</span>
+        <?php else: ?><a class="a-link-btn" href="/admin/mfl/rankings/edit?id=<?= (int) $ranking['id'] ?>&amp;revision=<?= (int) $v['id'] ?>">Load</a><?php endif; ?>
+      </td>
+    </tr>
+  <?php endforeach; ?>
+  </tbody>
+</table>
 <?php endif; ?>

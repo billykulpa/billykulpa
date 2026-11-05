@@ -1,12 +1,13 @@
 <?php
 /** Read queries shared by the league site and the CMS tab. */
 
-/** The latest Sleeper sync or published rankings change. NULL before the first sync. */
+/** The latest Sleeper sync or published rankings or poll change. NULL before the first sync. */
 function mfl_last_updated(): ?string
 {
     $sync = db()->query("SELECT MAX(finished_at) FROM mfl_sync_log WHERE status = 'ok'")->fetchColumn();
     $rank = db()->query("SELECT MAX(public_updated_at) FROM mfl_rankings WHERE status = 'published'")->fetchColumn();
-    return max((string) $sync, (string) $rank) ?: null;
+    $poll = db()->query("SELECT MAX(public_updated_at) FROM mfl_polls WHERE status = 'published'")->fetchColumn();
+    return max((string) $sync, (string) $rank, (string) $poll) ?: null;
 }
 
 /** "Username (First Last)", or just the username until a real name is entered. */

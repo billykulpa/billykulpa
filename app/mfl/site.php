@@ -3,22 +3,50 @@
 
 require_once __DIR__ . '/data.php';
 require_once __DIR__ . '/rankings.php';
+require_once __DIR__ . '/polls.php';
 
 function mfl_site_route(string $path): void
 {
     switch ($path) {
         case '':
+            // Polls differ per visitor, so a cached copy could show the wrong state.
+            header('Cache-Control: no-store');
             $season = mfl_latest_season();
             $history = mfl_rank_history();
             $latest = $history ? end($history) : null;
             mfl_render('home', [
                 'nav'        => 'home',
+                'polls'      => array_slice(array_filter(mfl_public_polls(), fn($p) => $p['open']), 0, 3),
                 'season'     => $season,
                 'standings'  => $season ? mfl_standings((int) $season['season']) : [],
                 'champions'  => mfl_champions(),
                 'latest'     => $latest,
                 'latestRows' => $latest ? mfl_ranking_rows($latest, $history) : [],
             ]);
+            break;
+
+        case 'polls':
+            header('Cache-Control: no-store');
+            $polls = mfl_public_polls();
+            mfl_render('polls', [
+                'nav'    => 'polls',
+                'title'  => 'Polls',
+                'open'   => array_filter($polls, fn($p) => $p['open']),
+                'closed' => array_filter($polls, fn($p) => !$p['open']),
+            ]);
+            break;
+
+        case 'polls/vote':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // This host has no session to hold a CSRF token. Browsers send
+                // Origin on every POST, so a form on another site is refused.
+                $origin = parse_url($_SERVER['HTTP_ORIGIN'] ?? '', PHP_URL_HOST);
+                $host = explode(':', $_SERVER['HTTP_HOST'] ?? '')[0];
+                if ($origin && $origin !== $host) { http_response_code(403); exit('Not allowed.'); }
+                mfl_poll_vote((int) ($_POST['poll'] ?? 0), (int) ($_POST['answer'] ?? 0));
+            }
+            $back = ($_POST['from'] ?? '') === 'home' ? '/' : '/polls';
+            header('Location: ' . $back . '#poll-' . (int) ($_POST['poll'] ?? 0), true, 303);
             break;
 
         case 'rankings':

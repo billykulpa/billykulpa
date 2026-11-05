@@ -223,7 +223,7 @@ function mfl_ranking_create(int $season, int $week, array $user): ?int
     $db = db();
     try {
         $stmt = $db->prepare('INSERT INTO mfl_rankings (season, week, author_user_id, author_name, created_at) VALUES (?, ?, ?, ?, ?)');
-        $stmt->execute([$season, $week, $user['id'], $user['display_name'] ?: 'The Commissioner', date('Y-m-d H:i:s')]);
+        $stmt->execute([$season, $week, $user['id'], mfl_user_name($user), date('Y-m-d H:i:s')]);
     } catch (PDOException $e) {
         if ($e->getCode() !== '23000') throw $e;
         return null;
@@ -241,7 +241,80 @@ function mfl_ranking_create(int $season, int $week, array $user): ?int
     foreach ($standings as $i => $t) {
         $stmt->execute([$id, $t['franchise_id'], $i + 1, $t['team_name'], $t['owner_id']]);
     }
+    mfl_ranking_log($id, 'created', mfl_user_name($user), '', mfl_ranking_snapshot($id));
     return $id;
+}
+
+function mfl_user_name(array $user): string
+{
+    return $user['display_name'] ?: 'The Commissioner';
+}
+
+/** A set of rankings as it stands now, in the same shape the editor's form posts. */
+function mfl_ranking_snapshot(int $id): array
+{
+    $stmt = db()->prepare('SELECT week, title, intro_md FROM mfl_rankings WHERE id = ?');
+    $stmt->execute([$id]);
+    $r = $stmt->fetch();
+    $stmt = db()->prepare('SELECT franchise_id, writeup_md FROM mfl_ranking_entries WHERE ranking_id = ? ORDER BY rank_no');
+    $stmt->execute([$id]);
+    $order = $writeups = [];
+    foreach ($stmt as $e) {
+        $order[] = (int) $e['franchise_id'];
+        $writeups[(int) $e['franchise_id']] = (string) $e['writeup_md'];
+    }
+    return ['week' => (int) $r['week'], 'title' => (string) $r['title'], 'intro_md' => (string) $r['intro_md'],
+            'order' => $order, 'writeup' => $writeups];
+}
+
+/** What changed between two snapshots, in words. Empty if nothing did. */
+function mfl_ranking_diff(array $before, array $after): string
+{
+    $parts = [];
+    $moved = count(array_filter($after['order'], fn($fid, $i) => ($before['order'][$i] ?? null) !== $fid, ARRAY_FILTER_USE_BOTH));
+    if ($moved) $parts[] = "Moved $moved " . ($moved === 1 ? 'team' : 'teams');
+    $edited = count(array_filter($after['writeup'], fn($text, $fid) => ($before['writeup'][$fid] ?? '') !== $text, ARRAY_FILTER_USE_BOTH));
+    if ($edited) $parts[] = "Edited $edited " . ($edited === 1 ? 'write-up' : 'write-ups');
+    if ($before['title'] !== $after['title']) $parts[] = 'Changed the title';
+    if ($before['intro_md'] !== $after['intro_md']) $parts[] = 'Changed the intro';
+    if ($before['week'] !== $after['week']) $parts[] = 'Changed the week';
+    return implode(' · ', $parts);
+}
+
+function mfl_ranking_log(int $id, string $action, string $name, string $summary, array $snapshot, ?string $at = null): void
+{
+    $stmt = db()->prepare('INSERT INTO mfl_ranking_revisions (ranking_id, action, user_name, summary, snapshot_json, created_at) VALUES (?, ?, ?, ?, ?, ?)');
+    $stmt->execute([$id, $action, $name, $summary, json_encode($snapshot, JSON_UNESCAPED_UNICODE), $at ?? date('Y-m-d H:i:s')]);
+}
+
+/** Save history for the editor, newest first. */
+function mfl_ranking_revisions(int $id): array
+{
+    $stmt = db()->prepare('SELECT id, action, user_name, summary, created_at FROM mfl_ranking_revisions WHERE ranking_id = ? ORDER BY id DESC');
+    $stmt->execute([$id]);
+    return $stmt->fetchAll();
+}
+
+/** One saved version's snapshot and date, only if it belongs to this ranking. */
+function mfl_ranking_revision(int $rankingId, int $revisionId): ?array
+{
+    $stmt = db()->prepare('SELECT * FROM mfl_ranking_revisions WHERE id = ? AND ranking_id = ?');
+    $stmt->execute([$revisionId, $rankingId]);
+    $row = $stmt->fetch();
+    if (!$row) return null;
+    $row['snapshot'] = json_decode($row['snapshot_json'], true);
+    return $row;
+}
+
+function mfl_revision_label(string $action): string
+{
+    return match ($action) {
+        'created'     => 'Created',
+        'baseline'    => 'Earlier version',
+        'published'   => 'Published',
+        'unpublished' => 'Unpublished',
+        default       => 'Saved',
+    };
 }
 
 /** Rows for the editor, in saved order, or in the posted order after a rejected save. */
@@ -281,7 +354,7 @@ function mfl_editor_rows(array $ranking, ?array $posted): array
  * Saving keeps the current status, so fixing a typo in published rankings
  * doesn't pull them down. Team names and owners freeze at publish.
  */
-function mfl_ranking_save(array $ranking, array $in, string $action): ?string
+function mfl_ranking_save(array $ranking, array $in, string $action, array $user): ?string
 {
     $db = db();
     $stmt = $db->prepare('SELECT franchise_id, team_name, owner_id FROM mfl_team_seasons WHERE season = ?');
@@ -310,6 +383,9 @@ function mfl_ranking_save(array $ranking, array $in, string $action): ?string
     $publicAt = $status === 'draft' ? null : $now;
     $freeze = $wasDraft || $status === 'draft';
 
+    $id = (int) $ranking['id'];
+    $before = mfl_ranking_snapshot($id);
+
     $db->beginTransaction();
     try {
         $stmt = $db->prepare('UPDATE mfl_rankings SET week = ?, title = ?, intro_md = ?, status = ?, published_at = ?, public_updated_at = ? WHERE id = ?');
@@ -330,6 +406,22 @@ function mfl_ranking_save(array $ranking, array $in, string $action): ?string
     foreach ($order as $i => $fid) {
         $save->execute([$i + 1, mb_substr(trim((string) ($writeups[$fid] ?? '')), 0, 20000), $ranking['id'], $fid]);
         if ($freeze) $snapshot->execute([$teams[$fid]['team_name'], $teams[$fid]['owner_id'], $ranking['id'], $fid]);
+    }
+
+    $after = mfl_ranking_snapshot($id);
+    $summary = mfl_ranking_diff($before, $after);
+    $logged = match ($action) {
+        'publish'   => 'published',
+        'unpublish' => 'unpublished',
+        default     => 'saved',
+    };
+    // A save that changed nothing isn't worth a row. Sets written before the
+    // log existed get their pre-save state recorded, so that stays recoverable.
+    if ($logged !== 'saved' || $summary !== '') {
+        $stmt = $db->prepare('SELECT COUNT(*) FROM mfl_ranking_revisions WHERE ranking_id = ?');
+        $stmt->execute([$id]);
+        if (!$stmt->fetchColumn()) mfl_ranking_log($id, 'baseline', $ranking['author_name'], '', $before, $ranking['created_at']);
+        mfl_ranking_log($id, $logged, mfl_user_name($user), $summary, $after);
     }
     $db->commit();
     return null;

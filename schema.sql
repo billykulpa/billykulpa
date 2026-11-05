@@ -297,3 +297,54 @@ CREATE TABLE IF NOT EXISTS mfl_ranking_entries (
   FOREIGN KEY (ranking_id) REFERENCES mfl_rankings(id) ON DELETE CASCADE,
   FOREIGN KEY (franchise_id) REFERENCES mfl_franchises(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- A poll closes at expires_at; there is no separate closed status.
+CREATE TABLE IF NOT EXISTS mfl_polls (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  question VARCHAR(200) NOT NULL,
+  status ENUM('draft','published') NOT NULL DEFAULT 'draft',
+  expires_at DATETIME NOT NULL,
+  author_user_id INT UNSIGNED NULL,           -- who may edit it
+  author_name VARCHAR(80) NOT NULL,
+  created_at DATETIME NOT NULL,
+  published_at DATETIME NULL,
+  public_updated_at DATETIME NULL,            -- feeds the site's "last updated" line
+  KEY idx_status_expires (status, expires_at),
+  FOREIGN KEY (author_user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_poll_answers (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  poll_id INT UNSIGNED NOT NULL,
+  label VARCHAR(200) NOT NULL,
+  sort_order TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  KEY idx_poll (poll_id, sort_order),
+  FOREIGN KEY (poll_id) REFERENCES mfl_polls(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- One vote per browser. voter_hash is a hash of a random cookie, so nothing
+-- here identifies a person, and clearing cookies does allow a second vote.
+CREATE TABLE IF NOT EXISTS mfl_poll_votes (
+  poll_id INT UNSIGNED NOT NULL,
+  voter_hash CHAR(64) NOT NULL,
+  answer_id INT UNSIGNED NOT NULL,
+  created_at DATETIME NOT NULL,
+  PRIMARY KEY (poll_id, voter_hash),
+  KEY idx_answer (answer_id),
+  FOREIGN KEY (poll_id) REFERENCES mfl_polls(id) ON DELETE CASCADE,
+  FOREIGN KEY (answer_id) REFERENCES mfl_poll_answers(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- One row per save of a set of rankings. snapshot_json holds the whole set, in
+-- the same shape as the editor's form, so any row can be loaded back into it.
+CREATE TABLE IF NOT EXISTS mfl_ranking_revisions (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  ranking_id INT UNSIGNED NOT NULL,
+  action VARCHAR(20) NOT NULL,                -- created, baseline, saved, published, unpublished
+  user_name VARCHAR(80) NOT NULL,             -- copied, so it survives a removed account
+  summary VARCHAR(255) NOT NULL DEFAULT '',
+  snapshot_json MEDIUMTEXT NOT NULL,
+  created_at DATETIME NOT NULL,
+  KEY idx_ranking (ranking_id, id),
+  FOREIGN KEY (ranking_id) REFERENCES mfl_rankings(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

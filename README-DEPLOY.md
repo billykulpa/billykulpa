@@ -91,6 +91,13 @@ and their own password page. New CMS routes are admin-only unless they pass
 in the last published order. Save draft keeps it private; Publish rankings puts
 it on `/rankings`. Authors edit their own sets and the admin can edit any. There
 is one set per week. Records shown are through the week before the set's week.
+Every change is logged under Save history in the editor, and Load puts any
+earlier version back in the form; it only takes effect when saved.
+
+**Polls:** MFL → Polls creates them with a title, answers and a closing time in
+Central. Anyone can vote without an account, one vote per browser, held by a
+random cookie; clearing cookies allows a second vote. Results appear after
+voting, and to everyone once the poll closes. Answers lock at the first vote.
 
 **Real names:** Sleeper doesn't share them. Enter them under MFL → Owners
 (admin only). The site shows Username (First Last), or the username if blank.

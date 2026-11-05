@@ -147,3 +147,34 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
 
   renumber();
 })();
+
+/* Poll editor: add and remove answer rows. Blank rows are ignored on save. */
+(function () {
+  var box = document.getElementById('a-poll-answers');
+  var add = document.getElementById('a-poll-add');
+  if (!box || !add) return;
+
+  function renumber() {
+    Array.prototype.forEach.call(box.querySelectorAll('input'), function (input, i) {
+      input.setAttribute('aria-label', 'Answer ' + (i + 1));
+    });
+  }
+
+  add.addEventListener('click', function () {
+    var row = box.lastElementChild.cloneNode(true);
+    row.querySelector('input').value = '';
+    box.appendChild(row);
+    renumber();
+    row.querySelector('input').focus();
+  });
+
+  box.addEventListener('click', function (e) {
+    var btn = e.target.closest('.a-poll-remove');
+    if (!btn) return;
+    var row = btn.closest('.a-poll-answer');
+    /* Keep one row to clone from. */
+    if (box.children.length > 1) row.remove();
+    else row.querySelector('input').value = '';
+    renumber();
+  });
+})();

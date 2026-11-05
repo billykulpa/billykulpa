@@ -390,3 +390,13 @@ textarea.a-rank-writeup { display: block; width: calc(100% - 24px); min-height: 
 .a-rank-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 .a-rank-delete { margin-top: 32px; }
 @media (max-width: 560px) { .a-rank-meta { display: none; } }
+
+/* MFL polls */
+input[type="datetime-local"] { width: 100%; max-width: 280px; font: inherit; font-size: 15px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 2px; background: #fff; color: var(--ink); }
+.a-poll-answer { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.a-poll-remove { flex-shrink: 0; width: 40px; height: 42px; }
+.a-poll-locked { margin: 8px 0 0 20px; }
+
+/* Rankings list actions and save history */
+.a-btn--small { margin: 0 0 0 12px; padding: 6px 16px; font-size: 13px; }
+.a-history td { font-size: 14px; }

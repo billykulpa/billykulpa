@@ -17,6 +17,7 @@
       <nav class="site-nav" aria-label="Primary">
         <a href="/" <?= $nav === 'home' ? 'aria-current="page"' : '' ?>>Home</a>
         <a href="/rankings" <?= $nav === 'rankings' ? 'aria-current="page"' : '' ?>>Power Rankings</a>
+        <a href="/polls" <?= $nav === 'polls' ? 'aria-current="page"' : '' ?>>Polls</a>
       </nav>
       <p class="updated mono-label">
         <?php if ($updated): ?>Last updated <time datetime="<?= esc(date('c', strtotime($updated))) ?>"><?= esc(central_time($updated, 'M j, g:i a')) ?> CT</time>

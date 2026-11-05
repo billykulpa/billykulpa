@@ -23,7 +23,7 @@
 
 <?php if ($rankings): ?>
 <table class="a-rank-table">
-  <thead><tr><th>Rankings</th><th>Author</th><th>Status</th><th>Published (CT)</th></tr></thead>
+  <thead><tr><th>Rankings</th><th>Author</th><th>Status</th><th>Published (CT)</th><th></th></tr></thead>
   <tbody>
   <?php foreach ($rankings as $r):
     $canEdit = $user['role'] === 'admin' || (int) $r['author_user_id'] === (int) $user['id']; ?>
@@ -36,6 +36,10 @@
       <td><?= esc($r['author_name']) ?></td>
       <td><span class="a-pill a-pill--<?= esc($r['status']) ?>"><?= esc($r['status']) ?></span></td>
       <td><?= $r['published_at'] ? esc(central_time($r['published_at'], 'M j, Y')) : '—' ?></td>
+      <td class="a-row-actions">
+        <?php if ($r['status'] === 'published'): ?><a class="a-link-btn" href="<?= esc(MFL_BASE_URL . mfl_ranking_url($r)) ?>" target="_blank" rel="noopener">View</a><?php endif; ?>
+        <?php if ($canEdit): ?><a class="a-btn a-btn--small" href="/admin/mfl/rankings/edit?id=<?= (int) $r['id'] ?>">Edit</a><?php endif; ?>
+      </td>
     </tr>
   <?php endforeach; ?>
   </tbody>

@@ -1,8 +1,17 @@
-<?php /** @var ?array $season */ /** @var array $standings */ /** @var array $champions */ /** @var ?array $latest */ /** @var array $latestRows */ ?>
+<?php /** @var ?array $season */ /** @var array $standings */ /** @var array $champions */ /** @var ?array $latest */ /** @var array $latestRows */ /** @var array $polls */ ?>
 <section class="hero">
   <p class="mono-label"><?= $season ? (int) $season['num_teams'] . ' teams · Dynasty · Est. 2025' : 'Dynasty · Est. 2025' ?></p>
   <h1>Midwest Football League</h1>
 </section>
+
+<?php if ($polls): ?>
+<section>
+  <h2>Polls <a class="link h2-link" href="/polls">All polls</a></h2>
+  <div class="poll-grid">
+    <?php foreach ($polls as $poll): $from = 'home'; require __DIR__ . '/_poll.php'; endforeach; ?>
+  </div>
+</section>
+<?php endif; ?>
 
 <?php if ($latest): ?>
 <section>

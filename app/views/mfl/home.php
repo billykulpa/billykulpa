@@ -23,7 +23,7 @@
     <?php foreach (array_slice($latestRows, 0, 5) as $e): ?>
     <li>
       <span class="top-rank-no"><?= (int) $e['rank_no'] ?></span>
-      <span class="team"><?= esc($e['team_name']) ?></span>
+      <span class="team"><?= mfl_team_link((int) $e['franchise_id'], $e['team_name']) ?></span>
       <?= mfl_movement($e['delta']) ?>
     </li>
     <?php endforeach; ?>
@@ -50,8 +50,8 @@
       <?php foreach ($standings as $i => $t): ?>
         <tr<?= $i + 1 === (int) $season['playoff_teams'] ? ' class="cutline"' : '' ?>>
           <td class="num"><?= $i + 1 ?></td>
-          <td class="team"><?= esc($t['team_name']) ?></td>
-          <td class="wide-only"><?= esc(mfl_owner_label($t['owner_name'], $t['real_name'])) ?></td>
+          <td class="team"><?= mfl_team_link((int) $t['franchise_id'], $t['team_name']) ?></td>
+          <td class="wide-only"><?= mfl_owner_link($t['owner_name'], $t['real_name']) ?></td>
           <td class="num"><?= (int) $t['wins'] ?>–<?= (int) $t['losses'] ?><?= (int) $t['ties'] ? '–' . (int) $t['ties'] : '' ?></td>
           <td class="num"><?= number_format((float) $t['points_for'], 2) ?></td>
           <td class="num wide-only"><?= number_format((float) $t['points_against'], 2) ?></td>
@@ -60,7 +60,7 @@
       </tbody>
     </table>
   </div>
-  <p class="note">The rule under <?= (int) $season['playoff_teams'] ?>th place marks the playoff line.</p>
+  <p class="note">The blue rule marks the playoff line. <a class="link" href="/standings">Full standings</a></p>
 </section>
 <?php else: ?>
 <p>League data hasn't been imported yet.</p>

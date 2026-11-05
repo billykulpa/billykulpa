@@ -400,3 +400,13 @@ input[type="datetime-local"] { width: 100%; max-width: 280px; font: inherit; fon
 /* Rankings list actions and save history */
 .a-btn--small { margin: 0 0 0 12px; padding: 6px 16px; font-size: 13px; }
 .a-history td { font-size: 14px; }
+
+/* MFL reports */
+.a-table-scroll { overflow-x: auto; }
+.a-report td { font-size: 14px; padding: 10px 8px; }
+.a-report th { padding: 8px; white-space: nowrap; }
+.a-report .a-hint { margin-top: 0; font-size: 12px; }
+.a-num { text-align: right; font-variant-numeric: tabular-nums; }
+.a-report-filters { margin-bottom: 16px; }
+.a-check { display: flex; align-items: center; gap: 8px; font-size: 14px; padding-bottom: 11px; }
+.a-report-filters > div { flex: 0 1 150px; }

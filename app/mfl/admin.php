@@ -196,6 +196,21 @@ function mfl_admin_route(string $route): void
             header('Location: /admin/mfl/polls');
             break;
 
+        case 'mfl/pickups':
+            require_login(ROLES_ALL);
+            require_once __DIR__ . '/reports.php';
+            $seasons = array_map('intval', db()->query('SELECT season FROM mfl_seasons ORDER BY season DESC')->fetchAll(PDO::FETCH_COLUMN));
+            $season = in_array((int) ($_GET['season'] ?? 0), $seasons, true) ? (int) $_GET['season'] : ($seasons[0] ?? 0);
+            $position = isset(MFL_PICKUP_POSITIONS[$_GET['position'] ?? '']) ? $_GET['position'] : 'skill';
+            $sort = isset(MFL_PICKUP_SORTS[$_GET['sort'] ?? '']) ? $_GET['sort'] : 'points';
+            $afterWeekOne = !empty($_GET['after_week_1']);
+            render_admin('mfl/pickups', [
+                'rows' => mfl_pickups($season, $position, $afterWeekOne, $sort),
+                'seasons' => $seasons, 'season' => $season, 'position' => $position, 'sort' => $sort,
+                'afterWeekOne' => $afterWeekOne, 'updated' => mfl_last_updated(), 'title' => 'Best Pickups',
+            ]);
+            break;
+
         // Real names go on public pages, so entering them stays with the admin.
         case 'mfl/owners':
             require_login();

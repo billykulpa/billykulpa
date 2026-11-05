@@ -18,6 +18,10 @@
         <a href="/" <?= $nav === 'home' ? 'aria-current="page"' : '' ?>>Home</a>
         <a href="/rankings" <?= $nav === 'rankings' ? 'aria-current="page"' : '' ?>>Power Rankings</a>
         <a href="/polls" <?= $nav === 'polls' ? 'aria-current="page"' : '' ?>>Polls</a>
+        <a href="/standings" <?= $nav === 'standings' ? 'aria-current="page"' : '' ?>>Standings</a>
+        <a href="/teams" <?= $nav === 'teams' ? 'aria-current="page"' : '' ?>>Teams</a>
+        <a href="/drafts" <?= $nav === 'drafts' ? 'aria-current="page"' : '' ?>>Drafts</a>
+        <a href="/records" <?= $nav === 'records' ? 'aria-current="page"' : '' ?>>Records</a>
       </nav>
       <p class="updated mono-label">
         <?php if ($updated): ?>Last updated <time datetime="<?= esc(date('c', strtotime($updated))) ?>"><?= esc(central_time($updated, 'M j, g:i a')) ?> CT</time>

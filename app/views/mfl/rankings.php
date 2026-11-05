@@ -48,7 +48,7 @@
       <tbody>
       <?php foreach ($teams as $t): ?>
         <tr>
-          <td class="team"><?= esc($t['name']) ?></td>
+          <td class="team"><?= mfl_team_link((int) $t['id'], $t['name']) ?></td>
           <td class="num"><?= $t['latest'] ?? '—' ?></td>
           <td class="num"><?= (int) $t['best'] ?></td>
           <td class="num"><?= (int) $t['worst'] ?></td>

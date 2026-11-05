@@ -4,6 +4,7 @@
 require_once __DIR__ . '/data.php';
 require_once __DIR__ . '/rankings.php';
 require_once __DIR__ . '/polls.php';
+require_once __DIR__ . '/history.php';
 
 function mfl_site_route(string $path): void
 {
@@ -62,6 +63,7 @@ function mfl_site_route(string $path): void
             break;
 
         default:
+            if (mfl_history_route($path)) return;
             if (preg_match('#^rankings/(\d{4})/([a-z0-9-]+)$#', $path, $m)) {
                 $week = mfl_week_from_slug($m[2]);
                 $history = mfl_rank_history();

@@ -142,7 +142,7 @@ function mfl_ranking_team_stats(array $history): array
         $ranks = array_values(array_filter(array_map(fn($h) => $h['ranks'][$fid] ?? null, $history)));
         if (!$ranks) continue;
         $teams[] = [
-            'name' => $name, 'ranks' => $ranks, 'by_set' => array_map(fn($h) => $h['ranks'][$fid] ?? null, $history),
+            'id' => (int) $fid, 'name' => $name, 'ranks' => $ranks, 'by_set' => array_map(fn($h) => $h['ranks'][$fid] ?? null, $history),
             'latest' => $latest['ranks'][$fid] ?? null,
             'best' => min($ranks), 'worst' => max($ranks),
             'average' => array_sum($ranks) / count($ranks),

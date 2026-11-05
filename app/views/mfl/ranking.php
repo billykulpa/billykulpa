@@ -13,8 +13,8 @@
     <div class="rank-body">
       <div class="rank-head">
         <div>
-          <h2 class="rank-team"><?= esc($e['team_name']) ?></h2>
-          <p class="rank-owner"><?= esc(mfl_owner_label($e['owner_name'], $e['real_name'])) ?> · <?= esc($e['record']) ?></p>
+          <h2 class="rank-team"><?= mfl_team_link((int) $e['franchise_id'], $e['team_name']) ?></h2>
+          <p class="rank-owner"><?= mfl_owner_link($e['owner_name'], $e['real_name']) ?> · <?= esc($e['record']) ?></p>
         </div>
         <div class="rank-trend">
           <?= mfl_sparkline($e['trail'], count($rows)) ?>

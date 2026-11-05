@@ -351,3 +351,14 @@ CREATE TABLE IF NOT EXISTS mfl_ranking_revisions (
   KEY idx_ranking (ranking_id, id),
   FOREIGN KEY (ranking_id) REFERENCES mfl_rankings(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- What every NFL player scored each week under the league's scoring, rostered
+-- or not. Rosters only cover players on a team, so a free agent's weeks live here.
+CREATE TABLE IF NOT EXISTS mfl_player_weeks (
+  season SMALLINT UNSIGNED NOT NULL,
+  week TINYINT UNSIGNED NOT NULL,
+  player_id VARCHAR(16) NOT NULL,
+  points DECIMAL(7,2) NOT NULL,
+  PRIMARY KEY (season, week, player_id),
+  KEY idx_player (player_id, season)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

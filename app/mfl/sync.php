@@ -25,7 +25,8 @@ function mfl_sync(string $trigger, ?int $userId = null, bool $full = false): arr
         $full = $full || (int) db()->query('SELECT COUNT(*) FROM mfl_matchups WHERE player_points_json IS NULL')->fetchColumn() > 0;
         $stored = db()->query('SELECT season, status FROM mfl_seasons')->fetchAll(PDO::FETCH_KEY_PAIR);
         $done = [];
-        foreach (mfl_league_chain() as $league) {
+        $chain = mfl_league_chain();
+        foreach ($chain as $league) {
             $season = (int) $league['season'];
             if (!$full && ($stored[$season] ?? '') === 'complete') continue;
             mfl_sync_season($league);
@@ -34,6 +35,14 @@ function mfl_sync(string $trigger, ?int $userId = null, bool $full = false): arr
         $players = mfl_sync_players();
         $summary = 'Synced ' . ($done ? implode(', ', $done) : 'nothing new') . '.'
                  . ($players ? " Added {$players} player names." : '');
+        // Sleeper doesn't document this feed, so losing it shouldn't cost the
+        // rest of the sync. Season totals just stay as they were.
+        try {
+            foreach ($chain as $league) mfl_sync_player_weeks($league);
+        } catch (Throwable $e) {
+            if (db()->inTransaction()) db()->rollBack();
+            $summary .= ' Season totals not updated.';
+        }
         $result = ['status' => 'ok', 'summary' => $summary];
     } catch (Throwable $e) {
         if (db()->inTransaction()) db()->rollBack();
@@ -264,6 +273,49 @@ function mfl_sync_tenure(int $franchise, string $owner, int $season, array $leag
     }
     $stmt = db()->prepare('INSERT INTO mfl_tenures (franchise_id, owner_id, start_season, start_week) VALUES (?, ?, ?, ?)');
     $stmt->execute([$franchise, $owner, $season, $week]);
+}
+
+/**
+ * Store what every player scored each week under this league's scoring.
+ * Sleeper's weekly stats times the league's scoring settings reproduces its
+ * own fantasy points exactly. Weeks already stored are skipped, except the
+ * latest two of a live season, which is where stat corrections land.
+ */
+function mfl_sync_player_weeks(array $league): void
+{
+    $season = (int) $league['season'];
+    $last = (int) ($league['settings']['last_scored_leg'] ?? 0);
+    if ($last < 1) return;
+
+    $stmt = db()->prepare('SELECT DISTINCT week FROM mfl_player_weeks WHERE season = ?');
+    $stmt->execute([$season]);
+    $stored = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    $weeks = array_diff(range(1, $last), $stored);
+    if ($league['status'] !== 'complete') $weeks = array_unique([...$weeks, ...array_filter([$last - 1, $last], fn($w) => $w >= 1)]);
+
+    ini_set('memory_limit', '512M');
+    $scoring = $league['scoring_settings'] ?? [];
+    foreach (array_chunk(array_values($weeks), 4) as $batch) {
+        $paths = array_map(fn($w) => "/stats/nfl/regular/$season/$w", $batch);
+        $stats = sleeper_get_many($paths, 45);
+        foreach ($batch as $i => $week) {
+            $rows = [];
+            foreach ($stats[$paths[$i]] ?? [] as $pid => $line) {
+                $points = 0.0;
+                foreach ($line as $key => $value) {
+                    if (is_numeric($value) && isset($scoring[$key])) $points += $value * $scoring[$key];
+                }
+                if (round($points, 2) != 0) $rows[] = [$season, $week, (string) $pid, round($points, 2)];
+            }
+            db()->beginTransaction();
+            db()->prepare('DELETE FROM mfl_player_weeks WHERE season = ? AND week = ?')->execute([$season, $week]);
+            foreach (array_chunk($rows, 300) as $chunk) {
+                db()->prepare('INSERT INTO mfl_player_weeks (season, week, player_id, points) VALUES '
+                    . implode(',', array_fill(0, count($chunk), '(?,?,?,?)')))->execute(array_merge(...$chunk));
+            }
+            db()->commit();
+        }
+    }
 }
 
 /**

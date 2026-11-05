@@ -1,6 +1,6 @@
 <?php /** @var array $rows */ /** @var array $f */ /** @var array $seasons */ /** @var array $teams */
 $byPlayer = $f['view'] === 'players';
-$changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'view' => $f['view'], 'pos' => MFL_PICKUP_DEFAULT_POSITIONS, 'from' => '', 'to' => '', 'team' => 0, 'type' => '', 'sort' => 'points', 'dir' => 'desc']); ?>
+$changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'view' => $f['view'], 'pos' => MFL_PICKUP_DEFAULT_POSITIONS, 'from' => '', 'to' => '', 'team' => 0, 'type' => '', 'unstarted' => false, 'sort' => 'points', 'dir' => 'desc']); ?>
 <section class="hero hero--tight">
   <p class="mono-label"><?= (int) $f['season'] ?></p>
   <h1>Best Pickups</h1>
@@ -34,8 +34,9 @@ $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'vie
         <option value="waiver"<?= $f['type'] === 'waiver' ? ' selected' : '' ?>>Waiver claims</option>
         <option value="free_agent"<?= $f['type'] === 'free_agent' ? ' selected' : '' ?>>Free agents</option>
       </select></div>
+    <label class="filter-check"><input type="checkbox" name="unstarted" value="1"<?= $f['unstarted'] ? ' checked' : '' ?>> Include never started</label>
     <button class="poll-vote poll-vote--small" type="submit">Apply</button>
-    <?php if ($changed): ?><a class="link filter-clear" href="<?= esc(mfl_pickup_url(['season' => $f['season'], 'view' => $f['view'], 'pos' => MFL_PICKUP_DEFAULT_POSITIONS, 'from' => '', 'to' => '', 'team' => 0, 'type' => '', 'sort' => 'points', 'dir' => 'desc'])) ?>">Clear</a><?php endif; ?>
+    <?php if ($changed): ?><a class="link filter-clear" href="<?= esc(mfl_pickup_url(['season' => $f['season'], 'view' => $f['view'], 'pos' => MFL_PICKUP_DEFAULT_POSITIONS, 'from' => '', 'to' => '', 'team' => 0, 'type' => '', 'unstarted' => false, 'sort' => 'points', 'dir' => 'desc'])) ?>">Clear</a><?php endif; ?>
   </div>
 </form>
 
@@ -50,7 +51,9 @@ $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'vie
         <th scope="col">Picked up by</th>
         <?= $byPlayer ? mfl_pickup_th($f, 'pickups', 'Pickups', 'num') : mfl_pickup_th($f, 'added_on', 'Added', '') ?>
         <?= mfl_pickup_th($f, 'starts', 'Started', 'num') ?>
-        <?= mfl_pickup_th($f, 'points', 'Points', 'num') ?>
+        <?= mfl_pickup_th($f, 'total_points', 'Total points', 'num') ?>
+        <?= mfl_pickup_th($f, 'roster_points', 'On roster', 'num') ?>
+        <?= mfl_pickup_th($f, 'points', 'As starter', 'num') ?>
         <?= mfl_pickup_th($f, 'per_start', 'Per start', 'num') ?>
       </tr></thead>
       <tbody>
@@ -69,14 +72,16 @@ $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'vie
           <?php if ($byPlayer): ?><td class="num"><?= (int) $r['pickups'] ?></td>
           <?php else: ?><td><?= esc($r['added_label']) ?></td><?php endif; ?>
           <td class="num"><?= (int) $r['starts'] ?></td>
+          <td class="num"><?= number_format($r['total_points'], 2) ?></td>
+          <td class="num"><?= number_format($r['roster_points'], 2) ?></td>
           <td class="num"><?= number_format($r['points'], 2) ?></td>
-          <td class="num"><?= number_format($r['per_start'], 1) ?></td>
+          <td class="num"><?= $r['starts'] ? number_format($r['per_start'], 1) : '—' ?></td>
         </tr>
       <?php endforeach; ?>
       </tbody>
     </table>
   </div>
-  <p class="note">Regular-season points in the starting lineup of the team that made the pickup, from the week of the add. Bench points don't count, and pickups that never started aren't listed. Dates filter on when the player was added. <?= $byPlayer ? 'By player adds up every pickup of that player, across teams.' : 'A player dropped and picked up again gets a row for each pickup, and no game counts twice.' ?></p>
+  <p class="note">Regular season only. Total points is the player's whole season, on any team or as a free agent. On roster is what he scored for the team that picked him up, bench included, and As starter is only what it played. Both count from the week of the add. Dates filter on when the player was added. <?= $byPlayer ? 'By player adds up every pickup of that player, across teams.' : 'A player dropped and picked up again gets a row for each pickup, and no game counts twice.' ?></p>
 </section>
 <?php else: ?>
 <p>No pickups match those filters.</p>

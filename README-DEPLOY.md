@@ -112,11 +112,15 @@ playoff teams aren't ranked, because the losers bracket doesn't set a final orde
 
 **Best Pickups:** `/pickups` ranks waiver and free-agent adds by regular-season
 points in the adding team's starting lineup. Each add is its own pickup, and a
-By player view combines them. The rules are in `app/mfl/reports.php`.
+By player view combines them. The rules are in `app/mfl/reports.php`. Season
+totals come from Sleeper's weekly stats times the league's scoring settings,
+stored in `mfl_player_weeks`, so they include weeks as a free agent.
 
 **Trades:** `/trades` follows every traded player and pick through weekly
 rosters, so a trade counts from the first week the player was really on the new
-team, after any review period. The rules are in `app/mfl/trades.php`.
+team, after any review period. Each trade shows the season it happened and an
+all-time set that keeps growing while the team holds the player. The rules are
+in `app/mfl/trades.php`.
 
 **Owner changes:** a franchise is Sleeper's `roster_id`. The sync starts a new
 row in `mfl_tenures` when a roster's owner changes. Sleeper keeps no owner

@@ -6,20 +6,28 @@
  * Every add is its own pickup. A pickup's points are regular-season points in
  * that team's starting lineup, from the week of the add until the same team
  * adds the player again, so a player who was dropped and picked back up has
- * two rows and no game counts twice. Bench points never count.
+ * two rows and no game counts twice.
+ *
+ * Three point totals, each inside the one before it:
+ * total_points   his regular season, on any team or as a free agent
+ * roster_points  on this team since the pickup, bench included
+ * points         in this team's starting lineup since the pickup
  */
 
 const MFL_PICKUP_POSITIONS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 const MFL_PICKUP_DEFAULT_POSITIONS = ['QB', 'RB', 'WR', 'TE'];
-const MFL_PICKUP_SORTS = ['name', 'added_on', 'pickups', 'starts', 'points', 'per_start'];
+const MFL_PICKUP_SORTS = ['name', 'added_on', 'pickups', 'starts', 'total_points', 'roster_points', 'points', 'per_start'];
 
 /** Every pickup of a season, oldest first, including ones that never started. */
 function mfl_pickup_list(int $season): array
 {
-    $stmt = db()->prepare('SELECT week, franchise_id, starters_json, starter_points_json FROM mfl_matchups WHERE season = ? AND is_playoff = 0');
+    $stmt = db()->prepare('SELECT week, franchise_id, starters_json, starter_points_json, player_points_json FROM mfl_matchups WHERE season = ? AND is_playoff = 0');
     $stmt->execute([$season]);
-    $started = [];
+    $started = $rostered = [];
     foreach ($stmt as $m) {
+        foreach (json_decode((string) $m['player_points_json'], true) ?: [] as $pid => $pts) {
+            $rostered[$m['franchise_id']][$pid][(int) $m['week']] = (float) $pts;
+        }
         $points = json_decode((string) $m['starter_points_json'], true) ?: [];
         foreach (json_decode((string) $m['starters_json'], true) ?: [] as $i => $pid) {
             $started[$m['franchise_id']][$pid][(int) $m['week']] = (float) ($points[$i] ?? 0);
@@ -57,20 +65,23 @@ function mfl_pickup_list(int $season): array
     $stmt->execute([$season]);
     $teams = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
     $timesAdded = array_count_values(array_column($pickups, 'player_id'));
+    $totals = mfl_player_totals($season, true);
 
     foreach ($pickups as $i => &$p) {
         $next = null;
         foreach ($weeks["{$p['franchise_id']}-{$p['player_id']}"] as $j => $week) {
             if ($j > $i) { $next = $week; break; }
         }
-        $games = array_filter($started[$p['franchise_id']][$p['player_id']] ?? [],
-            fn($w) => $w >= $p['week'] && ($next === null || $w < $next), ARRAY_FILTER_USE_KEY);
+        $inPickup = fn($w) => $w >= $p['week'] && ($next === null || $w < $next);
+        $games = array_filter($started[$p['franchise_id']][$p['player_id']] ?? [], $inPickup, ARRAY_FILTER_USE_KEY);
+        $held = array_filter($rostered[$p['franchise_id']][$p['player_id']] ?? [], $inPickup, ARRAY_FILTER_USE_KEY);
         $player = $players[$p['player_id']] ?? [];
         $p += [
             'name' => ($player['full_name'] ?? '') ?: $p['player_id'], 'position' => $player['position'] ?? '',
             'team_name' => $teams[$p['franchise_id']] ?? '', 'added_on' => central_time($p['added_at'], 'Y-m-d'),
             'added_label' => mfl_transaction_week($season, $p['week'], $p['added_at']) . ' (' . central_time($p['added_at'], 'M j') . ')',
             'times_added' => $timesAdded[$p['player_id']], 'starts' => count($games), 'points' => array_sum($games),
+            'roster_points' => array_sum($held), 'total_points' => $totals[$p['player_id']] ?? 0.0,
             'per_start' => $games ? array_sum($games) / count($games) : 0, 'pickups' => 1,
         ];
     }
@@ -90,6 +101,7 @@ function mfl_pickup_filters(array $q, array $seasons): array
         'from' => $date('from'), 'to' => $date('to'),
         'team' => (int) ($q['team'] ?? 0),
         'type' => in_array($q['type'] ?? '', ['waiver', 'free_agent'], true) ? $q['type'] : '',
+        'unstarted' => !empty($q['unstarted']),
         'sort' => $sort,
         'dir' => in_array($q['dir'] ?? '', ['asc', 'desc'], true) ? $q['dir'] : ($sort === 'name' ? 'asc' : 'desc'),
     ];
@@ -112,8 +124,10 @@ function mfl_pickup_rows(array $f): array
             $row ??= $p + ['teams' => []];
             if ($row['added_at'] !== $p['added_at'] || $row['franchise_id'] !== $p['franchise_id']) {
                 $row['pickups']++;
+                // total_points is his whole season, so it isn't added up again here.
                 $row['starts'] += $p['starts'];
                 $row['points'] += $p['points'];
+                $row['roster_points'] += $p['roster_points'];
             }
             $row['teams'][$p['franchise_id']] = $p['team_name'];
             unset($row);
@@ -123,8 +137,8 @@ function mfl_pickup_rows(array $f): array
         $rows = $byPlayer;
     }
 
-    // Listed only once a player has started; a table of benched adds says little.
-    $rows = array_values(array_filter($rows, fn($r) => $r['starts'] > 0));
+    if (!$f['unstarted']) $rows = array_filter($rows, fn($r) => $r['starts'] > 0);
+    $rows = array_values($rows);
     $sign = $f['dir'] === 'asc' ? 1 : -1;
     usort($rows, fn($a, $b) => $sign * ($a[$f['sort']] <=> $b[$f['sort']]) ?: $b['points'] <=> $a['points']);
     return $rows;
@@ -137,7 +151,7 @@ function mfl_pickup_url(array $f, array $change = []): string
     $q = array_filter([
         'season' => $f['season'], 'view' => $f['view'] === 'players' ? 'players' : '',
         'pos' => $f['pos'] === MFL_PICKUP_DEFAULT_POSITIONS ? [] : $f['pos'],
-        'from' => $f['from'], 'to' => $f['to'], 'team' => $f['team'], 'type' => $f['type'],
+        'from' => $f['from'], 'to' => $f['to'], 'team' => $f['team'], 'type' => $f['type'], 'unstarted' => $f['unstarted'] ? 1 : 0,
         'sort' => $f['sort'] === 'points' ? '' : $f['sort'],
         'dir' => $f['dir'] === ($f['sort'] === 'name' ? 'asc' : 'desc') ? '' : $f['dir'],
     ]);

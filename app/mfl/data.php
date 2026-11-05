@@ -75,3 +75,22 @@ function mfl_transaction_week(int $season, int $week, string $at): string
     $draft = $drafts[$season] ?? null;
     return $draft && $at >= $draft ? 'Preseason' : 'Offseason';
 }
+
+/**
+ * What each player scored in a season: [player_id => points]. By default that's
+ * every scored week; $regularOnly stops at the league's playoffs.
+ */
+function mfl_player_totals(int $season, bool $regularOnly = false): array
+{
+    static $cache = [];
+    $key = "$season-" . (int) $regularOnly;
+    if (isset($cache[$key])) return $cache[$key];
+    $stmt = db()->prepare(
+        'SELECT w.player_id, SUM(w.points) FROM mfl_player_weeks w
+           JOIN mfl_seasons s ON s.season = w.season
+          WHERE w.season = ? AND w.week <= s.last_scored_week AND (? = 0 OR w.week < s.playoff_week_start)
+          GROUP BY w.player_id'
+    );
+    $stmt->execute([$season, (int) $regularOnly]);
+    return $cache[$key] = array_map('floatval', $stmt->fetchAll(PDO::FETCH_KEY_PAIR));
+}

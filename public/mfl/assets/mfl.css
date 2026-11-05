@@ -264,6 +264,8 @@ tr.cutline td { border-bottom: 2px solid var(--accent-soft); }
 }
 .filter-row select:focus-visible, .filter-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .filter-clear { padding-bottom: 9px; font-size: 14px; }
+.filter-check { display: flex !important; align-items: center; gap: 6px; font-size: 14px; padding-bottom: 10px; margin-bottom: 0; cursor: pointer; }
+.filter-check input { accent-color: var(--accent); width: 16px; height: 16px; }
 .sort-link { color: inherit; white-space: nowrap; }
 .sort-link:hover { color: var(--accent); }
 th[aria-sort] .sort-link { color: var(--ink); }
@@ -286,6 +288,12 @@ td.wrap { white-space: normal; }
 /* The team name stays in view while the numbers scroll under it. */
 .trade-side-label { position: sticky; left: 12px; display: inline-block; }
 .trade-table .team { font-weight: 600; }
+.trade-groups th { color: var(--ink); text-align: center; border-bottom: 1px solid var(--rule); }
+.trade-groups th.sticky { text-align: left; vertical-align: bottom; border-bottom: 2px solid var(--ink); }
+.trade-table .group-start { border-left: 2px solid var(--rule); }
+@media (min-width: 641px) { .trade-table td.sticky { min-width: 220px; } }
+.trade-total td { font-size: 14px; font-weight: 700; background: var(--paper-deep); }
+.trade-total td.sticky { background: var(--paper-deep); }
 .trade-table td { vertical-align: top; }
 .trade-status { font-size: 14px; font-weight: 600; margin-top: 2px; }
 .trade-status--here { color: var(--up); }

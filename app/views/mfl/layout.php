@@ -1,4 +1,8 @@
-<?php /** @var string $content */ /** @var ?string $updated */ /** @var ?string $title */ $nav ??= ''; ?>
+<?php /** @var string $content */ /** @var ?string $updated */ /** @var ?string $title */ $nav ??= '';
+// Same pattern as the main site: probe the session before any output, and only
+// when the cookie exists, so ordinary visitors never get a session.
+$signed_in = !empty($_COOKIE[session_cookie_name()]) ? current_user() : null;
+$cms = config()['site']['base_url'] . '/admin'; ?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -35,6 +39,12 @@
   <footer class="site-footer">
     <div class="wrap"><p class="mono-label">League data from Sleeper</p></div>
   </footer>
+  <?php if ($signed_in): ?>
+  <div class="admin-quick">
+    <a class="admin-quick-btn" href="<?= esc($cms) ?>/mfl">Admin</a>
+    <form method="post" action="<?= esc($cms) ?>/logout"><?= csrf_field() ?><button class="admin-quick-btn" type="submit">Sign out</button></form>
+  </div>
+  <?php endif; ?>
   <?php if (!empty($script)): ?><script src="<?= esc(mfl_asset('mfl.js')) ?>" defer></script><?php endif; ?>
 </body>
 </html>

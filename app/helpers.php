@@ -114,13 +114,26 @@ function portrait_url(): string
  * Sessions / auth / CSRF
  * ------------------------------------------------------------------------- */
 
+/**
+ * The sign-in cookie. It's shared with mfl.billykulpa.com so the league site
+ * can show the Admin and Sign out buttons. The name differs from the old
+ * main-site-only cookie because a browser holding both would send two values
+ * and PHP could read the stale one, which would look like a failed login.
+ */
+function session_cookie_name(): string
+{
+    return config()['session_name'] . '_shared';
+}
+
 function start_session(): void
 {
     if (session_status() === PHP_SESSION_ACTIVE) return;
-    session_name(config()['session_name']);
+    session_name(session_cookie_name());
+    $host = strtolower(explode(':', $_SERVER['HTTP_HOST'] ?? '')[0]);
     session_set_cookie_params([
         'lifetime' => 0,
         'path'     => '/',
+        'domain'   => str_ends_with($host, 'billykulpa.com') ? '.billykulpa.com' : '',
         'httponly' => true,
         'samesite' => 'Lax',
         'secure'   => !empty($_SERVER['HTTPS']),

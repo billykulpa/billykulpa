@@ -58,7 +58,7 @@ function visit_hash(): string
 
 function visit_is_self(): bool
 {
-    return !empty($_COOKIE[config()['session_name'] ?? '']) || !empty($_COOKIE[VISIT_ME_COOKIE]);
+    return !empty($_COOKIE[session_cookie_name()]) || !empty($_COOKIE[VISIT_ME_COOKIE]);
 }
 
 function log_visit(string $path): void

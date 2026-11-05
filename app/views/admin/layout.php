@@ -17,14 +17,20 @@
       <span class="a-nav-toggle-bars" aria-hidden="true"></span>
     </button>
     <nav class="a-nav" id="a-nav">
+      <?php if ($u['role'] === 'admin'): ?>
       <a href="/admin/pages">Pages</a>
       <a href="/admin/case-studies">Case Studies</a>
       <a href="/admin/notes">Notes</a>
       <a href="/admin/jobs">Jobs</a>
       <a href="/admin/traffic">Traffic</a>
       <a href="/admin/portrait">Portrait</a>
+      <?php endif; ?>
+      <a href="/admin/mfl">MFL</a>
+      <?php if ($u['role'] === 'admin'): ?>
+      <a href="/admin/users">Accounts</a>
+      <?php endif; ?>
       <a href="/admin/password">Password</a>
-      <a href="/">View site</a>
+      <a href="<?= $u['role'] === 'admin' ? '/' : esc(MFL_BASE_URL) ?>">View site</a>
       <form method="post" action="/admin/logout" class="a-logout"><?= csrf_field() ?>
         <button type="submit">Sign out</button>
       </form>

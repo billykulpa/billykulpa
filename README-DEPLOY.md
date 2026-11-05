@@ -62,6 +62,45 @@ Apache — no docroot or vhost changes, and it coexists with other MAMP projects
 5. Open http://127.0.0.1:8090 — first visit http://127.0.0.1:8090/admin/setup
    to create your admin account (12+ char password). Ctrl-C stops the server.
 
+## Midwest Football League (mfl.billykulpa.com)
+
+The league site shares this repo, the database and the CMS. Its entry point is
+`public/mfl/`, which the normal deploy lands in `public_html/mfl/`. League data
+is copied from Sleeper's public API by `app/mfl/sync.php`; no API key is needed.
+
+**First deploy, in this order:**
+
+1. Run `add-mfl-phase1.sql` in phpMyAdmin *before* pushing. The new login code
+   reads `users.role`, so pushing first takes the CMS down until it's run.
+2. Push to `main`.
+3. hPanel → Domains → Subdomains: create `mfl`, using the custom folder `mfl`
+   so its document root is `public_html/mfl`.
+4. Cloudflare → DNS: add a proxied `CNAME` for `mfl` pointing at `billykulpa.com`.
+5. `/admin/mfl` → **Sync now** for the first import.
+6. hPanel → Advanced → Cron Jobs: run this once a day. Replace the path if
+   File Manager shows a different one.
+   ```
+   /usr/bin/php /home/YOURUSER/domains/billykulpa.com/public_html/app/mfl/sync-cli.php
+   ```
+
+**Accounts:** `/admin/users` creates MFL Members, who can only open the MFL tab
+and their own password page. New CMS routes are admin-only unless they pass
+`ROLES_ALL` to `require_login()`.
+
+**Owner changes:** a franchise is Sleeper's `roster_id`. The sync starts a new
+row in `mfl_tenures` when a roster's owner changes. Sleeper keeps no owner
+history, so the sync can only date a change from when it first sees it.
+
+**New seasons:** nothing to configure. The sync finds the renewed league through
+the commissioner's league list.
+
+**Rebuild finished seasons:** `php app/mfl/sync-cli.php --full`
+
+**Local:** run the main-site server, plus this for the league site:
+```
+/Applications/MAMP/bin/php/php8.3.30/bin/php -S 127.0.0.1:8091 -t public/mfl router-mfl.php
+```
+
 ## What the CMS edits
 
 - Per page (Home, About, Work, Notes): **H1, meta title, meta description**

@@ -4,6 +4,7 @@
 // the admin cookie already exists so ordinary visitors never get a session.
 $qa_user = null;
 if (!empty($_COOKIE[config()['session_name']])) { $qa_user = current_user(); }
+if ($qa_user && $qa_user['role'] !== 'admin') { $qa_user = null; }
 ?>
 <!doctype html>
 <html lang="en">

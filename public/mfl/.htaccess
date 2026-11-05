@@ -1,0 +1,12 @@
+Options -Indexes
+
+RewriteEngine On
+
+# A child .htaccess replaces its parent's rewrite rules, so the main site's
+# dotfile block has to be repeated here.
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule (^|/)\. - [F,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]

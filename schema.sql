@@ -4,7 +4,10 @@
 CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(190) NOT NULL UNIQUE,
+  display_name VARCHAR(80) NOT NULL DEFAULT '',  -- author credit on MFL rankings
   password_hash VARCHAR(255) NOT NULL,
+  -- Defaults to the least-privileged role; /admin/setup sets 'admin' explicitly.
+  role ENUM('admin','mfl_member') NOT NULL DEFAULT 'mfl_member',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -84,3 +87,177 @@ INSERT INTO pages (slug, label, h1, meta_title, meta_description) VALUES
  'Notes — Billy Kulpa',
  'Writing on design systems, creative leadership, and building things by hand.')
 ON DUPLICATE KEY UPDATE label = VALUES(label);
+
+-- ---------------------------------------------------------------------------
+-- Midwest Football League (mfl.billykulpa.com)
+-- Everything below is filled by the Sleeper sync (app/mfl/sync.php), so a
+-- table can be rebuilt with `php app/mfl/sync-cli.php --full`.
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS mfl_seasons (
+  season SMALLINT UNSIGNED PRIMARY KEY,
+  league_id VARCHAR(32) NOT NULL UNIQUE,
+  name VARCHAR(120) NOT NULL,
+  status VARCHAR(20) NOT NULL,                -- pre_draft, drafting, in_season, complete
+  num_teams TINYINT UNSIGNED NOT NULL,
+  playoff_teams TINYINT UNSIGNED NOT NULL,
+  playoff_week_start TINYINT UNSIGNED NOT NULL,
+  last_scored_week TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  champion_franchise_id TINYINT UNSIGNED NULL,
+  runner_up_franchise_id TINYINT UNSIGNED NULL,
+  synced_at DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- A franchise is the roster itself. Its id is Sleeper's roster_id, which stays
+-- with the roster through league renewals and owner changes.
+CREATE TABLE IF NOT EXISTS mfl_franchises (
+  id TINYINT UNSIGNED PRIMARY KEY,
+  name VARCHAR(120) NOT NULL                  -- latest team name
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_owners (
+  id VARCHAR(32) PRIMARY KEY,                 -- Sleeper user_id
+  display_name VARCHAR(120) NOT NULL,
+  avatar VARCHAR(64) NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Who ran which franchise, and when. NULL end_season = current owner.
+-- NULL end_week = through the end of end_season. Franchise stats ignore this
+-- table; an owner's own record is the matchups inside their tenure range.
+CREATE TABLE IF NOT EXISTS mfl_tenures (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  franchise_id TINYINT UNSIGNED NOT NULL,
+  owner_id VARCHAR(32) NOT NULL,
+  start_season SMALLINT UNSIGNED NOT NULL,
+  start_week TINYINT UNSIGNED NOT NULL DEFAULT 1,
+  end_season SMALLINT UNSIGNED NULL,
+  end_week TINYINT UNSIGNED NULL,
+  UNIQUE KEY uq_tenure (franchise_id, start_season, start_week),
+  KEY idx_owner (owner_id),
+  FOREIGN KEY (franchise_id) REFERENCES mfl_franchises(id),
+  FOREIGN KEY (owner_id) REFERENCES mfl_owners(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_team_seasons (
+  season SMALLINT UNSIGNED NOT NULL,
+  franchise_id TINYINT UNSIGNED NOT NULL,
+  owner_id VARCHAR(32) NULL,                  -- NULL while a team is orphaned
+  team_name VARCHAR(120) NOT NULL,
+  wins TINYINT UNSIGNED NOT NULL DEFAULT 0,   -- regular season only
+  losses TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  ties TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  points_for DECIMAL(8,2) NOT NULL DEFAULT 0,
+  points_against DECIMAL(8,2) NOT NULL DEFAULT 0,
+  max_points DECIMAL(8,2) NOT NULL DEFAULT 0, -- best possible lineup, per Sleeper
+  faab_used SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  roster_json MEDIUMTEXT NULL,                -- latest player ids, kept for later features
+  PRIMARY KEY (season, franchise_id),
+  FOREIGN KEY (season) REFERENCES mfl_seasons(season),
+  FOREIGN KEY (franchise_id) REFERENCES mfl_franchises(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_matchups (
+  season SMALLINT UNSIGNED NOT NULL,
+  week TINYINT UNSIGNED NOT NULL,
+  franchise_id TINYINT UNSIGNED NOT NULL,
+  opponent_franchise_id TINYINT UNSIGNED NULL,
+  points DECIMAL(7,2) NOT NULL DEFAULT 0,
+  result CHAR(1) NULL,                        -- W, L, T; NULL = no opponent that week
+  is_playoff TINYINT(1) NOT NULL DEFAULT 0,
+  starters_json TEXT NULL,
+  starter_points_json TEXT NULL,
+  PRIMARY KEY (season, week, franchise_id),
+  KEY idx_franchise (franchise_id, season, week),
+  FOREIGN KEY (season) REFERENCES mfl_seasons(season),
+  FOREIGN KEY (franchise_id) REFERENCES mfl_franchises(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_brackets (
+  season SMALLINT UNSIGNED NOT NULL,
+  bracket ENUM('winners','losers') NOT NULL,
+  match_id SMALLINT UNSIGNED NOT NULL,
+  round TINYINT UNSIGNED NOT NULL,
+  team1_franchise_id TINYINT UNSIGNED NULL,
+  team2_franchise_id TINYINT UNSIGNED NULL,
+  -- As Sleeper reports them. In the losers bracket the "winner" is the team
+  -- that lost on the field and moved on toward last place.
+  winner_franchise_id TINYINT UNSIGNED NULL,
+  loser_franchise_id TINYINT UNSIGNED NULL,
+  placement TINYINT UNSIGNED NULL,            -- this game decides that place; 1 = title game
+  PRIMARY KEY (season, bracket, match_id),
+  FOREIGN KEY (season) REFERENCES mfl_seasons(season)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_drafts (
+  id VARCHAR(32) PRIMARY KEY,                 -- Sleeper draft_id
+  season SMALLINT UNSIGNED NOT NULL,
+  type VARCHAR(20) NOT NULL,                  -- snake, linear, auction
+  status VARCHAR(20) NOT NULL,
+  rounds TINYINT UNSIGNED NOT NULL,
+  started_at DATETIME NULL,
+  FOREIGN KEY (season) REFERENCES mfl_seasons(season)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_draft_picks (
+  draft_id VARCHAR(32) NOT NULL,
+  pick_no SMALLINT UNSIGNED NOT NULL,
+  round TINYINT UNSIGNED NOT NULL,
+  draft_slot TINYINT UNSIGNED NOT NULL,
+  franchise_id TINYINT UNSIGNED NOT NULL,     -- the franchise that made the pick
+  player_id VARCHAR(16) NOT NULL,
+  player_name VARCHAR(120) NOT NULL,
+  position VARCHAR(8) NOT NULL DEFAULT '',
+  nfl_team VARCHAR(8) NOT NULL DEFAULT '',
+  PRIMARY KEY (draft_id, pick_no),
+  KEY idx_franchise (franchise_id),
+  KEY idx_player (player_id),
+  FOREIGN KEY (draft_id) REFERENCES mfl_drafts(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_transactions (
+  id VARCHAR(32) PRIMARY KEY,                 -- Sleeper transaction_id
+  season SMALLINT UNSIGNED NOT NULL,
+  week TINYINT UNSIGNED NOT NULL,
+  type VARCHAR(20) NOT NULL,                  -- trade, waiver, free_agent, commissioner
+  status VARCHAR(20) NOT NULL,                -- complete, failed
+  created_at DATETIME NOT NULL,
+  franchise_ids_json VARCHAR(255) NOT NULL,
+  adds_json TEXT NULL,                        -- { player_id: franchise_id }
+  drops_json TEXT NULL,
+  picks_json TEXT NULL,
+  faab_json TEXT NULL,
+  settings_json TEXT NULL,
+  KEY idx_season_week (season, week),
+  FOREIGN KEY (season) REFERENCES mfl_seasons(season)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Snapshot of draft picks that have changed hands, replaced on every sync.
+CREATE TABLE IF NOT EXISTS mfl_traded_picks (
+  pick_season SMALLINT UNSIGNED NOT NULL,
+  round TINYINT UNSIGNED NOT NULL,
+  original_franchise_id TINYINT UNSIGNED NOT NULL,
+  current_franchise_id TINYINT UNSIGNED NOT NULL,
+  previous_franchise_id TINYINT UNSIGNED NULL,
+  PRIMARY KEY (pick_season, round, original_franchise_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Only players the league has touched, so names survive without keeping
+-- Sleeper's full player dump around.
+CREATE TABLE IF NOT EXISTS mfl_players (
+  id VARCHAR(16) PRIMARY KEY,
+  full_name VARCHAR(120) NOT NULL,
+  position VARCHAR(8) NOT NULL DEFAULT '',
+  nfl_team VARCHAR(8) NOT NULL DEFAULT ''
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Backs the site's "last updated" line and the CMS sync history.
+CREATE TABLE IF NOT EXISTS mfl_sync_log (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  started_at DATETIME NOT NULL,
+  finished_at DATETIME NULL,
+  status ENUM('running','ok','error') NOT NULL DEFAULT 'running',
+  trigger_source ENUM('cron','manual') NOT NULL,
+  user_id INT UNSIGNED NULL,
+  summary VARCHAR(500) NOT NULL DEFAULT '',
+  KEY idx_status_finished (status, finished_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

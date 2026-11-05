@@ -127,17 +127,31 @@ function current_user(): ?array
 {
     start_session();
     if (empty($_SESSION['user_id'])) return null;
-    $stmt = db()->prepare('SELECT id, email FROM users WHERE id = ?');
+    $stmt = db()->prepare('SELECT id, email, display_name, role FROM users WHERE id = ?');
     $stmt->execute([$_SESSION['user_id']]);
     return $stmt->fetch() ?: null;
 }
 
-function require_login(): array
+/** The league site's public address. MFL Members land here from "View site". */
+const MFL_BASE_URL = 'https://mfl.billykulpa.com';
+
+/** Every role that may sign in. Pass to require_login() to open a route to guests. */
+const ROLES_ALL = ['admin', 'mfl_member'];
+
+/**
+ * Gate a route. Admin-only unless the route explicitly opts in a wider list,
+ * so a new route that forgets to think about roles stays closed to guests.
+ */
+function require_login(array $roles = ['admin']): array
 {
     $user = current_user();
     if (!$user) {
         header('Location: /admin/login');
         exit;
+    }
+    if (!in_array($user['role'], $roles, true)) {
+        http_response_code(403);
+        exit('Not available for this account.');
     }
     return $user;
 }

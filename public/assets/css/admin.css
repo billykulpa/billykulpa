@@ -352,3 +352,9 @@ input[type="file"] { display: block; margin: 6px 0 16px; font-size: 14px; }
   .a-traffic-table .c-num  { width: 72px;  min-width: 72px; }
   .a-traffic-table .c-text { min-width: 220px; }
 }
+
+/* Accounts + MFL */
+.a-row-actions { text-align: right; white-space: nowrap; }
+.a-btn--quiet { color: var(--ink-soft); border-color: var(--rule); margin-right: 8px; }
+.a-inline-form { display: inline; }
+.a-toolbar .a-updated { font-size: 14px; color: var(--ink-soft); }

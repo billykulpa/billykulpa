@@ -487,7 +487,7 @@ function mfl_history_route(string $path): bool
 {
     if ($path === 'teams') {
         [$sort, $dir] = mfl_table_sort(['name', 'owner_name', 'seasons', 'wins', 'win_pct', 'pf', 'pa', 'playoffs', 'titles'], 'titles');
-        mfl_render('teams', ['nav' => 'teams', 'title' => 'Teams', 'teams' => mfl_all_time_table($sort, $dir), 'sort' => $sort, 'dir' => $dir]);
+        mfl_render('teams', ['nav' => 'teams', 'title' => 'Teams', 'teams' => mfl_all_time_table($sort, $dir), 'sort' => $sort, 'dir' => $dir, 'script' => true]);
         return true;
     }
 
@@ -605,7 +605,7 @@ function mfl_history_route(string $path): bool
     if ($path === 'records') {
         [$sort, $dir] = mfl_table_sort(['name', 'wins', 'losses', 'ties', 'win_pct', 'pf', 'pa'], 'wins');
         mfl_render('records', ['nav' => 'records', 'title' => 'Records', 'records' => mfl_records(),
-            'allTime' => mfl_all_time_table($sort, $dir), 'sort' => $sort, 'dir' => $dir]);
+            'allTime' => mfl_all_time_table($sort, $dir), 'sort' => $sort, 'dir' => $dir, 'script' => true]);
         return true;
     }
 

@@ -143,9 +143,67 @@
   draw();
 })();
 
-/* Filters apply as soon as they change. The Apply button covers no-JS use. */
+/* Filters, sort headings and view tabs swap the page content in place, so
+   the reader keeps their spot instead of jumping to the top. The links and the
+   Apply button still work as normal page loads if this script doesn't run. */
 (function () {
-  var form = document.querySelector('form[data-autosubmit]');
-  if (!form) return;
-  form.addEventListener('change', function () { form.submit(); });
+  var main = document.querySelector('main');
+  if (!main) return;
+
+  function swap(url, addToHistory) {
+    var table = main.querySelector('.table-scroll');
+    var sideways = table ? table.scrollLeft : 0;
+    var active = document.activeElement;
+    var activeName = active && active.name;
+    var activeValue = active && active.value;
+
+    fetch(url, { credentials: 'same-origin' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('Bad response');
+        return r.text();
+      })
+      .then(function (html) {
+        var next = new DOMParser().parseFromString(html, 'text/html');
+        main.innerHTML = next.querySelector('main').innerHTML;
+        document.title = next.title;
+        if (addToHistory) history.pushState(null, '', url);
+
+        var fresh = main.querySelector('.table-scroll');
+        if (fresh) fresh.scrollLeft = sideways;
+        if (activeName) {
+          var again = Array.prototype.find.call(main.querySelectorAll('input, select'), function (el) {
+            return el.name === activeName && (el.type !== 'checkbox' || el.value === activeValue);
+          });
+          if (again) again.focus({ preventScroll: true });
+        }
+      })
+      .catch(function () { location.href = url; });
+  }
+
+  function formUrl(form) {
+    var params = new URLSearchParams();
+    new FormData(form).forEach(function (value, name) { if (value !== '') params.append(name, value); });
+    var query = params.toString();
+    return form.getAttribute('action') + (query ? '?' + query : '');
+  }
+
+  document.addEventListener('change', function (e) {
+    var form = e.target.closest('form[data-autosubmit]');
+    if (form) swap(formUrl(form), true);
+  });
+
+  document.addEventListener('submit', function (e) {
+    if (!e.target.matches('form[data-autosubmit]')) return;
+    e.preventDefault();
+    swap(formUrl(e.target), true);
+  });
+
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('a.sort-link, [data-swap] a');
+    if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    swap(link.getAttribute('href'), true);
+  });
+
+  window.addEventListener('popstate', function () { swap(location.pathname + location.search, false); });
 })();

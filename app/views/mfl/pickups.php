@@ -6,7 +6,7 @@ $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'vie
   <h1>Best Pickups</h1>
 </section>
 
-<nav class="era-tabs" aria-label="How to group the table">
+<nav class="era-tabs" aria-label="How to group the table" data-swap>
   <a href="<?= esc(mfl_pickup_url($f, ['view' => 'pickups'])) ?>"<?= !$byPlayer ? ' aria-current="page"' : '' ?>>Each pickup</a>
   <a href="<?= esc(mfl_pickup_url($f, ['view' => 'players'])) ?>"<?= $byPlayer ? ' aria-current="page"' : '' ?>>By player</a>
 </nav>

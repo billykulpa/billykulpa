@@ -6,7 +6,7 @@ $shown = $f['all'] ? $rows : array_slice($rows, 0, MFL_PLAYER_LIST_LIMIT); ?>
   <h1>Players</h1>
 </section>
 
-<nav class="era-tabs" aria-label="Which points to count">
+<nav class="era-tabs" aria-label="Which points to count" data-swap>
   <a href="<?= esc(mfl_players_url($f, ['counted' => false, 'sort' => 'total', 'dir' => 'desc'])) ?>"<?= !$f['counted'] ? ' aria-current="page"' : '' ?>>All points</a>
   <a href="<?= esc(mfl_players_url($f, ['counted' => true, 'sort' => 'starter', 'dir' => 'desc'])) ?>"<?= $f['counted'] ? ' aria-current="page"' : '' ?>>Points that counted</a>
 </nav>

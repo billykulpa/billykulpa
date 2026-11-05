@@ -168,6 +168,7 @@ CREATE TABLE IF NOT EXISTS mfl_matchups (
   starters_json TEXT NULL,
   starter_points_json TEXT NULL,
   players_json TEXT NULL,                     -- the whole roster that week, bench included
+  player_points_json TEXT NULL,               -- { player_id: points } for that whole roster
   PRIMARY KEY (season, week, franchise_id),
   KEY idx_franchise (franchise_id, season, week),
   FOREIGN KEY (season) REFERENCES mfl_seasons(season),

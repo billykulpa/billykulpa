@@ -8,19 +8,23 @@
  * the regular season and the title path of the playoffs, as Records does.
  */
 
-/** Weekly rosters and starts: ['weeks' => ordered, 'rosters' => [...], 'starts' => [...]]. */
+/** Weekly rosters, starts and points. 'scored' is [season][player][week], whoever held him. */
 function mfl_weekly_rosters(): array
 {
     static $data = null;
     if ($data !== null) return $data;
-    $data = ['weeks' => [], 'rosters' => [], 'starts' => []];
-    foreach (db()->query('SELECT season, week, franchise_id, players_json, starters_json, starter_points_json FROM mfl_matchups ORDER BY season, week') as $m) {
+    $data = ['weeks' => [], 'rosters' => [], 'starts' => [], 'points' => [], 'scored' => []];
+    foreach (db()->query('SELECT season, week, franchise_id, players_json, player_points_json, starters_json, starter_points_json FROM mfl_matchups ORDER BY season, week') as $m) {
         $key = "{$m['season']}-{$m['week']}";
         $data['weeks'][$key] = [(int) $m['season'], (int) $m['week']];
         $data['rosters'][$key][$m['franchise_id']] = array_flip(array_map('strval', json_decode((string) $m['players_json'], true) ?: []));
         $points = json_decode((string) $m['starter_points_json'], true) ?: [];
         foreach (json_decode((string) $m['starters_json'], true) ?: [] as $i => $pid) {
             $data['starts'][$key][$m['franchise_id']][(string) $pid] = (float) ($points[$i] ?? 0);
+        }
+        foreach (json_decode((string) $m['player_points_json'], true) ?: [] as $pid => $pts) {
+            $data['points'][$key][$m['franchise_id']][(string) $pid] = (float) $pts;
+            $data['scored'][(int) $m['season']][(string) $pid][(int) $m['week']] = (float) $pts;
         }
     }
     return $data;
@@ -46,19 +50,30 @@ function mfl_weeks_held(int $franchise, string $player, int $season, int $week):
     return $held;
 }
 
-/** Starts, points and the team's record over the weeks a player was held. */
-function mfl_held_stats(int $franchise, string $player, array $weeks): array
+/**
+ * Starts, points and the team's record over the weeks a player was held.
+ *
+ * Three point totals, each inside the one before it:
+ * total_points   every week of the seasons he was held, on any team's roster
+ * roster_points  while on this team, bench included
+ * points         while in this team's starting lineup
+ */
+function mfl_held_stats(int $franchise, string $player, array $weeks, int $season): array
 {
     static $games = null;
     if ($games === null) {
         $games = [];
         foreach (mfl_games() as $g) $games["{$g['season']}-{$g['week']}"][$g['franchise_id']] = $g;
     }
-    $starts = mfl_weekly_rosters()['starts'];
-    $s = ['weeks' => count($weeks), 'starts' => 0, 'points' => 0.0, 'wins' => 0, 'losses' => 0, 'ties' => 0];
+    $data = mfl_weekly_rosters();
+    $starts = $data['starts'];
+    $s = ['weeks' => count($weeks), 'starts' => 0, 'points' => 0.0, 'roster_points' => 0.0, 'total_points' => 0.0, 'wins' => 0, 'losses' => 0, 'ties' => 0];
+    $seasons = array_unique(array_map(fn($key) => (int) explode('-', $key)[0], $weeks)) ?: [$season];
+    foreach ($seasons as $year) $s['total_points'] += array_sum($data['scored'][$year][$player] ?? []);
     foreach ($weeks as $key) {
         $g = $games[$key][$franchise] ?? null;
         if (!$g || $g['kind'] === 'other') continue;
+        $s['roster_points'] += $data['points'][$key][$franchise][$player] ?? 0;
         if (isset($starts[$key][$franchise][$player])) {
             $s['starts']++;
             $s['points'] += $starts[$key][$franchise][$player];
@@ -89,12 +104,12 @@ function mfl_player_moves(): array
     static $moves = null;
     if ($moves !== null) return $moves;
     $moves = [];
-    foreach (db()->query("SELECT id, type, COALESCE(completed_at, created_at) AS at, adds_json, drops_json
+    foreach (db()->query("SELECT id, season, type, COALESCE(completed_at, created_at) AS at, adds_json, drops_json
                           FROM mfl_transactions WHERE status = 'complete' ORDER BY at, id") as $t) {
         $adds = json_decode((string) $t['adds_json'], true) ?: [];
         $drops = json_decode((string) $t['drops_json'], true) ?: [];
         foreach (array_keys($adds + $drops) as $pid) {
-            $moves[(string) $pid][] = ['id' => $t['id'], 'type' => $t['type'], 'at' => $t['at'],
+            $moves[(string) $pid][] = ['id' => $t['id'], 'season' => (int) $t['season'], 'type' => $t['type'], 'at' => $t['at'],
                 'to' => isset($adds[$pid]) ? (int) $adds[$pid] : null, 'from' => isset($drops[$pid]) ? (int) $drops[$pid] : null];
         }
     }
@@ -113,12 +128,15 @@ function mfl_move_label(array $m, array $names): string
 
 /**
  * Where a player is now and how he got there, since a point in time.
- * Returns ['label' => 'On Team X', 'path' => [moves in words]].
+ * 'path' holds each move as text, with a link when the move was another trade.
  */
 function mfl_player_status(string $player, int $team, string $since, array $names): array
 {
     $moves = array_filter(mfl_player_moves()[$player] ?? [], fn($m) => $m['at'] > $since);
-    $path = array_map(fn($m) => mfl_move_label($m, $names), array_values($moves));
+    $path = array_map(fn($m) => [
+        'text' => mfl_move_label($m, $names),
+        'href' => $m['type'] === 'trade' ? '/trades?season=' . $m['season'] . '#trade-' . $m['id'] : null,
+    ], array_values($moves));
     $holder = mfl_current_rosters()[$player] ?? null;
     if ($holder === null) return ['label' => 'Not on a roster', 'path' => $path, 'state' => 'gone'];
     if ($holder === $team) return ['label' => $moves ? 'Back on this roster' : 'Still on this roster', 'path' => $path, 'state' => 'here'];
@@ -177,7 +195,7 @@ function mfl_trades(int $season): array
         foreach (json_decode((string) $t['adds_json'], true) ?: [] as $pid => $fid) {
             $pid = (string) $pid;
             $p = $players[$pid] ?? [];
-            $stats = mfl_held_stats((int) $fid, $pid, mfl_weeks_held((int) $fid, $pid, $season, (int) $t['week']));
+            $stats = mfl_held_stats((int) $fid, $pid, mfl_weeks_held((int) $fid, $pid, $season, (int) $t['week']), $season);
             $sides[(int) $fid]['assets'][] = $stats + [
                 'name' => ($p['full_name'] ?? '') ?: $pid, 'position' => $p['position'] ?? '', 'note' => '',
                 'status' => mfl_player_status($pid, (int) $fid, $at, $names),
@@ -194,7 +212,7 @@ function mfl_trades(int $season): array
             if ($outcome) {
                 $pid = (string) $outcome['player_id'];
                 $by = (int) $outcome['franchise_id'];
-                $stats = mfl_held_stats($by, $pid, mfl_weeks_held($by, $pid, (int) $outcome['season'], 1));
+                $stats = mfl_held_stats($by, $pid, mfl_weeks_held($by, $pid, (int) $outcome['season'], 1), (int) $outcome['season']);
                 $sides[$fid]['assets'][] = $stats + [
                     'name' => $outcome['player_name'], 'position' => $outcome['position'],
                     'note' => $label . ', used at ' . mfl_pick_label($outcome) . ($by !== $fid ? ' by ' . ($names[$by] ?? '') : ''),
@@ -205,7 +223,7 @@ function mfl_trades(int $season): array
             }
             $holder = $traded["{$pick['season']}-{$pick['round']}-$original"] ?? $fid;
             $sides[$fid]['assets'][] = [
-                'name' => ucfirst($label), 'position' => 'Pick', 'note' => '', 'weeks' => 0, 'starts' => 0, 'points' => 0.0,
+                'name' => ucfirst($label), 'position' => 'Pick', 'note' => '', 'weeks' => 0, 'starts' => 0, 'points' => 0.0, 'roster_points' => 0.0, 'total_points' => 0.0,
                 'wins' => 0, 'losses' => 0, 'ties' => 0, 'is_pick' => true,
                 'status' => ['label' => $holder === $fid ? 'Not drafted yet' : 'Now held by ' . ($names[$holder] ?? "Team $holder"), 'path' => [], 'state' => 'pick'],
             ];

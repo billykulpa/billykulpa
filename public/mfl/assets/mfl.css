@@ -80,6 +80,7 @@ table { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-
 @media (max-width: 640px) {
   .table-scroll td.team, .table-scroll td.sticky { white-space: normal; min-width: 120px; max-width: 44vw; }
   .pickups td.sticky { min-width: 150px; }
+  .trade-table td.sticky { min-width: 170px; max-width: 54vw; }
 }
 th {
   text-align: left; font-family: var(--font-mono); font-size: 11px; font-weight: 500;
@@ -271,7 +272,9 @@ td.wrap { white-space: normal; }
 .pickups .team, .top-ranks .team { font-weight: 600; }
 
 /* Trades */
-.trade { margin-bottom: 48px; }
+.trade { margin-bottom: 48px; scroll-margin-top: 16px; }
+/* Marks the trade you arrived at from a link on another trade. */
+.trade:target .trade-title { color: var(--accent); }
 .trade-title { font-size: 20px; }
 .trade-swap { color: var(--accent); font-weight: 400; margin-inline: 4px; }
 .trade-side th {
@@ -279,6 +282,8 @@ td.wrap { white-space: normal; }
   letter-spacing: 0; text-transform: none; border-bottom: 1px solid var(--rule); padding: 8px 12px; white-space: normal;
 }
 .trade-side .row-note { margin-left: 8px; }
+/* The team name stays in view while the numbers scroll under it. */
+.trade-side-label { position: sticky; left: 12px; display: inline-block; }
 .trade-table .team { font-weight: 600; }
 .trade-table td { vertical-align: top; }
 .trade-status { font-size: 14px; font-weight: 600; margin-top: 2px; }

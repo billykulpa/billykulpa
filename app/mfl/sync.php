@@ -22,7 +22,7 @@ function mfl_sync(string $trigger, ?int $userId = null, bool $full = false): arr
 
     try {
         // Columns added after a season finished are empty until it's re-imported.
-        $full = $full || (int) db()->query('SELECT COUNT(*) FROM mfl_matchups WHERE players_json IS NULL')->fetchColumn() > 0;
+        $full = $full || (int) db()->query('SELECT COUNT(*) FROM mfl_matchups WHERE player_points_json IS NULL')->fetchColumn() > 0;
         $stored = db()->query('SELECT season, status FROM mfl_seasons')->fetchAll(PDO::FETCH_KEY_PAIR);
         $done = [];
         foreach (mfl_league_chain() as $league) {
@@ -169,6 +169,7 @@ function mfl_sync_season(array $league): void
                 'starters_json' => json_encode($m['starters'] ?? []),
                 'starter_points_json' => json_encode($m['starters_points'] ?? []),
                 'players_json' => json_encode($m['players'] ?? []),
+                'player_points_json' => json_encode($m['players_points'] ?? []),
             ], ['season', 'week', 'franchise_id']);
         }
     }

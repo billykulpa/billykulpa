@@ -563,6 +563,13 @@ function mfl_history_route(string $path): bool
         return true;
     }
 
+    if ($path === 'trades') {
+        $seasons = array_reverse(array_keys(mfl_seasons()));
+        $season = in_array((int) ($_GET['season'] ?? 0), $seasons, true) ? (int) $_GET['season'] : ($seasons[0] ?? 0);
+        mfl_render('trades', ['nav' => 'trades', 'title' => 'Trades', 'season' => $season, 'seasons' => $seasons, 'trades' => mfl_trades($season)]);
+        return true;
+    }
+
     if ($path === 'pickups') {
         $seasons = array_reverse(array_keys(mfl_seasons()));
         $f = mfl_pickup_filters($_GET, $seasons);

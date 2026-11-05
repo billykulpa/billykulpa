@@ -6,6 +6,7 @@ require_once __DIR__ . '/rankings.php';
 require_once __DIR__ . '/polls.php';
 require_once __DIR__ . '/history.php';
 require_once __DIR__ . '/reports.php';
+require_once __DIR__ . '/trades.php';
 
 function mfl_site_route(string $path): void
 {

@@ -21,6 +21,8 @@ function mfl_sync(string $trigger, ?int $userId = null, bool $full = false): arr
     $logId = (int) db()->lastInsertId();
 
     try {
+        // Columns added after a season finished are empty until it's re-imported.
+        $full = $full || (int) db()->query('SELECT COUNT(*) FROM mfl_matchups WHERE players_json IS NULL')->fetchColumn() > 0;
         $stored = db()->query('SELECT season, status FROM mfl_seasons')->fetchAll(PDO::FETCH_KEY_PAIR);
         $done = [];
         foreach (mfl_league_chain() as $league) {
@@ -166,6 +168,7 @@ function mfl_sync_season(array $league): void
                 'is_playoff' => (int) ($w >= (int) $s['playoff_week_start']),
                 'starters_json' => json_encode($m['starters'] ?? []),
                 'starter_points_json' => json_encode($m['starters_points'] ?? []),
+                'players_json' => json_encode($m['players'] ?? []),
             ], ['season', 'week', 'franchise_id']);
         }
     }
@@ -205,6 +208,7 @@ function mfl_sync_season(array $league): void
                 'id' => $t['transaction_id'], 'season' => $season, 'week' => (int) ($t['leg'] ?? $w),
                 'type' => $t['type'], 'status' => $t['status'],
                 'created_at' => date('Y-m-d H:i:s', intdiv((int) $t['created'], 1000)),
+                'completed_at' => date('Y-m-d H:i:s', intdiv((int) ($t['status_updated'] ?? $t['created']), 1000)),
                 'franchise_ids_json' => json_encode($t['roster_ids'] ?? []),
                 'adds_json' => json_encode($t['adds'] ?? null), 'drops_json' => json_encode($t['drops'] ?? null),
                 'picks_json' => json_encode($t['draft_picks'] ?? []),

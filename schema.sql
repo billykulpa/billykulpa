@@ -167,6 +167,7 @@ CREATE TABLE IF NOT EXISTS mfl_matchups (
   is_playoff TINYINT(1) NOT NULL DEFAULT 0,
   starters_json TEXT NULL,
   starter_points_json TEXT NULL,
+  players_json TEXT NULL,                     -- the whole roster that week, bench included
   PRIMARY KEY (season, week, franchise_id),
   KEY idx_franchise (franchise_id, season, week),
   FOREIGN KEY (season) REFERENCES mfl_seasons(season),
@@ -222,6 +223,7 @@ CREATE TABLE IF NOT EXISTS mfl_transactions (
   type VARCHAR(20) NOT NULL,                  -- trade, waiver, free_agent, commissioner
   status VARCHAR(20) NOT NULL,                -- complete, failed
   created_at DATETIME NOT NULL,
+  completed_at DATETIME NULL,                 -- when it took effect; a trade's review period sits between these
   franchise_ids_json VARCHAR(255) NOT NULL,
   adds_json TEXT NULL,                        -- { player_id: franchise_id }
   drops_json TEXT NULL,

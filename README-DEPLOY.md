@@ -114,6 +114,10 @@ playoff teams aren't ranked, because the losers bracket doesn't set a final orde
 points in the adding team's starting lineup. Each add is its own pickup, and a
 By player view combines them. The rules are in `app/mfl/reports.php`.
 
+**Trades:** `/trades` follows every traded player and pick through weekly
+rosters, so a trade counts from the first week the player was really on the new
+team, after any review period. The rules are in `app/mfl/trades.php`.
+
 **Owner changes:** a franchise is Sleeper's `roster_id`. The sync starts a new
 row in `mfl_tenures` when a roster's owner changes. Sleeper keeps no owner
 history, so the sync can only date a change from when it first sees it.

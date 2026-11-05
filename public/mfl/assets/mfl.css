@@ -256,3 +256,19 @@ td.wrap { white-space: normal; }
 .pickups .team, .top-ranks .team { font-weight: 600; }
 /* Long team names wrap on phones so the points column stays on screen. */
 @media (max-width: 640px) { #all-time td.team, .teams-table td.team { white-space: normal; } }
+
+/* Trades */
+.trade { margin-bottom: 48px; }
+.trade-title { font-size: 20px; }
+.trade-swap { color: var(--accent); font-weight: 400; margin-inline: 4px; }
+.trade-side th {
+  background: var(--paper-deep); color: var(--ink); font-family: var(--font-sans); font-size: 14px; font-weight: 700;
+  letter-spacing: 0; text-transform: none; border-bottom: 1px solid var(--rule); padding: 8px 12px; white-space: normal;
+}
+.trade-side .row-note { margin-left: 8px; }
+.trade-table .team { font-weight: 600; }
+.trade-table td { vertical-align: top; }
+.trade-status { font-size: 14px; font-weight: 600; margin-top: 2px; }
+.trade-status--here { color: var(--up); }
+.trade-status--moved, .trade-status--gone { color: var(--down); }
+.trade-status--pick { color: var(--ink-soft); }

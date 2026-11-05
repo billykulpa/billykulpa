@@ -69,6 +69,7 @@ function mfl_pickup_list(int $season): array
         $p += [
             'name' => ($player['full_name'] ?? '') ?: $p['player_id'], 'position' => $player['position'] ?? '',
             'team_name' => $teams[$p['franchise_id']] ?? '', 'added_on' => central_time($p['added_at'], 'Y-m-d'),
+            'added_label' => mfl_transaction_week($season, $p['week'], $p['added_at']) . ' (' . central_time($p['added_at'], 'M j') . ')',
             'times_added' => $timesAdded[$p['player_id']], 'starts' => count($games), 'points' => array_sum($games),
             'per_start' => $games ? array_sum($games) / count($games) : 0, 'pickups' => 1,
         ];

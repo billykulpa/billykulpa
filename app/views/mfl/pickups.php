@@ -67,7 +67,7 @@ $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'vie
             <?php else: ?><?= mfl_team_link($r['franchise_id'], $r['team_name']) ?><?php endif; ?>
           </td>
           <?php if ($byPlayer): ?><td class="num"><?= (int) $r['pickups'] ?></td>
-          <?php else: ?><td><?= esc(central_time($r['added_at'], 'M j')) ?></td><?php endif; ?>
+          <?php else: ?><td><?= esc($r['added_label']) ?></td><?php endif; ?>
           <td class="num"><?= (int) $r['starts'] ?></td>
           <td class="num"><?= number_format($r['points'], 2) ?></td>
           <td class="num"><?= number_format($r['per_start'], 1) ?></td>

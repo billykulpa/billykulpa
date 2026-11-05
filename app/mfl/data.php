@@ -59,3 +59,16 @@ function mfl_franchises(): array
           ORDER BY f.name'
     )->fetchAll();
 }
+
+/**
+ * The week a transaction belongs to. Sleeper files everything before the
+ * season under week 1, so the calendar sorts those out: August to Labor Day is
+ * Preseason, and anything earlier is Offseason.
+ */
+function mfl_transaction_week(int $season, int $week, string $at): string
+{
+    $date = central_time($at, 'Y-m-d');
+    if ($date < "$season-08-01") return 'Offseason';
+    if ($date < date('Y-m-d', strtotime("first monday of september $season"))) return 'Preseason';
+    return "Week $week";
+}

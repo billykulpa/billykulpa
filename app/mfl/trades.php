@@ -164,19 +164,6 @@ function mfl_pick_outcome(array $pick): ?array
     return null;
 }
 
-/**
- * The week a trade closed. Sleeper files everything before the season under
- * week 1, so the calendar sorts those out: August to Labor Day is Preseason,
- * and anything earlier is Offseason.
- */
-function mfl_trade_week_label(int $season, int $week, string $completedAt): string
-{
-    $date = central_time($completedAt, 'Y-m-d');
-    if ($date < "$season-08-01") return 'Offseason';
-    if ($date < date('Y-m-d', strtotime("first monday of september $season"))) return 'Preseason';
-    return "Week $week";
-}
-
 /** A season's completed trades, newest first, with what each side received. */
 function mfl_trades(int $season): array
 {
@@ -241,7 +228,7 @@ function mfl_trades(int $season): array
                 'status' => ['label' => $holder === $fid ? 'Not drafted yet' : 'Now held by ' . ($names[$holder] ?? "Team $holder"), 'path' => [], 'state' => 'pick'],
             ];
         }
-        $trades[] = ['id' => $t['id'], 'week_label' => mfl_trade_week_label($season, (int) $t['week'], $at), 'proposed_at' => $t['created_at'], 'completed_at' => $at, 'sides' => array_values($sides)];
+        $trades[] = ['id' => $t['id'], 'week_label' => mfl_transaction_week($season, (int) $t['week'], $at), 'proposed_at' => $t['created_at'], 'completed_at' => $at, 'sides' => array_values($sides)];
     }
     return $trades;
 }

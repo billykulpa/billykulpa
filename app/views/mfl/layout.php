@@ -21,9 +21,8 @@ $cms = config()['site']['base_url'] . '/admin'; ?>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap header-grid">
-      <a class="wordmark" href="/"><img class="wordmark-logo" src="<?= esc(mfl_asset('logo.svg')) ?>" alt="" width="64" height="50"><span class="wordmark-name">Midwest Football League</span></a>
+      <a class="wordmark" href="/" aria-label="Midwest Football League home"<?= $nav === 'home' ? ' aria-current="page"' : '' ?>><img class="wordmark-logo" src="<?= esc(mfl_asset('logo.svg')) ?>" alt="" width="64" height="50"><span class="wordmark-name">Midwest Football League</span></a>
       <nav class="site-nav" aria-label="Primary">
-        <a href="/" <?= $nav === 'home' ? 'aria-current="page"' : '' ?>>Home</a>
         <a href="/rankings" <?= $nav === 'rankings' ? 'aria-current="page"' : '' ?>>Power Rankings</a>
         <a href="/polls" <?= $nav === 'polls' ? 'aria-current="page"' : '' ?>>Polls</a>
         <a href="/standings" <?= $nav === 'standings' ? 'aria-current="page"' : '' ?>>Standings</a>

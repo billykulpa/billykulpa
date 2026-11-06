@@ -1,7 +1,10 @@
 <?php /** @var ?array $season */ /** @var array $standings */ /** @var array $champions */ /** @var ?array $latest */ /** @var array $latestRows */ /** @var array $polls */ /** @var array $pickups */ ?>
-<section class="hero">
-  <p class="mono-label"><?= $season ? (int) $season['num_teams'] . ' teams · Dynasty · Est. 2025' : 'Dynasty · Est. 2025' ?></p>
-  <h1>Midwest Football League</h1>
+<section class="hero hero--logo">
+  <img class="hero-logo" src="<?= esc(mfl_asset('logo.svg')) ?>" alt="" width="300" height="234">
+  <div>
+    <p class="mono-label"><?= $season ? (int) $season['num_teams'] . ' teams · Dynasty · Est. 2025' : 'Dynasty · Est. 2025' ?></p>
+    <h1>Midwest Football League</h1>
+  </div>
 </section>
 
 <?php if ($polls): ?>

@@ -10,6 +10,10 @@ $cms = config()['site']['base_url'] . '/admin'; ?>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title><?= isset($title) ? esc($title) . ' — ' : '' ?>Midwest Football League</title>
+  <link rel="icon" type="image/png" href="/assets/favicon-64.png">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta property="og:title" content="<?= isset($title) ? esc($title) . ' — ' : '' ?>Midwest Football League">
+  <meta property="og:image" content="<?= esc(MFL_BASE_URL) ?>/assets/logo-share.png">
   <link rel="preload" href="/assets/fonts/archivo-latin-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="<?= esc(mfl_asset('mfl.css')) ?>">
 </head>
@@ -17,7 +21,7 @@ $cms = config()['site']['base_url'] . '/admin'; ?>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap header-grid">
-      <a class="wordmark" href="/">MFL<span class="wordmark-rule">—</span><span class="wordmark-name">Midwest Football League</span></a>
+      <a class="wordmark" href="/"><img class="wordmark-logo" src="<?= esc(mfl_asset('logo.svg')) ?>" alt="" width="64" height="50"><span class="wordmark-name">Midwest Football League</span></a>
       <nav class="site-nav" aria-label="Primary">
         <a href="/" <?= $nav === 'home' ? 'aria-current="page"' : '' ?>>Home</a>
         <a href="/rankings" <?= $nav === 'rankings' ? 'aria-current="page"' : '' ?>>Power Rankings</a>

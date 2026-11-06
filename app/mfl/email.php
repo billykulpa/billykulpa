@@ -123,7 +123,8 @@ function mfl_ranking_message(array $ranking): array
     $html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0;padding:0;background:#faf9f5;">'
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#faf9f5;"><tr><td align="center" style="padding:24px 16px;">'
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">'
-        . '<tr><td style="' . $soft . $sans . 'font-size:12px;letter-spacing:1px;text-transform:uppercase;">Midwest Football League</td></tr>'
+        // A PNG on the live site, because most email clients won't show SVG.
+        . '<tr><td style="padding-bottom:8px;"><img src="' . esc(MFL_BASE_URL) . '/assets/logo-email.png" width="140" height="109" alt="Midwest Football League" style="display:block;border:0;' . $ink . $sans . 'font-size:14px;font-weight:bold;"></td></tr>'
         . '<tr><td style="padding-top:8px;' . $ink . $sans . 'font-size:30px;font-weight:bold;line-height:1.15;">' . esc($title) . '</td></tr>'
         . '<tr><td style="padding-top:6px;' . $soft . $sans . 'font-size:14px;">By ' . esc($ranking['author_name']) . '</td></tr>'
         . ($intro ? "<tr><td>$intro</td></tr>" : '')

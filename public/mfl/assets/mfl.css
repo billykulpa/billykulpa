@@ -47,9 +47,9 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .site-header { border-bottom: 1px solid var(--rule); }
 .header-grid { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 72px; flex-wrap: wrap; padding-block: 12px; }
-.wordmark { font-weight: 800; font-size: 20px; letter-spacing: -0.01em; }
-.wordmark-rule { color: var(--accent); font-weight: 400; margin-inline: 4px; }
-.wordmark-name { font-weight: 500; color: var(--ink-soft); font-size: 15px; }
+.wordmark { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; letter-spacing: -0.01em; }
+.wordmark-logo { display: block; height: 50px; width: auto; }
+.wordmark-name { font-weight: 700; color: var(--ink); font-size: 15px; }
 
 .hero { padding: clamp(48px, 8vw, 96px) 0 clamp(32px, 5vw, 56px); }
 h1 { font-size: clamp(38px, 6vw, 68px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-top: 12px; }
@@ -340,3 +340,11 @@ td.wrap { white-space: normal; }
 .owner-pickups .trade-title { margin-bottom: 2px; }
 .owner-line { margin-bottom: 8px; }
 @media (max-width: 640px) { .owner-pickups .trade-title { flex-direction: column; gap: 4px; } }
+
+/* The league logo leads the home page. */
+.hero--logo { display: flex; align-items: center; gap: clamp(24px, 4vw, 48px); }
+.hero-logo { display: block; width: clamp(180px, 26vw, 300px); height: auto; flex-shrink: 0; }
+@media (max-width: 640px) {
+  .hero--logo { flex-direction: column; align-items: flex-start; }
+  .hero-logo { width: min(260px, 72vw); }
+}

@@ -329,8 +329,8 @@ CREATE TABLE IF NOT EXISTS mfl_poll_answers (
   FOREIGN KEY (poll_id) REFERENCES mfl_polls(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- One vote per browser. voter_hash is a hash of a random cookie, so nothing
--- here identifies a person, and clearing cookies does allow a second vote.
+-- One vote per owner. voter_hash is a hash of the owner's id; votes cast before
+-- sign-in existed hold a hash of a random browser cookie instead.
 CREATE TABLE IF NOT EXISTS mfl_poll_votes (
   poll_id INT UNSIGNED NOT NULL,
   voter_hash CHAR(64) NOT NULL,
@@ -375,4 +375,24 @@ CREATE TABLE IF NOT EXISTS mfl_award_notes (
   updated_at DATETIME NOT NULL,
   PRIMARY KEY (season, award_key),
   FOREIGN KEY (season) REFERENCES mfl_seasons(season)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Owner sign-in for voting. Links last minutes and sessions last a year. Only
+-- hashes are stored, so a leaked table can't be used to sign in.
+CREATE TABLE IF NOT EXISTS mfl_login_tokens (
+  token_hash CHAR(64) PRIMARY KEY,
+  owner_id VARCHAR(32) NOT NULL,
+  created_at DATETIME NOT NULL,
+  expires_at DATETIME NOT NULL,
+  KEY idx_owner (owner_id, created_at),
+  FOREIGN KEY (owner_id) REFERENCES mfl_owners(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_owner_sessions (
+  token_hash CHAR(64) PRIMARY KEY,
+  owner_id VARCHAR(32) NOT NULL,
+  created_at DATETIME NOT NULL,
+  expires_at DATETIME NOT NULL,
+  KEY idx_owner (owner_id),
+  FOREIGN KEY (owner_id) REFERENCES mfl_owners(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

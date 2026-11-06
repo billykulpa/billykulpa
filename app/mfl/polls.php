@@ -4,9 +4,14 @@
 const MFL_VOTER_COOKIE = 'mfl_voter';
 const MFL_POLL_MAX_ANSWERS = 20;
 
-/** Hash of this browser's voter cookie, or NULL if it hasn't voted yet. */
+/**
+ * Who this visitor's vote is stored under: the signed-in owner, or for a browser
+ * that voted before sign-in existed, the hash of its old voter cookie.
+ */
 function mfl_voter_hash(): ?string
 {
+    $owner = mfl_current_owner();
+    if ($owner) return mfl_owner_hash($owner['id']);
     $token = $_COOKIE[MFL_VOTER_COOKIE] ?? '';
     return preg_match('/^[0-9a-f]{64}$/', $token) ? hash('sha256', $token) : null;
 }
@@ -50,8 +55,8 @@ function mfl_public_polls(): array
     return $polls;
 }
 
-/** Record a vote. Quietly does nothing for a closed poll, a bad answer or a repeat vote. */
-function mfl_poll_vote(int $pollId, int $answerId): void
+/** Record an owner's vote. Quietly does nothing for a closed poll, a bad answer or a repeat vote. */
+function mfl_poll_vote(int $pollId, int $answerId, array $owner): void
 {
     $stmt = db()->prepare(
         "SELECT a.id FROM mfl_poll_answers a
@@ -61,20 +66,8 @@ function mfl_poll_vote(int $pollId, int $answerId): void
     $stmt->execute([$answerId, $pollId, date('Y-m-d H:i:s')]);
     if (!$stmt->fetchColumn()) return;
 
-    $hash = mfl_voter_hash();
-    if ($hash === null) {
-        $token = bin2hex(random_bytes(32));
-        setcookie(MFL_VOTER_COOKIE, $token, [
-            'expires'  => time() + 60 * 60 * 24 * 365 * 5,
-            'path'     => '/',
-            'secure'   => !empty($_SERVER['HTTPS']),
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
-        $hash = hash('sha256', $token);
-    }
     $stmt = db()->prepare('INSERT IGNORE INTO mfl_poll_votes (poll_id, voter_hash, answer_id, created_at) VALUES (?, ?, ?, ?)');
-    $stmt->execute([$pollId, $hash, $answerId, date('Y-m-d H:i:s')]);
+    $stmt->execute([$pollId, mfl_owner_hash($owner['id']), $answerId, date('Y-m-d H:i:s')]);
 }
 
 /** Whole-number share of the vote. */

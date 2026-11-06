@@ -110,6 +110,11 @@ has a test send and a deliberate resend.
 current. MFL → Awards adds a comment to any award. The page reads Midseason
 Awards during a season and "<year> Season Awards" once it's complete.
 
+**Poll voting:** only signed-in owners can vote, one vote per owner on any device.
+Owners sign in with an emailed link (`app/mfl/owners.php`), which needs league
+email set up and their address under MFL → Owners. Everyone else sees the poll,
+and results once it closes.
+
 **Real names:** Sleeper doesn't share them. Enter them under MFL → Owners
 (admin only). The site shows Username (First Last), or the username if blank.
 

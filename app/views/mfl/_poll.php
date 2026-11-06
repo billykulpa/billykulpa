@@ -20,6 +20,11 @@ $leader = max(array_map('intval', array_column($poll['answers'], 'votes')) ?: [0
     </li>
     <?php endforeach; ?>
   </ul>
+  <?php elseif (!mfl_current_owner()): ?>
+  <ul class="poll-preview">
+    <?php foreach ($poll['answers'] as $a): ?><li><?= esc($a['label']) ?></li><?php endforeach; ?>
+  </ul>
+  <a class="poll-vote poll-sign-in" href="/sign-in">Sign in to vote</a>
   <?php else: ?>
   <form method="post" action="/polls/vote">
     <input type="hidden" name="poll" value="<?= (int) $poll['id'] ?>">

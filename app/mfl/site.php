@@ -9,6 +9,8 @@ require_once __DIR__ . '/reports.php';
 require_once __DIR__ . '/trades.php';
 require_once __DIR__ . '/players.php';
 require_once __DIR__ . '/awards.php';
+require_once __DIR__ . '/email.php';
+require_once __DIR__ . '/owners.php';
 
 function mfl_site_route(string $path): void
 {
@@ -42,14 +44,35 @@ function mfl_site_route(string $path): void
             ]);
             break;
 
+        case 'sign-in':
+            header('Cache-Control: no-store');
+            $sent = false;
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                mfl_check_origin();
+                mfl_request_sign_in(trim((string) ($_POST['email'] ?? '')));
+                $sent = true;
+            }
+            mfl_render('sign-in', ['nav' => 'polls', 'title' => 'Sign in', 'sent' => $sent, 'failed' => isset($_GET['expired']), 'owner' => mfl_current_owner()]);
+            break;
+
+        case 'sign-in/verify':
+            header('Cache-Control: no-store');
+            header('Location: ' . (mfl_sign_in((string) ($_GET['token'] ?? '')) ? '/polls' : '/sign-in?expired=1'), true, 303);
+            break;
+
+        case 'sign-out':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                mfl_check_origin();
+                mfl_sign_out();
+            }
+            header('Location: /polls', true, 303);
+            break;
+
         case 'polls/vote':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                // This host has no session to hold a CSRF token. Browsers send
-                // Origin on every POST, so a form on another site is refused.
-                $origin = parse_url($_SERVER['HTTP_ORIGIN'] ?? '', PHP_URL_HOST);
-                $host = explode(':', $_SERVER['HTTP_HOST'] ?? '')[0];
-                if ($origin && $origin !== $host) { http_response_code(403); exit('Not allowed.'); }
-                mfl_poll_vote((int) ($_POST['poll'] ?? 0), (int) ($_POST['answer'] ?? 0));
+                mfl_check_origin();
+                $owner = mfl_current_owner();
+                if ($owner) mfl_poll_vote((int) ($_POST['poll'] ?? 0), (int) ($_POST['answer'] ?? 0), $owner);
             }
             $back = ($_POST['from'] ?? '') === 'home' ? '/' : '/polls';
             header('Location: ' . $back . '#poll-' . (int) ($_POST['poll'] ?? 0), true, 303);
@@ -88,6 +111,17 @@ function mfl_site_route(string $path): void
             http_response_code(404);
             mfl_render('404', ['title' => 'Not found']);
     }
+}
+
+/**
+ * This host has no session to hold a CSRF token. Browsers send Origin on every
+ * POST, so a form on another site is refused.
+ */
+function mfl_check_origin(): void
+{
+    $origin = parse_url($_SERVER['HTTP_ORIGIN'] ?? '', PHP_URL_HOST);
+    $host = explode(':', $_SERVER['HTTP_HOST'] ?? '')[0];
+    if ($origin && $origin !== $host) { http_response_code(403); exit('Not allowed.'); }
 }
 
 /** Asset URL with a cache-busting mtime. The folder sits in a different place locally. */

@@ -364,3 +364,16 @@ td.wrap { white-space: normal; }
 .poll-question:has(+ .poll-description) { margin-bottom: 4px; }
 .poll-description { font-size: 15px; color: var(--ink-soft); margin-bottom: 14px; }
 .poll-description p:first-child { margin-top: 0; }
+
+/* Owner sign-in */
+.sign-in { max-width: 480px; margin-bottom: 64px; }
+.sign-in p { margin-bottom: 12px; }
+.sign-in label { display: block; margin: 16px 0 4px; }
+.sign-in input[type="email"] { width: 100%; font: inherit; padding: 10px 12px; background: #fff; color: var(--ink); border: 1px solid var(--rule); border-radius: 2px; }
+.sign-in input[type="email"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.sign-in-error { color: var(--down); font-weight: 600; }
+.poll-preview { list-style: none; }
+.poll-preview li { padding: 6px 0; border-bottom: 1px solid var(--rule); font-size: 16px; }
+.poll-sign-in { display: inline-block; }
+.voter-strip { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 15px; padding: 10px 14px; margin-bottom: 28px; background: var(--paper-deep); border-radius: 2px; }
+.sort-button { background: none; border: 0; font: inherit; font-size: 14px; color: var(--accent); text-decoration: underline; cursor: pointer; }

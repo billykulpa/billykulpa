@@ -9,8 +9,8 @@
 </div>
 
 <?php if ($polls): ?>
-<table>
-  <thead><tr><th>Poll</th><th>Author</th><th>Status</th><th>Votes</th><th>Closes (CT)</th></tr></thead>
+<div class="a-table-scroll"><table>
+  <thead><tr><th>Poll</th><th>Author</th><th>Status</th><th>Votes</th><th>Closes (CT)</th><th></th></tr></thead>
   <tbody>
   <?php foreach ($polls as $p):
     $canEdit = $user['role'] === 'admin' || (int) $p['author_user_id'] === (int) $user['id'];
@@ -22,10 +22,16 @@
       <td><span class="a-pill a-pill--<?= $state === 'open' ? 'published' : 'draft' ?>"><?= esc($state) ?></span></td>
       <td><?= (int) $p['votes'] ?></td>
       <td><?= esc(central_time($p['expires_at'], 'M j, g:i a')) ?></td>
+      <td class="a-row-actions">
+        <form method="post" action="/admin/mfl/polls/clone"><?= csrf_field() ?>
+          <input type="hidden" name="id" value="<?= (int) $p['id'] ?>">
+          <button class="a-link-btn" type="submit">Clone</button>
+        </form>
+      </td>
     </tr>
   <?php endforeach; ?>
   </tbody>
-</table>
+</table></div>
 <?php else: ?>
 <p class="a-hint">No polls yet.</p>
 <?php endif; ?>

@@ -142,11 +142,36 @@ function mfl_poll_form(?array $poll, ?array $posted): array
         'status'   => $poll['status'] ?? 'draft',
         'author'   => $poll['author_name'] ?? '',
         'question' => (string) ($posted['question'] ?? $poll['question'] ?? ''),
+        'description' => (string) ($posted['description'] ?? $poll['description'] ?? ''),
         'expires'  => (string) ($posted['expires_at']
             ?? ($poll ? central_time($poll['expires_at'], 'Y-m-d\TH:i') : mfl_poll_default_expiry())),
         'answers'  => $votes ? $answers : array_pad($answers, 4, ''),
         'votes'    => $votes,
     ];
+}
+
+/**
+ * Copy a poll into a new draft owned by whoever clones it. Answers and the
+ * description come along; votes don't, and the closing date starts fresh.
+ * Returns the new poll's id.
+ */
+function mfl_poll_clone(int $id, array $user): int
+{
+    $db = db();
+    $stmt = $db->prepare('SELECT * FROM mfl_polls WHERE id = ?');
+    $stmt->execute([$id]);
+    $poll = $stmt->fetch();
+    if (!$poll) { http_response_code(404); exit('Not found.'); }
+
+    $db->beginTransaction();
+    $stmt = $db->prepare("INSERT INTO mfl_polls (question, description, status, expires_at, author_user_id, author_name, created_at) VALUES (?, ?, 'draft', ?, ?, ?, ?)");
+    $stmt->execute([mb_substr('Copy of ' . $poll['question'], 0, 200), $poll['description'], mfl_poll_parse_expiry(mfl_poll_default_expiry()),
+                    $user['id'], $user['display_name'] ?: 'The Commissioner', date('Y-m-d H:i:s')]);
+    $copy = (int) $db->lastInsertId();
+    $stmt = $db->prepare('INSERT INTO mfl_poll_answers (poll_id, label, sort_order) SELECT ?, label, sort_order FROM mfl_poll_answers WHERE poll_id = ? ORDER BY sort_order');
+    $stmt->execute([$copy, $id]);
+    $db->commit();
+    return $copy;
 }
 
 /** A week out, at the end of that day, Central. */
@@ -177,6 +202,7 @@ function mfl_poll_save(?array $poll, array $in, string $action, array $user): in
     $now = date('Y-m-d H:i:s');
     $question = trim((string) ($in['question'] ?? ''));
     if ($question === '' || mb_strlen($question) > 200) return 'Enter a title of up to 200 characters.';
+    $description = mb_substr(trim((string) ($in['description'] ?? '')), 0, 2000);
 
     $expires = mfl_poll_parse_expiry((string) ($in['expires_at'] ?? ''));
     if ($expires === null) return 'Choose when the poll closes.';
@@ -208,11 +234,11 @@ function mfl_poll_save(?array $poll, array $in, string $action, array $user): in
     $db->beginTransaction();
     if ($poll) {
         $id = (int) $poll['id'];
-        $stmt = $db->prepare('UPDATE mfl_polls SET question = ?, status = ?, expires_at = ?, published_at = ?, public_updated_at = ? WHERE id = ?');
-        $stmt->execute([$question, $status, $expires, $live ? ($poll['published_at'] ?: $now) : null, $live ? $now : null, $id]);
+        $stmt = $db->prepare('UPDATE mfl_polls SET question = ?, description = ?, status = ?, expires_at = ?, published_at = ?, public_updated_at = ? WHERE id = ?');
+        $stmt->execute([$question, $description, $status, $expires, $live ? ($poll['published_at'] ?: $now) : null, $live ? $now : null, $id]);
     } else {
-        $stmt = $db->prepare('INSERT INTO mfl_polls (question, status, expires_at, author_user_id, author_name, created_at, published_at, public_updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$question, $status, $expires, $user['id'], $user['display_name'] ?: 'The Commissioner', $now, $live ? $now : null, $live ? $now : null]);
+        $stmt = $db->prepare('INSERT INTO mfl_polls (question, description, status, expires_at, author_user_id, author_name, created_at, published_at, public_updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$question, $description, $status, $expires, $user['id'], $user['display_name'] ?: 'The Commissioner', $now, $live ? $now : null, $live ? $now : null]);
         $id = (int) $db->lastInsertId();
     }
     if (!$votes) {

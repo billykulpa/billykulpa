@@ -218,6 +218,16 @@ function mfl_admin_route(string $route): void
             ]);
             break;
 
+        // Anyone can clone any poll, since the copy is their own draft.
+        case 'mfl/polls/clone':
+            $user = require_login(ROLES_ALL);
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: /admin/mfl/polls'); exit; }
+            verify_csrf();
+            $copy = mfl_poll_clone((int) ($_POST['id'] ?? 0), $user);
+            $_SESSION['mfl_flash'] = ['status' => 'ok', 'summary' => 'Cloned. This is a new draft, so edit it and publish when you\'re ready.'];
+            header("Location: /admin/mfl/polls/edit?id=$copy");
+            break;
+
         case 'mfl/polls/delete':
             $user = require_login(ROLES_ALL);
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {

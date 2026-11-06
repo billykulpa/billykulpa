@@ -419,3 +419,6 @@ input[type="datetime-local"] { width: 100%; max-width: 280px; font: inherit; fon
 .a-award { margin-bottom: 8px; }
 .a-award .a-hint { margin: 0 0 6px; }
 .a-award textarea { min-height: 72px; }
+
+.a-poll-clone { margin-top: 12px; }
+.a-poll-clone .a-btn { margin-top: 12px; }

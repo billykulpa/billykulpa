@@ -18,6 +18,9 @@ $locked = $form['votes'] > 0; ?>
   <input type="text" id="question" name="question" required maxlength="200" value="<?= esc($form['question']) ?>"
          placeholder="Best Waiver Wire Pickup">
 
+  <label class="a-label" for="description">Description (optional)</label>
+  <textarea id="description" name="description" maxlength="2000" placeholder="Appears under the title. Formatting: **bold**, *italic*, [link](https://…)"><?= esc($form['description']) ?></textarea>
+
   <label class="a-label" for="expires_at">Closes (Central time)</label>
   <input type="datetime-local" id="expires_at" name="expires_at" required value="<?= esc($form['expires']) ?>">
 
@@ -50,6 +53,13 @@ $locked = $form['votes'] > 0; ?>
     <?php endif; ?>
   </div>
 </form>
+
+<?php if ($form['id']): ?>
+<form method="post" action="/admin/mfl/polls/clone" class="a-poll-clone"><?= csrf_field() ?>
+  <input type="hidden" name="id" value="<?= (int) $form['id'] ?>">
+  <button class="a-btn a-btn--ghost" type="submit">Clone this poll</button>
+</form>
+<?php endif; ?>
 
 <?php if ($form['id'] && $form['status'] === 'draft'): ?>
 <form method="post" action="/admin/mfl/polls/delete" class="a-rank-delete"><?= csrf_field() ?>

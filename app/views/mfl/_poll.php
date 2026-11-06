@@ -2,6 +2,7 @@
 $leader = max(array_map('intval', array_column($poll['answers'], 'votes')) ?: [0]); ?>
 <article class="poll" id="poll-<?= (int) $poll['id'] ?>">
   <h3 class="poll-question"><?= esc($poll['question']) ?></h3>
+  <?php if (trim((string) $poll['description']) !== ''): ?><div class="writeup poll-description"><?= mfl_writeup_html($poll['description']) ?></div><?php endif; ?>
   <?php if ($poll['show_results']): ?>
   <ul class="poll-results">
     <?php foreach ($poll['answers'] as $a):

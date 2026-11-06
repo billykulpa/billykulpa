@@ -359,3 +359,8 @@ td.wrap { white-space: normal; }
 .award .row-note { margin-top: 4px; }
 .award-note { border-top: 1px solid var(--rule); margin-top: 14px; font-size: 15px; }
 .award-through { font-size: 22px; font-weight: 700; color: var(--ink-soft); margin-top: 8px; }
+
+/* Poll copy under the title */
+.poll-question:has(+ .poll-description) { margin-bottom: 4px; }
+.poll-description { font-size: 15px; color: var(--ink-soft); margin-bottom: 14px; }
+.poll-description p:first-child { margin-top: 0; }

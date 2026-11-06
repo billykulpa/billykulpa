@@ -308,6 +308,7 @@ CREATE TABLE IF NOT EXISTS mfl_ranking_entries (
 CREATE TABLE IF NOT EXISTS mfl_polls (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   question VARCHAR(200) NOT NULL,
+  description TEXT NULL,                      -- optional copy under the title
   status ENUM('draft','published') NOT NULL DEFAULT 'draft',
   expires_at DATETIME NOT NULL,
   author_user_id INT UNSIGNED NULL,           -- who may edit it

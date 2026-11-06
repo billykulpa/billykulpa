@@ -1,18 +1,22 @@
-<?php /** @var array $rows */ /** @var array $f */ /** @var array $seasons */ /** @var array $teams */
+<?php /** @var array $rows */ /** @var array $owners */ /** @var array $f */ /** @var array $seasons */ /** @var array $teams */
 $byPlayer = $f['view'] === 'players';
+$byOwner = $f['view'] === 'owners';
+$allTime = $f['season'] === 'all';
+$teamNames = array_column(mfl_franchises(), 'name', 'id');
 $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'view' => $f['view'], 'pos' => MFL_PICKUP_DEFAULT_POSITIONS, 'from' => '', 'to' => '', 'team' => 0, 'type' => '', 'unstarted' => false, 'sort' => 'points', 'dir' => 'desc']); ?>
 <section class="hero hero--tight">
-  <p class="mono-label"><?= (int) $f['season'] ?></p>
+  <p class="mono-label"><?= $allTime ? 'All-time' : (int) $f['season'] ?></p>
   <h1>Best Pickups</h1>
 </section>
 
 <nav class="era-tabs" aria-label="How to group the table" data-swap>
-  <a href="<?= esc(mfl_pickup_url($f, ['view' => 'pickups'])) ?>"<?= !$byPlayer ? ' aria-current="page"' : '' ?>>Each pickup</a>
+  <a href="<?= esc(mfl_pickup_url($f, ['view' => 'pickups'])) ?>"<?= $f['view'] === 'pickups' ? ' aria-current="page"' : '' ?>>Each pickup</a>
   <a href="<?= esc(mfl_pickup_url($f, ['view' => 'players'])) ?>"<?= $byPlayer ? ' aria-current="page"' : '' ?>>By player</a>
+  <a href="<?= esc(mfl_pickup_url($f, ['view' => 'owners', 'season' => 'all'])) ?>"<?= $byOwner ? ' aria-current="page"' : '' ?>>By owner</a>
 </nav>
 
 <form class="filters" method="get" action="/pickups" data-autosubmit>
-  <?php if ($byPlayer): ?><input type="hidden" name="view" value="players"><?php endif; ?>
+  <?php if ($f['view'] !== 'pickups'): ?><input type="hidden" name="view" value="<?= esc($f['view']) ?>"><?php endif; ?>
   <input type="hidden" name="sort" value="<?= esc($f['sort']) ?>">
   <input type="hidden" name="dir" value="<?= esc($f['dir']) ?>">
   <fieldset class="pill-group">
@@ -23,7 +27,7 @@ $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'vie
   </fieldset>
   <div class="filter-row">
     <div><label class="mono-label" for="f-season">Season</label>
-      <select id="f-season" name="season"><?php foreach ($seasons as $s): ?><option value="<?= (int) $s ?>"<?= (int) $s === $f['season'] ? ' selected' : '' ?>><?= (int) $s ?></option><?php endforeach; ?></select></div>
+      <select id="f-season" name="season"><option value="all"<?= $allTime ? ' selected' : '' ?>>All-Time</option><?php foreach ($seasons as $s): ?><option value="<?= (int) $s ?>"<?= (int) $s === $f['season'] ? ' selected' : '' ?>><?= (int) $s ?></option><?php endforeach; ?></select></div>
     <div><label class="mono-label" for="f-from">Added from</label><input type="date" id="f-from" name="from" value="<?= esc($f['from']) ?>"></div>
     <div><label class="mono-label" for="f-to">Added to</label><input type="date" id="f-to" name="to" value="<?= esc($f['to']) ?>"></div>
     <div><label class="mono-label" for="f-team">Team</label>
@@ -40,49 +44,27 @@ $changed = mfl_pickup_url($f) !== mfl_pickup_url(['season' => $f['season'], 'vie
   </div>
 </form>
 
-<?php if ($rows): ?>
+<?php if ($byOwner): ?>
+  <?php foreach ($owners as $o): ?>
+  <section class="owner-pickups">
+    <h2 class="trade-title">
+      <span><?= mfl_team_link((int) $o['franchise_id'], $teamNames[$o['franchise_id']] ?? '') ?></span>
+      <span class="mono-label"><?= (int) $o['count'] ?> <?= (int) $o['count'] === 1 ? 'pickup' : 'pickups' ?> · <?= number_format($o['points'], 2) ?> as starter</span>
+    </h2>
+    <p class="row-note owner-line"><?= mfl_owner_link($o['owner_name'], $o['real_name']) ?></p>
+    <?php $tableRows = $o['rows']; $showTeam = false; require __DIR__ . '/_pickups-table.php'; ?>
+    <?php if ($o['count'] > count($o['rows'])): ?>
+    <p class="note"><a class="link" href="<?= esc(mfl_pickup_url($f, ['view' => 'pickups', 'team' => (int) $o['franchise_id']])) ?>">See all <?= (int) $o['count'] ?></a></p>
+    <?php endif; ?>
+  </section>
+  <?php endforeach; ?>
+  <?php if (!$owners): ?><p>No pickups match those filters.</p><?php endif; ?>
+<?php elseif ($rows): ?>
 <section>
-  <div class="table-scroll">
-    <table class="pickups">
-      <thead><tr>
-        <th scope="col" class="num">#</th>
-        <?= mfl_pickup_th($f, 'name', 'Player', 'sticky') ?>
-        <th scope="col">Pos</th>
-        <th scope="col">Picked up by</th>
-        <?= $byPlayer ? mfl_pickup_th($f, 'pickups', 'Pickups', 'num') : mfl_pickup_th($f, 'added_on', 'Added', '') ?>
-        <?= mfl_pickup_th($f, 'starts', 'Started', 'num') ?>
-        <?= mfl_pickup_th($f, 'total_points', 'Total points', 'num') ?>
-        <?= mfl_pickup_th($f, 'roster_points', 'On roster', 'num') ?>
-        <?= mfl_pickup_th($f, 'points', 'As starter', 'num') ?>
-        <?= mfl_pickup_th($f, 'per_start', 'Per start', 'num') ?>
-      </tr></thead>
-      <tbody>
-      <?php foreach ($rows as $i => $r): ?>
-        <tr>
-          <td class="num"><?= $i + 1 ?></td>
-          <td class="wrap sticky">
-            <span class="team"><?= mfl_player_link($r['player_id'], $r['name']) ?></span>
-            <?php if (!$byPlayer): ?><div class="row-note"><?= esc(mfl_pickup_note($r)) ?></div><?php endif; ?>
-          </td>
-          <td><?= esc($r['position']) ?></td>
-          <td class="wrap">
-            <?php if ($byPlayer): ?><?= implode(', ', array_map(fn($id, $name) => mfl_team_link((int) $id, $name), array_keys($r['teams']), $r['teams'])) ?>
-            <?php else: ?><?= mfl_team_link($r['franchise_id'], $r['team_name']) ?><?php endif; ?>
-          </td>
-          <?php if ($byPlayer): ?><td class="num"><?= (int) $r['pickups'] ?></td>
-          <?php else: ?><td><?= esc($r['added_label']) ?></td><?php endif; ?>
-          <td class="num"><?= (int) $r['starts'] ?></td>
-          <td class="num"><?= number_format($r['total_points'], 2) ?></td>
-          <td class="num"><?= number_format($r['roster_points'], 2) ?></td>
-          <td class="num"><?= number_format($r['points'], 2) ?></td>
-          <td class="num"><?= $r['starts'] ? number_format($r['per_start'], 1) : '—' ?></td>
-        </tr>
-      <?php endforeach; ?>
-      </tbody>
-    </table>
-  </div>
-  <p class="note">Regular season only. Total points is the player's whole season, on any team or as a free agent. On roster is what he scored for the team that picked him up, bench included, and As starter is only what it played. Both count from the week of the add. Dates filter on when the player was added. <?= $byPlayer ? 'By player adds up every pickup of that player, across teams.' : 'A player dropped and picked up again gets a row for each pickup, and no game counts twice.' ?></p>
+  <?php $tableRows = $rows; $showTeam = true; require __DIR__ . '/_pickups-table.php'; ?>
 </section>
 <?php else: ?>
 <p>No pickups match those filters.</p>
 <?php endif; ?>
+
+<p class="note records-note">Regular season only. Total points is the player's whole season, on any team or as a free agent. On roster is what he scored for the team that picked him up, bench included, and As starter is only what it played. Both count from the week of the add. Dates filter on when the player was added.<?php if ($allTime): ?> All-time follows a pickup into later seasons for as long as the team keeps him, and Total points covers those seasons.<?php endif; ?> <?= $byPlayer ? 'By player adds up every pickup of that player, across teams.' : ($byOwner ? 'By owner shows each owner\'s top five, credited to whoever held the team when the player was added.' : 'A player dropped and picked up again gets a row for each pickup, and no game counts twice.') ?></p>

@@ -334,3 +334,9 @@ td.wrap { white-space: normal; }
 .pill-group .poll-vote { margin-left: 8px; }
 .records-link { margin: -8px 0 32px; }
 @media (min-width: 641px) { .pickups td.sticky { min-width: 180px; } }
+
+/* Pickups by owner */
+.owner-pickups { margin-bottom: 44px; }
+.owner-pickups .trade-title { margin-bottom: 2px; }
+.owner-line { margin-bottom: 8px; }
+@media (max-width: 640px) { .owner-pickups .trade-title { flex-direction: column; gap: 4px; } }

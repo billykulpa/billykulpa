@@ -597,7 +597,11 @@ function mfl_history_route(string $path): bool
         $f = mfl_pickup_filters($_GET, $seasons);
         mfl_render('pickups', [
             'nav' => 'pickups', 'title' => 'Best Pickups', 'script' => true, 'f' => $f, 'seasons' => $seasons,
-            'rows' => mfl_pickup_rows($f), 'teams' => mfl_standings($f['season']),
+            'rows' => $f['view'] === 'owners' ? [] : mfl_pickup_rows($f),
+            'owners' => $f['view'] === 'owners' ? mfl_pickup_owners($f) : [],
+            'teams' => $f['season'] === 'all'
+                ? array_map(fn($t) => ['franchise_id' => $t['id'], 'team_name' => $t['name']], mfl_franchises())
+                : mfl_standings($f['season']),
         ]);
         return true;
     }

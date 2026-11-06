@@ -106,6 +106,10 @@ the `mfl_email` block from `config.sample.php` to the server's `config.php`, and
 enter addresses under MFL → Owners. Each set emails once on publish; the editor
 has a test send and a deliberate resend.
 
+**Awards:** `/awards` calculates its winners in `app/mfl/awards.php`, so it stays
+current. MFL → Awards adds a comment to any award. The page reads Midseason
+Awards during a season and "<year> Season Awards" once it's complete.
+
 **Real names:** Sleeper doesn't share them. Enter them under MFL → Owners
 (admin only). The site shows Username (First Last), or the username if blank.
 

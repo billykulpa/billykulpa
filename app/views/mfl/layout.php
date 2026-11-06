@@ -32,6 +32,7 @@ $cms = config()['site']['base_url'] . '/admin'; ?>
         <a href="/pickups" <?= $nav === 'pickups' ? 'aria-current="page"' : '' ?>>Pickups</a>
         <a href="/trades" <?= $nav === 'trades' ? 'aria-current="page"' : '' ?>>Trades</a>
         <a href="/records" <?= $nav === 'records' ? 'aria-current="page"' : '' ?>>Records</a>
+        <a href="/awards" <?= $nav === 'awards' ? 'aria-current="page"' : '' ?>>Awards</a>
       </nav>
       <p class="updated mono-label">
         <?php if ($updated): ?>Last updated <time datetime="<?= esc(date('c', strtotime($updated))) ?>"><?= esc(central_time($updated, 'M j, g:i a')) ?> CT</time>

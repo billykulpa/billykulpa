@@ -238,6 +238,31 @@ function mfl_admin_route(string $route): void
             header('Location: ' . MFL_BASE_URL . '/pickups');
             break;
 
+        case 'mfl/awards':
+            require_login(ROLES_ALL);
+            foreach (['history', 'reports', 'trades', 'players', 'awards'] as $file) require_once __DIR__ . "/$file.php";
+            $seasons = array_reverse(array_keys(mfl_seasons()));
+            $year = in_array((int) ($_GET['season'] ?? 0), $seasons, true) ? (int) $_GET['season'] : ($seasons[0] ?? 0);
+            $flash = $_SESSION['mfl_flash'] ?? null;
+            unset($_SESSION['mfl_flash']);
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                verify_csrf();
+                $save = db()->prepare('INSERT INTO mfl_award_notes (season, award_key, note_md, updated_at) VALUES (?, ?, ?, ?)
+                                       ON DUPLICATE KEY UPDATE note_md = VALUES(note_md), updated_at = VALUES(updated_at)');
+                $clear = db()->prepare('DELETE FROM mfl_award_notes WHERE season = ? AND award_key = ?');
+                foreach (mfl_awards($year) as $award) {
+                    $note = mb_substr(trim((string) ($_POST['note'][$award['key']] ?? '')), 0, 2000);
+                    if ($note === '') $clear->execute([$year, $award['key']]);
+                    else $save->execute([$year, $award['key'], $note, date('Y-m-d H:i:s')]);
+                }
+                $_SESSION['mfl_flash'] = ['status' => 'ok', 'summary' => 'Saved.'];
+                header("Location: /admin/mfl/awards?season=$year");
+                exit;
+            }
+            render_admin('mfl/awards', ['flash' => $flash, 'awards' => mfl_awards($year), 'notes' => mfl_award_notes($year),
+                'season' => $year, 'seasons' => $seasons, 'title' => 'Awards']);
+            break;
+
         // Real names go on public pages, so entering them stays with the admin.
         case 'mfl/owners':
             require_login();

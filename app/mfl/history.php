@@ -563,6 +563,16 @@ function mfl_history_route(string $path): bool
         return true;
     }
 
+    if ($path === 'awards') {
+        $seasons = array_reverse(array_keys(mfl_seasons()));
+        $year = in_array((int) ($_GET['season'] ?? 0), $seasons, true) ? (int) $_GET['season'] : ($seasons[0] ?? 0);
+        mfl_render('awards', [
+            'nav' => 'awards', 'title' => mfl_award_title($year), 'season' => mfl_seasons()[$year], 'seasons' => $seasons,
+            'awards' => mfl_awards($year), 'notes' => mfl_award_notes($year),
+        ]);
+        return true;
+    }
+
     if ($path === 'players') {
         $f = mfl_player_filters($_GET);
         mfl_render('players', [

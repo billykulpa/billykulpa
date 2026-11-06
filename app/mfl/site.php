@@ -8,6 +8,7 @@ require_once __DIR__ . '/history.php';
 require_once __DIR__ . '/reports.php';
 require_once __DIR__ . '/trades.php';
 require_once __DIR__ . '/players.php';
+require_once __DIR__ . '/awards.php';
 
 function mfl_site_route(string $path): void
 {

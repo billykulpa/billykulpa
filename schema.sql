@@ -365,3 +365,13 @@ CREATE TABLE IF NOT EXISTS mfl_player_weeks (
   PRIMARY KEY (season, week, player_id),
   KEY idx_player (player_id, season)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Comments on season awards. The winners themselves are calculated, not stored.
+CREATE TABLE IF NOT EXISTS mfl_award_notes (
+  season SMALLINT UNSIGNED NOT NULL,
+  award_key VARCHAR(30) NOT NULL,
+  note_md TEXT NOT NULL,
+  updated_at DATETIME NOT NULL,
+  PRIMARY KEY (season, award_key),
+  FOREIGN KEY (season) REFERENCES mfl_seasons(season)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

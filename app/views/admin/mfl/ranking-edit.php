@@ -1,4 +1,4 @@
-<?php /** @var ?array $flash */ /** @var array $ranking */ /** @var array $rows */ /** @var array $revisions */
+<?php /** @var ?array $flash */ /** @var array $ranking */ /** @var array $rows */ /** @var array $revisions */ /** @var bool $emailReady */ /** @var int $recipients */ /** @var string $myEmail */
 $published = $ranking['status'] === 'published'; ?>
 <?php require __DIR__ . '/_subnav.php'; ?>
 <h1><?= esc(mfl_ranking_title($ranking)) ?></h1>
@@ -8,6 +8,7 @@ $published = $ranking['status'] === 'published'; ?>
   <?php if ($published): ?>· <a href="<?= esc(MFL_BASE_URL . mfl_ranking_url($ranking)) ?>" target="_blank" rel="noopener" style="text-decoration:underline">View live &nearr;</a><?php endif; ?>
 </p>
 <?php if ($flash): ?><div class="a-flash a-flash--<?= $flash['status'] === 'ok' ? 'ok' : 'err' ?>"><?= esc($flash['summary']) ?></div><?php endif; ?>
+<?php if (!empty($flash['warning'])): ?><div class="a-flash a-flash--err"><?= esc($flash['warning']) ?></div><?php endif; ?>
 
 <form method="post" action="/admin/mfl/rankings/edit?id=<?= (int) $ranking['id'] ?>" id="a-ranking-form"
       data-autosave="ranking-<?= (int) $ranking['id'] ?>"<?= isset($_GET['revision']) ? ' data-no-restore' : (($flash['status'] ?? '') === 'ok' ? ' data-saved' : '') ?>><?= csrf_field() ?>
@@ -65,9 +66,41 @@ $published = $ranking['status'] === 'published'; ?>
     <?php else: ?>
     <button class="a-btn a-btn--ghost" type="submit" name="action" value="save">Save draft</button>
     <button class="a-btn" type="submit" name="action" value="publish">Publish rankings</button>
+    <?php if ($emailReady && $recipients && !$ranking['emailed_at']): ?>
+    <label class="a-check"><input type="checkbox" name="email_league" value="1" checked> Email the league (<?= $recipients ?> <?= $recipients === 1 ? 'owner' : 'owners' ?>)</label>
+    <?php endif; ?>
     <?php endif; ?>
   </div>
 </form>
+
+<h2 class="a-section-head">League email</h2>
+<?php if (!$emailReady): ?>
+<p class="a-hint">League email isn't set up yet.</p>
+<?php else: ?>
+<p class="a-hint">
+  <?php if ($ranking['emailed_at']): ?>Emailed <?= esc(central_time($ranking['emailed_at'], 'M j, g:i a')) ?> CT to <?= (int) $ranking['emailed_count'] ?> <?= (int) $ranking['emailed_count'] === 1 ? 'owner' : 'owners' ?>. Saving changes won't email anyone again.
+  <?php elseif ($recipients): ?>Not emailed yet. <?= $recipients ?> <?= $recipients === 1 ? 'owner has' : 'owners have' ?> an email on file.
+  <?php else: ?>No owner emails are on file yet.<?php endif; ?>
+  The email uses the last saved version.
+</p>
+<div class="a-email-actions">
+  <form method="post" action="/admin/mfl/rankings/email"><?= csrf_field() ?>
+    <input type="hidden" name="id" value="<?= (int) $ranking['id'] ?>">
+    <button class="a-btn a-btn--ghost" type="submit" name="mode" value="test">Send me a test</button>
+  </form>
+  <?php if ($published && $recipients): ?>
+  <form method="post" action="/admin/mfl/rankings/email"><?= csrf_field() ?>
+    <input type="hidden" name="id" value="<?= (int) $ranking['id'] ?>">
+    <?php if ($ranking['emailed_at']): ?>
+    <button class="a-btn a-btn--ghost" type="submit" name="mode" value="again" onclick="return confirm('Email everyone again?')">Email the league again</button>
+    <?php else: ?>
+    <button class="a-btn" type="submit" name="mode" value="league">Email the league</button>
+    <?php endif; ?>
+  </form>
+  <?php endif; ?>
+</div>
+<p class="a-hint">A test goes only to <?= esc($myEmail) ?>.</p>
+<?php endif; ?>
 
 <?php if (!$published): ?>
 <form method="post" action="/admin/mfl/rankings/delete" class="a-rank-delete"><?= csrf_field() ?>

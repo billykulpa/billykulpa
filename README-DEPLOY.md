@@ -99,6 +99,13 @@ Central. Anyone can vote without an account, one vote per browser, held by a
 random cookie; clearing cookies allows a second vote. Results appear after
 voting, and to everyone once the poll closes. Answers lock at the first vote.
 
+**League emails:** publishing rankings can email the owners through Resend. Add
+`billykulpa.com` in Resend with its DNS-only records in Cloudflare, and don't
+enable Resend's Receiving, because its MX would take over inbound mail. Then add
+the `mfl_email` block from `config.sample.php` to the server's `config.php`, and
+enter addresses under MFL → Owners. Each set emails once on publish; the editor
+has a test send and a deliberate resend.
+
 **Real names:** Sleeper doesn't share them. Enter them under MFL → Owners
 (admin only). The site shows Username (First Last), or the username if blank.
 

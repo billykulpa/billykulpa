@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS mfl_owners (
   id VARCHAR(32) PRIMARY KEY,                 -- Sleeper user_id
   display_name VARCHAR(120) NOT NULL,         -- Sleeper username
   real_name VARCHAR(120) NOT NULL DEFAULT '', -- entered in the CMS; Sleeper doesn't share it
+  email VARCHAR(190) NOT NULL DEFAULT '',     -- for league emails; never shown on the site
   avatar VARCHAR(64) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -280,6 +281,8 @@ CREATE TABLE IF NOT EXISTS mfl_rankings (
   created_at DATETIME NOT NULL,
   published_at DATETIME NULL,
   public_updated_at DATETIME NULL,            -- feeds the site's "last updated" line
+  emailed_at DATETIME NULL,                   -- set once the league has been emailed
+  emailed_count SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   UNIQUE KEY uq_week (season, week),
   KEY idx_status (status),
   FOREIGN KEY (season) REFERENCES mfl_seasons(season),

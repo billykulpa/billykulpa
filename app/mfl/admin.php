@@ -7,6 +7,7 @@
 require_once __DIR__ . '/data.php';
 require_once __DIR__ . '/rankings.php';
 require_once __DIR__ . '/polls.php';
+require_once __DIR__ . '/email.php';
 
 function mfl_admin_route(string $route): void
 {
@@ -98,6 +99,14 @@ function mfl_admin_route(string $route): void
                         'unpublish' => 'Unpublished. It is a draft again.',
                         default     => 'Saved.',
                     }];
+                    // The rankings are live either way, so a failed email is
+                    // only a warning, and the editor offers a retry.
+                    if ($action === 'publish' && !empty($_POST['email_league']) && !$ranking['emailed_at']) {
+                        $fresh = mfl_ranking_for_edit((int) $ranking['id'], $user);
+                        $mailError = mfl_email_league($fresh);
+                        if ($mailError === null) $_SESSION['mfl_flash']['summary'] = 'Published and emailed to the league.';
+                        else $_SESSION['mfl_flash']['warning'] = "The rankings are published, but the email didn't send. $mailError";
+                    }
                     header('Location: /admin/mfl/rankings/edit?id=' . (int) $ranking['id']);
                     exit;
                 }
@@ -123,8 +132,36 @@ function mfl_admin_route(string $route): void
                 ]) : $ranking,
                 'rows'    => mfl_editor_rows($ranking, $posted),
                 'revisions' => mfl_ranking_revisions((int) $ranking['id']),
+                'emailReady' => mfl_email_ready(),
+                'recipients' => count(mfl_league_recipients()),
+                'myEmail' => $user['email'],
                 'title'   => 'Edit rankings',
             ]);
+            break;
+
+        // 'test' goes only to the person asking. 'league' and 'again' go to
+        // every owner, and only for published rankings.
+        case 'mfl/rankings/email':
+            $user = require_login(ROLES_ALL);
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: /admin/mfl/rankings'); exit; }
+            verify_csrf();
+            $ranking = mfl_ranking_for_edit((int) ($_POST['id'] ?? 0), $user);
+            $mode = $_POST['mode'] ?? '';
+            if ($mode === 'test') {
+                $message = mfl_ranking_message($ranking);
+                $message['subject'] = 'Test: ' . $message['subject'];
+                $error = mfl_send_emails([$user['email']], $message, 'mfl-test/' . (int) $ranking['id'] . '/' . time());
+                $done = 'Test sent to ' . $user['email'] . '.';
+            } elseif (in_array($mode, ['league', 'again'], true) && $ranking['status'] === 'published'
+                      && ($mode === 'again' || !$ranking['emailed_at'])) {
+                $error = mfl_email_league($ranking, $mode === 'again');
+                $done = 'Emailed to the league.';
+            } else {
+                $error = 'That email was not sent.';
+                $done = '';
+            }
+            $_SESSION['mfl_flash'] = $error === null ? ['status' => 'ok', 'summary' => $done] : ['status' => 'error', 'summary' => $error];
+            header('Location: /admin/mfl/rankings/edit?id=' . (int) $ranking['id']);
             break;
 
         case 'mfl/rankings/delete':
@@ -205,15 +242,25 @@ function mfl_admin_route(string $route): void
         case 'mfl/owners':
             require_login();
             $saved = false;
+            $bad = [];
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 verify_csrf();
-                $stmt = db()->prepare('UPDATE mfl_owners SET real_name = ? WHERE id = ?');
+                $saveName = db()->prepare('UPDATE mfl_owners SET real_name = ? WHERE id = ?');
+                $saveEmail = db()->prepare('UPDATE mfl_owners SET email = ? WHERE id = ?');
                 foreach ((array) ($_POST['real_name'] ?? []) as $id => $name) {
-                    $stmt->execute([mb_substr(trim((string) $name), 0, 120), (string) $id]);
+                    $saveName->execute([mb_substr(trim((string) $name), 0, 120), (string) $id]);
+                    $email = trim((string) ($_POST['email'][$id] ?? ''));
+                    // A bad address leaves the old one in place and gets reported.
+                    if ($email !== '' && (mb_strlen($email) > 190 || !filter_var($email, FILTER_VALIDATE_EMAIL))) {
+                        $bad[] = $email;
+                        continue;
+                    }
+                    $saveEmail->execute([$email, (string) $id]);
                 }
                 $saved = true;
             }
-            render_admin('mfl/owners', ['saved' => $saved, 'franchises' => mfl_franchises(), 'title' => 'Owners']);
+            render_admin('mfl/owners', ['saved' => $saved, 'bad' => $bad, 'franchises' => mfl_franchises(),
+                'emails' => db()->query('SELECT id, email FROM mfl_owners')->fetchAll(PDO::FETCH_KEY_PAIR), 'title' => 'Owners']);
             break;
 
         // The editors ping this to keep a long writing session alive, to notice

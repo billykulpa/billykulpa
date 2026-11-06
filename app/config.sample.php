@@ -72,6 +72,16 @@ return [
         'mail_mode' => 'log',
     ],
 
+    // ---- MFL league emails ---------------------------------------------
+    // Sent through Resend. Omit this block to leave league email off; the rest
+    // of the site carries on. 'mode' => 'log' writes to logs/mfl-mail.log
+    // instead of sending, for local development.
+    // 'mfl_email' => [
+    //     'resend_key' => 're_your_key_here',
+    //     'from'       => 'MFL Power Rankings <rankings@billykulpa.com>',
+    //     'reply_to'   => 'billy@billykulpa.com',
+    // ],
+
     // ---- Cloudflare Turnstile (spam protection on /contact) ------------
     // These are Cloudflare's official ALWAYS-PASS test keys. Swap in real
     // keys from the Cloudflare dashboard (free) in config.php only — real

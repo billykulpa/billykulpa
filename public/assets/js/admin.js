@@ -194,7 +194,7 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
   function read() {
     var fields = [];
     new FormData(form).forEach(function (value, name) {
-      if (name !== '_csrf' && name !== 'action') fields.push([name, value]);
+      if (name !== '_csrf' && name !== 'action' && name !== 'email_league') fields.push([name, value]);
     });
     return fields;
   }

@@ -407,3 +407,10 @@ input[type="datetime-local"] { width: 100%; max-width: 280px; font: inherit; fon
 /* Autosave and signed-out notices stay on screen in long editors. */
 .a-autosave-banner { position: sticky; top: 8px; z-index: 5; }
 .a-autosave-banner .a-link-btn { margin-left: 8px; }
+
+/* League email controls */
+.a-table-scroll { overflow-x: auto; }
+.a-check { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-top: 24px; cursor: pointer; }
+.a-email-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.a-email-actions .a-btn { margin-top: 12px; }
+.a-email-actions + .a-hint { margin-top: 8px; }

@@ -358,3 +358,4 @@ td.wrap { white-space: normal; }
 .award-value { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; margin-top: 2px; }
 .award .row-note { margin-top: 4px; }
 .award-note { border-top: 1px solid var(--rule); margin-top: 14px; font-size: 15px; }
+.award-through { font-size: 22px; font-weight: 700; color: var(--ink-soft); margin-top: 8px; }

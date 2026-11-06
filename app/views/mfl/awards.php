@@ -1,8 +1,9 @@
 <?php /** @var array $awards */ /** @var array $notes */ /** @var array $season */ /** @var array $seasons */
 $year = (int) $season['season']; ?>
 <section class="hero hero--tight">
-  <p class="mono-label"><?= $year ?><?= $season['status'] === 'complete' ? ' · Final' : ' · Through week ' . (int) $season['last_scored_week'] ?></p>
+  <p class="mono-label"><?= $year ?></p>
   <h1><?= esc(mfl_award_title($year)) ?></h1>
+  <p class="award-through"><?= $season['status'] === 'complete' ? 'Final' : 'Through Week ' . (int) $season['last_scored_week'] ?></p>
 </section>
 
 <?php if (count($seasons) > 1): ?>

@@ -10,6 +10,7 @@
 <?php if ($polls): ?>
 <section>
   <h2>Polls <a class="link h2-link" href="/polls">All polls</a></h2>
+  <?php if (!mfl_current_owner()) require __DIR__ . '/_voter-strip.php'; ?>
   <div class="poll-grid">
     <?php foreach ($polls as $poll): $from = 'home'; require __DIR__ . '/_poll.php'; endforeach; ?>
   </div>

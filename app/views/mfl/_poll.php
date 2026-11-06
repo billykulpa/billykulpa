@@ -20,22 +20,17 @@ $leader = max(array_map('intval', array_column($poll['answers'], 'votes')) ?: [0
     </li>
     <?php endforeach; ?>
   </ul>
-  <?php elseif (!mfl_current_owner()): ?>
-  <ul class="poll-preview">
-    <?php foreach ($poll['answers'] as $a): ?><li><?= esc($a['label']) ?></li><?php endforeach; ?>
-  </ul>
-  <a class="poll-vote poll-sign-in" href="/sign-in">Sign in to vote</a>
-  <?php else: ?>
+  <?php else: $locked = !mfl_current_owner(); ?>
   <form method="post" action="/polls/vote">
     <input type="hidden" name="poll" value="<?= (int) $poll['id'] ?>">
     <input type="hidden" name="from" value="<?= esc($from) ?>">
-    <fieldset class="poll-options">
+    <fieldset class="poll-options"<?= $locked ? ' disabled' : '' ?>>
       <legend class="poll-legend"><?= esc($poll['question']) ?></legend>
       <?php foreach ($poll['answers'] as $a): ?>
       <label class="poll-option"><input type="radio" name="answer" value="<?= (int) $a['id'] ?>" required> <span><?= esc($a['label']) ?></span></label>
       <?php endforeach; ?>
     </fieldset>
-    <button class="poll-vote" type="submit">Vote</button>
+    <button class="poll-vote" type="submit"<?= $locked ? ' disabled' : '' ?>>Vote</button>
   </form>
   <?php endif; ?>
   <p class="poll-meta mono-label">

@@ -4,12 +4,7 @@
   <h1>Polls</h1>
 </section>
 
-<?php $owner = mfl_current_owner(); if ($owner): ?>
-<form class="voter-strip" method="post" action="/sign-out">
-  <span>Voting as <b><?= esc(mfl_owner_label($owner['display_name'], $owner['real_name'])) ?></b></span>
-  <button class="sort-button" type="submit">Sign out</button>
-</form>
-<?php endif; ?>
+<?php $polls = array_merge($open, $closed); require __DIR__ . '/_voter-strip.php'; ?>
 
 <?php if (!$open && !$closed): ?>
 <p>No polls yet.</p>

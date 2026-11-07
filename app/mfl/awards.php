@@ -92,6 +92,19 @@ function mfl_awards(int $season): array
             $winners ? $winners[0]['actual'] : '', $winners ? 'All-play record: ' . $record($winners[0]) : '');
     }
 
+    // The best team left out. The playoff field is only final once a season is.
+    if ($span === 'Year') {
+        $stmt = $db->prepare("SELECT team1_franchise_id, team2_franchise_id FROM mfl_brackets WHERE season = ? AND bracket = 'winners'");
+        $stmt->execute([$season]);
+        $inPlayoffs = array_flip(array_filter(array_merge(...$stmt->fetchAll(PDO::FETCH_NUM))));
+        if ($inPlayoffs) {
+            $hosed = mfl_award_best(array_diff_key($luck, $inPlayoffs), fn($r) => $r['w'] + $r['t'] / 2);
+            $add('hosed', 'Hosed', 'Best team to miss the playoffs, by record against every team, every week',
+                array_map(fn($r) => $team($r['fid']), $hosed), $hosed ? $hosed[0]['actual'] : '',
+                $hosed ? 'All-play record: ' . $record($hosed[0]) : '');
+        }
+    }
+
     // The draft. A startup draft has no rookies to single out.
     $stmt = $db->prepare('SELECT p.*, d.rounds, s.num_teams FROM mfl_draft_picks p JOIN mfl_drafts d ON d.id = p.draft_id
                             JOIN mfl_seasons s ON s.season = d.season WHERE d.season = ?');

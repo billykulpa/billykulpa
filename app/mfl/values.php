@@ -597,3 +597,65 @@ function mfl_aging_table(int $from = 21, int $to = 34): array
     }
     return $out;
 }
+
+/* ---- The trade machine ---- */
+
+/**
+ * How much each season counts under each team "clock" the trade machine
+ * offers, nearest season first. Balanced is the site-wide default.
+ */
+const MFL_CLOCKS = [
+    ['label' => 'Win now',     'weights' => [1.0, 0.55, 0.3, 0.15, 0.08]],
+    ['label' => 'Lean now',    'weights' => [1.0, 0.7, 0.5, 0.35, 0.24]],
+    ['label' => 'Balanced',    'weights' => MFL_VALUE_WEIGHTS],
+    ['label' => 'Lean future', 'weights' => [0.7, 0.9, 0.85, 0.75, 0.65]],
+    ['label' => 'Rebuild',     'weights' => [0.4, 0.9, 1.0, 1.0, 0.95]],
+];
+
+/**
+ * Everything the trade machine needs, for the page to embed as JSON: teams,
+ * every rostered player with a value, and every tradable pick. The browser
+ * does the rest, so trying trades costs no round trips.
+ */
+function mfl_trade_machine_data(array $owner): array
+{
+    $values = mfl_player_values();
+    $run = mfl_value_meta('run');
+    $season = (int) ($run['season'] ?? date('Y'));
+    $teams = [];
+    $mine = null;
+    foreach (mfl_franchises() as $f) {
+        $teams[] = ['id' => (int) $f['id'], 'name' => $f['name'], 'owner' => mfl_owner_label($f['owner_name'], $f['real_name'])];
+        if ($f['owner_id'] === $owner['id']) $mine = (int) $f['id'];
+    }
+    // Kickers and defenses have no value, so they never show up here.
+    $players = [];
+    foreach (mfl_current_rosters() as $pid => $fid) {
+        $v = $values[$pid] ?? null;
+        if (!$v) continue;
+        $players[] = [
+            'id' => 'p' . $pid, 'team' => $fid, 'name' => $v['name'], 'pos' => $v['position'],
+            'nfl' => $v['nfl_team'], 'age' => mfl_age_now($v['birth_date']), 'ppg' => (float) $v['ppg'],
+            'injury' => $v['injury'], 'par' => $v['par'],
+            'market' => $v['market_value'] !== null ? (int) $v['market_value'] : null,
+        ];
+    }
+    $ordinal = [1 => '1st', 2 => '2nd', 3 => '3rd', 4 => '4th', 5 => '5th'];
+    $names = array_column($teams, 'name', 'id');
+    $picks = [];
+    foreach (mfl_pick_values() as $p) {
+        $picks[] = [
+            'id' => "k{$p['season']}-{$p['round']}-{$p['original']}", 'team' => $p['owner'],
+            'name' => $p['season'] . ' ' . ($ordinal[$p['round']] ?? "{$p['round']}th"),
+            'from' => $p['owner'] === $p['original'] ? '' : ($names[$p['original']] ?? ''),
+            'range' => mfl_pick_range($p), 'season' => $p['season'], 'round' => $p['round'],
+            'par' => array_map(fn($v) => round($v, 1), $p['par']),
+            'market' => $p['market_value'] !== null ? (int) $p['market_value'] : null,
+        ];
+    }
+    $seasons = [];
+    for ($k = 0; $k < MFL_VALUE_YEARS; $k++) $seasons[] = $k === 0 ? "$season rest" : (string) ($season + $k);
+    return ['teams' => $teams, 'mine' => $mine, 'players' => $players, 'picks' => $picks,
+            'clocks' => MFL_CLOCKS, 'balanced' => 2, 'seasons' => $seasons,
+            'updated' => $run ? central_time($run['computed_at'], 'M j, g:i a') . ' CT' : null];
+}

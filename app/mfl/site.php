@@ -50,15 +50,17 @@ function mfl_site_route(string $path): void
             $sent = false;
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mfl_check_origin();
-                mfl_request_sign_in(trim((string) ($_POST['email'] ?? '')));
+                mfl_request_sign_in(trim((string) ($_POST['email'] ?? '')), mfl_sign_in_next($_POST['next'] ?? null));
                 $sent = true;
             }
-            mfl_render('sign-in', ['nav' => 'polls', 'title' => 'Sign in', 'sent' => $sent, 'failed' => isset($_GET['expired']), 'owner' => mfl_current_owner()]);
+            mfl_render('sign-in', ['nav' => 'polls', 'title' => 'Sign in', 'sent' => $sent, 'failed' => isset($_GET['expired']), 'owner' => mfl_current_owner(),
+                                   'next' => mfl_sign_in_next($_POST['next'] ?? $_GET['next'] ?? null)]);
             break;
 
         case 'sign-in/verify':
             header('Cache-Control: no-store');
-            header('Location: ' . (mfl_sign_in((string) ($_GET['token'] ?? '')) ? '/polls' : '/sign-in?expired=1'), true, 303);
+            $next = mfl_sign_in_next($_GET['next'] ?? null);
+            header('Location: ' . (mfl_sign_in((string) ($_GET['token'] ?? '')) ? $next : '/sign-in?expired=1&next=' . rawurlencode($next)), true, 303);
             break;
 
         case 'sign-out':

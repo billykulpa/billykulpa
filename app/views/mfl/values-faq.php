@@ -80,10 +80,20 @@ $season = (int) ($run['season'] ?? date('Y')); ?>
   <h2>What does "Lean" mean?</h2>
   <p>It flags players the two views rank very differently. <b>Model +20</b> means our model ranks him 20 spots higher than the market does, a possible buy. <b>Market +20</b> means the market likes him more, a possible sell. Only big gaps near the top of either list are flagged, since ranks further down swing on tiny differences.</p>
 
+  <h2>How does the trade machine grade a trade?</h2>
+  <p>Each team's side is added up both ways. The <b>Model</b> verdict values everything on each team's own <b>timeline</b>, which you set with the slider under each team, from Win now to Rebuild. A contender cares most about this season, a rebuilding team about later ones, so the same players and picks can be worth different amounts to each. When the timelines differ, both teams can come out ahead, which is how good trades happen. The <b>Market</b> verdict has no timeline. It's simply what the market would pay for each side.</p>
+  <p>The machine also shows:</p>
+  <ul>
+    <li><b>Who gets more, season by season.</b> What each team receives in each season, before any timeline weighting. It shows when a trade flips, for example a veteran-for-youth deal that favors one team now and the other in two years.</li>
+    <li><b>Starting lineup this season.</b> Each team's best lineup before and after, by current points per game, and who moves in and out of it.</li>
+    <li><b>Balance it.</b> The players or picks, by model or by market, that would even the trade up, chosen from the team getting more. It uses a balanced timeline for both teams.</li>
+  </ul>
+  <p>A trade you build stays in the page address, so you can copy the link and send it to the other owner.</p>
+
   <h2>What isn't counted?</h2>
   <ul>
     <li>Kickers and defenses.</li>
-    <li>Your roster. A third quarterback is worth less to you than to a team that needs one. The trade machine will account for that.</li>
+    <li>Your roster's needs. A third quarterback is worth less to you than to a team that needs one. The trade machine shows how each starting lineup changes, but the values themselves don't depend on who's buying.</li>
     <li>News the projections haven't caught up with, such as a new injury or a depth chart change.</li>
     <li>Players coming back from a long injury are valued on the games they missed, not on how healthy they are now.</li>
   </ul>

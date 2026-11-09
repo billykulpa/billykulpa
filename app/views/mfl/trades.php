@@ -1,9 +1,44 @@
-<?php /** @var int $season */ /** @var array $seasons */ /** @var array $trades */ ?>
+<?php /** @var int $season */ /** @var array $seasons */ /** @var array $trades */ /** @var ?array $owner */ /** @var ?array $machine */ ?>
 <section class="hero hero--tight">
   <p class="mono-label"><?= count($trades) ?> <?= count($trades) === 1 ? 'trade' : 'trades' ?> in <?= $season ?></p>
   <h1>Trades</h1>
   <p class="hero-link"><a class="link" href="/trades/values">Trade values</a>: what every player and pick is worth, by our model and by the market · <a class="link" href="/trades/values/how">How trade values are calculated</a></p>
 </section>
+
+<?php if ($machine): ?>
+<section class="tm" id="trade-machine" aria-labelledby="tm-title">
+  <div class="tm-head">
+    <h2 id="tm-title">Trade machine</h2>
+    <a class="link" href="/trades/values/how">How trade values are calculated</a>
+  </div>
+  <p class="row-note">Try out a trade. Nothing here is sent to Sleeper.<?php if ($machine['updated']): ?> Values updated <?= esc($machine['updated']) ?>.<?php endif; ?></p>
+  <div class="tm-sides">
+    <?php foreach (['a' => 'Your team', 'b' => 'Trade partner'] as $side => $label): ?>
+    <div class="tm-side tm-side--<?= $side ?>" data-side="<?= $side ?>">
+      <label class="mono-label" for="tm-team-<?= $side ?>"><?= $label ?></label>
+      <select id="tm-team-<?= $side ?>" class="tm-team"></select>
+      <p class="mono-label tm-sends">Sends</p>
+      <ul class="tm-list"></ul>
+      <label class="visually-hidden" for="tm-add-<?= $side ?>">Add a player or pick</label>
+      <select id="tm-add-<?= $side ?>" class="tm-add"></select>
+      <div class="tm-clock">
+        <label class="mono-label" for="tm-clock-<?= $side ?>">Timeline</label>
+        <input type="range" id="tm-clock-<?= $side ?>" class="tm-clock-input" min="0" max="<?= count($machine['clocks']) - 1 ?>" step="1" value="<?= (int) $machine['balanced'] ?>">
+        <output class="tm-clock-label" for="tm-clock-<?= $side ?>"></output>
+      </div>
+    </div>
+    <?php endforeach; ?>
+  </div>
+  <div class="tm-results" aria-live="polite"></div>
+</section>
+<script type="application/json" id="tm-data"><?= json_encode($machine, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
+<script src="<?= esc(mfl_asset('trade-machine.js')) ?>" defer></script>
+<?php elseif (!$owner): ?>
+<div class="voter-strip">
+  <span>League owners can sign in to use the trade machine.</span>
+  <a class="poll-vote poll-vote--small" href="/sign-in?next=/trades">Sign in</a>
+</div>
+<?php endif; ?>
 <nav class="era-tabs" aria-label="Seasons">
   <?php foreach ($seasons as $s): ?><a href="/trades?season=<?= (int) $s ?>"<?= (int) $s === $season ? ' aria-current="page"' : '' ?>><?= (int) $s ?></a><?php endforeach; ?>
 </nav>

@@ -598,7 +598,11 @@ function mfl_history_route(string $path): bool
     if ($path === 'trades') {
         $seasons = array_reverse(array_keys(mfl_seasons()));
         $season = in_array((int) ($_GET['season'] ?? 0), $seasons, true) ? (int) $_GET['season'] : ($seasons[0] ?? 0);
-        mfl_render('trades', ['nav' => 'trades', 'title' => 'Trades', 'season' => $season, 'seasons' => $seasons, 'trades' => mfl_trades($season)]);
+        // The trade machine is for owners, so the page differs per visitor.
+        header('Cache-Control: no-store');
+        $owner = mfl_current_owner();
+        mfl_render('trades', ['nav' => 'trades', 'title' => 'Trades', 'season' => $season, 'seasons' => $seasons, 'trades' => mfl_trades($season),
+                              'owner' => $owner, 'machine' => $owner && mfl_value_meta('run') ? mfl_trade_machine_data($owner) : null]);
         return true;
     }
 

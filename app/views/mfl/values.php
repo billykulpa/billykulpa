@@ -11,7 +11,7 @@ $num = fn($v) => number_format((float) $v, 0); ?>
 <?php if (!$owner): ?>
 <div class="voter-strip">
   <span>League owners can sign in to see trade values.</span>
-  <a class="poll-vote poll-vote--small" href="/sign-in">Sign in</a>
+  <a class="poll-vote poll-vote--small" href="/sign-in?next=/trades/values">Sign in</a>
 </div>
 <?php elseif (!$run): ?>
 <p>Values haven't been worked out yet. They update with the daily sync.</p>

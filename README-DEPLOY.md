@@ -116,7 +116,9 @@ points above a replacement starter for this season and the next four. The
 market is FantasyCalc's dynasty values. Both feeds are unofficial, so a
 failure leaves yesterday's values, and the sync summary says "Trade values not
 updated." Run `php app/mfl/sync-cli.php --values` to recompute on demand.
-The slow-moving part, aging curves and what each rookie draft slot has
+The trade machine at the top of `/trades` (owners only) runs in the browser
+(`public/mfl/assets/trade-machine.js`) from the values the page embeds, so it
+needs nothing beyond the daily values. The slow-moving part, aging curves and what each rookie draft slot has
 produced, lives in `app/mfl/model.json`. Rebuild it locally once a year, after
 the NFL season, with `php app/mfl/model-build.php`, then commit it.
 

@@ -75,43 +75,6 @@
     <span><?= implode(' <span class="trade-swap">⇄</span> ', array_map(fn($s) => mfl_team_link($s['franchise_id'], $s['team']['team_name'] ?? 'Team'), $t['sides'])) ?></span>
     <span class="mono-label"><?= esc(central_time($t['completed_at'], 'M j, Y')) ?> · <?= esc($t['week_label']) ?></span>
   </h2>
-  <?php $cards = $owner ? mfl_trade_scorecard($t) : null;
-  if ($cards):
-    $teamNames = [];
-    foreach ($t['sides'] as $s) $teamNames[$s['franchise_id']] = $s['team']['team_name'] ?? 'Team'; ?>
-  <div class="scorecard">
-    <p class="scorecard-verdict"><span><span class="mono-label">At the time</span> <?= esc(mfl_scorecard_edge($cards, 'model_then', $teamNames)) ?></span>
-      <span><span class="mono-label">Now</span> <?= esc(mfl_scorecard_edge($cards, 'now', $teamNames)) ?></span></p>
-    <div class="table-scroll">
-      <table class="pickups scorecard-table">
-        <thead><tr>
-          <th scope="col" class="sticky">Received</th>
-          <th scope="col" class="num">Model then</th>
-          <th scope="col" class="num">Market then</th>
-          <th scope="col" class="num">So far</th>
-          <th scope="col" class="num">Still held</th>
-          <th scope="col" class="num">Now</th>
-        </tr></thead>
-        <tbody>
-        <?php foreach ($cards as $c): ?>
-          <tr>
-            <th scope="row" class="sticky"><?= esc($teamNames[$c['franchise_id']] ?? '') ?></th>
-            <td class="num"><?= number_format($c['model_then']) ?></td>
-            <td class="num"><?= $c['market_then_known'] ? number_format($c['market_then']) : '<span class="row-note">—</span>' ?></td>
-            <td class="num"><?= number_format($c['so_far']) ?></td>
-            <td class="num"><?= number_format($c['held']) ?></td>
-            <td class="num"><b><?= number_format($c['now']) ?></b></td>
-          </tr>
-        <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
-    <?php foreach ($cards as $c): if ($c['left']): ?>
-    <p class="row-note"><?= esc($teamNames[$c['franchise_id']] ?? '') ?> no longer has <?= esc(implode(', ', $c['left'])) ?>, so <?= count($c['left']) === 1 ? 'he counts' : 'they count' ?> here only for games started before leaving. Anything a later trade brought back shows on that trade.</p>
-    <?php endif; endforeach; ?>
-    <p class="row-note">Model points above a replacement starter. So far: games started for this team since the trade. Still held: today's value of what's left from the deal. <a class="link" href="/trades/values/how#scorecards">How trades are scored</a></p>
-  </div>
-  <?php endif; ?>
   <div class="table-scroll">
     <table class="trade-table">
       <thead>
@@ -175,6 +138,43 @@
       <?php endforeach; ?>
     </table>
   </div>
+  <?php $cards = $owner ? mfl_trade_scorecard($t) : null;
+  if ($cards):
+    $teamNames = [];
+    foreach ($t['sides'] as $s) $teamNames[$s['franchise_id']] = $s['team']['team_name'] ?? 'Team'; ?>
+  <div class="scorecard scorecard--after">
+    <p class="scorecard-verdict"><span><span class="mono-label">At the time</span> <?= esc(mfl_scorecard_edge($cards, 'model_then', $teamNames)) ?></span>
+      <span><span class="mono-label">Now</span> <?= esc(mfl_scorecard_edge($cards, 'now', $teamNames)) ?></span></p>
+    <div class="table-scroll">
+      <table class="pickups scorecard-table">
+        <thead><tr>
+          <th scope="col" class="sticky">Received</th>
+          <th scope="col" class="num">Model then</th>
+          <th scope="col" class="num">Market then</th>
+          <th scope="col" class="num">So far</th>
+          <th scope="col" class="num">Still held</th>
+          <th scope="col" class="num">Now</th>
+        </tr></thead>
+        <tbody>
+        <?php foreach ($cards as $c): ?>
+          <tr>
+            <th scope="row" class="sticky"><?= esc($teamNames[$c['franchise_id']] ?? '') ?></th>
+            <td class="num"><?= number_format($c['model_then']) ?></td>
+            <td class="num"><?= $c['market_then_known'] ? number_format($c['market_then']) : '<span class="row-note">—</span>' ?></td>
+            <td class="num"><?= number_format($c['so_far']) ?></td>
+            <td class="num"><?= number_format($c['held']) ?></td>
+            <td class="num"><b><?= number_format($c['now']) ?></b></td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+    <?php foreach ($cards as $c): if ($c['left']): ?>
+    <p class="row-note"><?= esc($teamNames[$c['franchise_id']] ?? '') ?> no longer has <?= esc(implode(', ', $c['left'])) ?>, so <?= count($c['left']) === 1 ? 'he counts' : 'they count' ?> here only for games started before leaving. Anything a later trade brought back shows on that trade.</p>
+    <?php endif; endforeach; ?>
+    <p class="row-note">Model points above a replacement starter. So far: games started for this team since the trade. Still held: today's value of what's left from the deal. <a class="link" href="/trades/values/how#scorecards">How trades are scored</a></p>
+  </div>
+  <?php endif; ?>
 </section>
 <?php endforeach; ?>
 

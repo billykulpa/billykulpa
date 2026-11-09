@@ -21,6 +21,8 @@
     sends: { a: [], b: [] },
     clock: { a: data.balanced, b: data.balanced },
     lens: 'model',
+    mode: 'build',
+    target: null,
   };
 
   /* ---- helpers ---- */
@@ -328,9 +330,179 @@
       <div class="tm-panel tm-balance">
         <h3>Balance it</h3>
         ${balanceBlock()}
-      </div>`;
+      </div>
+      ${state.sends.b.length ? `<div class="tm-panel tm-alternatives"><h3>Alternatives</h3>${alternativesBlock()}</div>` : ''}`;
     const series = drawChart(results.querySelector('.tm-chart'));
     results.querySelector('.tm-chart-summary').innerHTML = chartSummary(series);
+  }
+
+  /* ---- finding deals ---- */
+
+  const rosterIds = team => [...assets.values()].filter(a => a.team === team).map(a => a.id);
+  const signed = (n, digits = 1) => `${n >= 0 ? '+' : '−'}${Math.abs(n).toFixed(digits)}`;
+
+  /**
+   * Packages of up to three assets from one team that should get a deal done
+   * for the target assets. A package qualifies when the other team gets at
+   * least what it gives up, by its own timeline in the model and by the market
+   * (within 5%). Among those, the best cost you the least by your timeline,
+   * use fewer roster spots and help the other team's lineup. Returns up to
+   * `limit` packages, each built around a different main piece.
+   */
+  function findPackages(targetIds, yourTeam, theirTeam, wYou, wThem, limit = 3) {
+    const needModel = modelOf(targetIds, wThem);
+    const needMarket = marketOf(targetIds);
+    const marketKnown = targetIds.every(id => assets.get(id).market !== null) && needMarket > 0;
+    const youGet = Math.max(1, modelOf(targetIds, wYou));
+    const ctx = { needModel, needMarket, marketKnown, youGet, targetIds, yourTeam, theirTeam, packages: [] };
+    if (needModel < 1 && !marketKnown) return ctx;
+    const share = o => o.m / Math.max(1, needModel) + (marketKnown ? o.k / needMarket : 0);
+    // The 22 pieces that matter most to the other side keep the search to a
+    // couple of thousand combinations.
+    const pool = rosterIds(yourTeam)
+      .map(id => ({ id, m: weighted(assets.get(id).par, wThem), k: assets.get(id).market || 0, you: weighted(assets.get(id).par, wYou) }))
+      .filter(o => o.m >= 0.03 * needModel || (marketKnown && o.k >= 0.03 * needMarket))
+      .sort((x, y) => share(y) - share(x))
+      .slice(0, 22);
+    const theirRoster = rosterIds(theirTeam).filter(id => !targetIds.includes(id));
+    const theirBefore = lineup(rosterIds(theirTeam)).total;
+    const found = [];
+    const consider = combo => {
+      const m = combo.reduce((s, o) => s + o.m, 0);
+      const k = combo.reduce((s, o) => s + o.k, 0);
+      if (m < 0.98 * needModel) return;
+      if (marketKnown && k < 0.95 * needMarket) return;
+      const ids = combo.map(o => o.id);
+      const give = combo.reduce((s, o) => s + o.you, 0);
+      const theirGain = lineup(theirRoster.concat(ids)).total - theirBefore;
+      const overpay = marketKnown ? Math.max(0, k / needMarket - 1) : 0;
+      const score = give / youGet + 0.5 * overpay + 0.05 * (combo.length - 1) - 0.01 * theirGain;
+      const main = combo.reduce((best, o) => (o.m > best.m ? o : best)).id;
+      found.push({ ids, main, model: m, market: k, give, theirGain, score });
+    };
+    for (let i = 0; i < pool.length; i++) {
+      consider([pool[i]]);
+      for (let j = i + 1; j < pool.length; j++) {
+        consider([pool[i], pool[j]]);
+        for (let k = j + 1; k < pool.length; k++) consider([pool[i], pool[j], pool[k]]);
+      }
+    }
+    found.sort((x, y) => x.score - y.score);
+    const used = new Set();
+    for (const p of found) {
+      if (used.has(p.main)) continue;
+      used.add(p.main);
+      ctx.packages.push(p);
+      if (ctx.packages.length >= limit) break;
+    }
+    return ctx;
+  }
+
+  /** One package, with what each side gets out of it. */
+  function packageCard(p, ctx, button) {
+    const yours = rosterIds(ctx.yourTeam);
+    const yourGain = lineup(yours.filter(id => !p.ids.includes(id)).concat(ctx.targetIds)).total - lineup(yours).total;
+    const them = esc(teamName(ctx.theirTeam));
+    return `<li class="tm-package">
+      <p class="tm-package-offer">Offer <b>${p.ids.map(id => esc(label(assets.get(id)))).join('</b> + <b>')}</b></p>
+      <p class="row-note">${p.ids.map(id => esc(detail(assets.get(id)))).join(' / ')}</p>
+      <ul class="tm-package-facts">
+        <li>${them} gets <b>${fmt(p.model)}</b> by the model on their timeline, for ${fmt(ctx.needModel)}</li>
+        <li>Market: <b>${fmt(p.market)}</b> for ${ctx.marketKnown ? fmt(ctx.needMarket) : 'a piece with no market value'}</li>
+        <li>On your timeline you give ${fmt(p.give)} for ${fmt(ctx.youGet)}</li>
+        <li>Starting lineups: yours <span class="tm-net ${yourGain >= 0 ? 'is-up' : 'is-down'}">${signed(yourGain)}</span>, theirs <span class="tm-net ${p.theirGain >= 0 ? 'is-up' : 'is-down'}">${signed(p.theirGain)}</span> pts/gm</li>
+      </ul>
+      ${button}
+    </li>`;
+  }
+
+  function fillFinder() {
+    const team = root.querySelector('#tm-find-team');
+    team.textContent = '';
+    team.add(new Option('Choose your team', ''));
+    data.teams.forEach(t => {
+      const o = new Option(`${t.name} · ${t.owner}`, t.id);
+      o.selected = t.id === state.team.a;
+      team.add(o);
+    });
+    const target = root.querySelector('#tm-find-target');
+    target.textContent = '';
+    target.add(new Option(state.team.a ? 'Choose a player or pick' : 'Choose your team first', ''));
+    target.disabled = !state.team.a;
+    if (state.team.a) {
+      data.teams.filter(t => t.id !== state.team.a).forEach(t => {
+        const list = [...assets.values()].filter(a => a.team === t.id)
+          .sort((x, y) => (x.kind === y.kind ? weighted(y.par, balanced) - weighted(x.par, balanced) : x.kind === 'player' ? -1 : 1));
+        if (!list.length) return;
+        const g = document.createElement('optgroup');
+        g.label = t.name;
+        list.forEach(a => {
+          const o = new Option(a.kind === 'pick' ? `${label(a)} · ${a.range}` : `${a.name} · ${a.pos} · ${fmt(weighted(a.par, balanced))}`, a.id);
+          o.selected = a.id === state.target;
+          g.appendChild(o);
+        });
+        target.appendChild(g);
+      });
+    }
+    root.querySelector('#tm-find-clock').value = state.clock.b;
+    root.querySelector('.tm-finder .tm-clock-label').textContent = data.clocks[state.clock.b].label;
+  }
+
+  function drawFinder() {
+    const box = root.querySelector('.tm-finder-results');
+    if (!state.team.a || !state.target) {
+      box.innerHTML = '<p class="tm-hint">Pick a player or pick on another team, and the machine will look for packages from your roster that should get it done.</p>';
+      return;
+    }
+    const target = assets.get(state.target);
+    const ctx = findPackages([target.id], state.team.a, target.team, weights('a'), weights('b'));
+    const them = esc(teamName(target.team));
+    if (!ctx.packages.length) {
+      box.innerHTML = `<p>Nothing on your roster, up to three pieces, gets to what ${them} would give up for ${esc(label(target))}.</p>`;
+      return;
+    }
+    box.innerHTML = `<p class="tm-finder-lead">Packages that should get ${them} to say yes to <b>${esc(label(target))}</b>, cheapest for you first.
+      Your timeline is ${esc(data.clocks[state.clock.a].label.toLowerCase())}; change it under Build a trade.</p>
+      <ol class="tm-packages">${ctx.packages.map(p => packageCard(p, ctx,
+        `<button type="button" class="tm-add-suggest tm-open-deal" data-ids="${esc(p.ids.join(','))}">Open in the trade builder</button>`)).join('')}</ol>`;
+  }
+
+  /** Other places to get the main piece, and other ways to pay for what's on the table. */
+  function alternativesBlock() {
+    if (!state.sends.b.length) return '';
+    const received = state.sends.b.map(id => assets.get(id));
+    const main = received.reduce((x, y) => (weighted(y.par, balanced) > weighted(x.par, balanced) ? y : x));
+    const v = weighted(main.par, balanced);
+    const similar = [...assets.values()]
+      .filter(a => a.id !== main.id && a.team !== state.team.a && a.team !== state.team.b && a.kind === main.kind
+        && (a.kind === 'pick' ? a.round === main.round : a.pos === main.pos))
+      .map(a => ({ a, v: weighted(a.par, balanced) }))
+      .filter(o => v > 0 && Math.abs(o.v - v) <= 0.25 * v)
+      .sort((x, y) => Math.abs(x.v - v) - Math.abs(y.v - v))
+      .slice(0, 4);
+    let html = `<h4>If ${esc(teamName(state.team.b))} says no</h4>`;
+    html += similar.length
+      ? `<p>Pieces like ${esc(label(main))} on other teams, by model value:</p>
+        <ul class="tm-suggest">${similar.map(o => `<li><button type="button" class="tm-add-suggest tm-swap-in" data-team="${o.a.team}" data-id="${esc(o.a.id)}">Ask ${esc(teamName(o.a.team))} for ${esc(label(o.a))}</button>
+          <span class="row-note">${esc(detail(o.a))} · ${fmt(o.v)}</span></li>`).join('')}</ul>`
+      : `<p>No one else has a piece close to ${esc(label(main))}.</p>`;
+    const ctx = findPackages(state.sends.b, state.team.a, state.team.b, weights('a'), weights('b'), 4);
+    const current = [...state.sends.a].sort().join(',');
+    const others = ctx.packages.filter(p => [...p.ids].sort().join(',') !== current).slice(0, 3);
+    html += `<h4>Other ways to pay for it</h4>`;
+    html += others.length
+      ? `<ol class="tm-packages">${others.map(p => packageCard(p, ctx,
+          `<button type="button" class="tm-add-suggest tm-use-offer" data-ids="${esc(p.ids.join(','))}">Offer this instead</button>`)).join('')}</ol>`
+      : `<p>Nothing else on your roster, up to three pieces, covers it.</p>`;
+    return html;
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    root.querySelectorAll('.tm-mode').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+    root.querySelector('.tm-build').hidden = mode !== 'build';
+    root.querySelector('.tm-finder').hidden = mode !== 'find';
+    if (mode === 'find') { fillFinder(); drawFinder(); }
   }
 
   /* ---- state in the URL, so a trade can be shared with another owner ---- */
@@ -395,8 +567,46 @@
   results.addEventListener('click', e => {
     const btn = e.target.closest('.tm-add-suggest');
     if (!btn) return;
-    state.sends[btn.dataset.side].push(btn.dataset.id);
+    if (btn.classList.contains('tm-swap-in')) {
+      // Same offer, different team: keep what you send, ask for the new piece.
+      state.team.b = Number(btn.dataset.team);
+      state.sends.b = [btn.dataset.id];
+    } else if (btn.classList.contains('tm-use-offer')) {
+      state.sends.a = btn.dataset.ids.split(',');
+    } else {
+      state.sends[btn.dataset.side].push(btn.dataset.id);
+    }
     update();
+    root.querySelector('.tm-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  root.querySelectorAll('.tm-mode').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  root.querySelector('#tm-find-team').addEventListener('change', e => {
+    state.team.a = Number(e.target.value) || null;
+    state.sends.a = [];
+    if (state.target && assets.get(state.target).team === state.team.a) state.target = null;
+    fillFinder();
+    drawFinder();
+  });
+  root.querySelector('#tm-find-target').addEventListener('change', e => {
+    state.target = e.target.value || null;
+    drawFinder();
+  });
+  root.querySelector('#tm-find-clock').addEventListener('input', e => {
+    state.clock.b = Number(e.target.value);
+    root.querySelector('.tm-finder .tm-clock-label').textContent = data.clocks[state.clock.b].label;
+    drawFinder();
+  });
+  root.querySelector('.tm-finder-results').addEventListener('click', e => {
+    const btn = e.target.closest('.tm-open-deal');
+    if (!btn) return;
+    const target = assets.get(state.target);
+    state.team.b = target.team;
+    state.sends.b = [target.id];
+    state.sends.a = btn.dataset.ids.split(',');
+    setMode('build');
+    update();
+    root.querySelector('.tm-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   results.addEventListener('change', e => {
     if (e.target.name !== 'tm-lens') return;

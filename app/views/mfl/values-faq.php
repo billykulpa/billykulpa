@@ -90,6 +90,17 @@ $season = (int) ($run['season'] ?? date('Y')); ?>
   </ul>
   <p>A trade you build stays in the page address, so you can copy the link and send it to the other owner.</p>
 
+  <h2>How does Find a deal work?</h2>
+  <p>Pick a player or pick on another team, and the machine tries every package of up to three pieces from your roster. A package makes the list when the other team gets at least what it gives up, both by the model on their timeline and by the market (within 5%). The ones shown cost you the least on your own timeline, use fewer roster spots, and help the other team's starting lineup. Each is built around a different main piece, so you see real options rather than one offer three ways.</p>
+  <p>Timelines matter here. A team that's rebuilding values picks and young players more than a contender does, so setting their timeline correctly can turn up cheaper offers.</p>
+
+  <h2>What are the Alternatives?</h2>
+  <p>Under any trade you build, two backup plans:</p>
+  <ul>
+    <li><b>If they say no</b>: players at the same position (or picks in the same round) on other teams with a similar model value, so you can ask someone else with the same offer.</li>
+    <li><b>Other ways to pay for it</b>: different packages from your roster that should also get the deal done.</li>
+  </ul>
+
   <h2>What isn't counted?</h2>
   <ul>
     <li>Kickers and defenses.</li>

@@ -469,3 +469,26 @@ td.wrap { white-space: normal; }
 .tm-add-suggest:hover { border-color: var(--accent); }
 .tm-add-suggest:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 @media (max-width: 640px) { .tm { padding: 16px; margin-left: -4px; margin-right: -4px; } .tm-side { padding: 12px; } }
+
+/* Trade machine: modes, deal finder, alternatives */
+.tm-modes { display: inline-flex; border: 1px solid var(--rule); border-radius: 2px; margin-bottom: 20px; }
+.tm-mode { font: inherit; font-size: 14px; font-weight: 600; padding: 8px 16px; background: #fff; color: var(--ink-soft); border: 0; cursor: pointer; }
+.tm-mode + .tm-mode { border-left: 1px solid var(--rule); }
+.tm-mode[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.tm-mode:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tm-finder-form { display: grid; grid-template-columns: 1fr; gap: 14px; padding: 16px; background: var(--paper); border-radius: 2px; border-top: 4px solid var(--accent); }
+@media (min-width: 760px) { .tm-finder-form { grid-template-columns: 1fr 1.4fr 1fr; align-items: end; } }
+.tm-finder-form select { width: 100%; font: inherit; font-size: 15px; padding: 9px 10px; background: #fff; color: var(--ink); border: 1px solid var(--rule); border-radius: 2px; }
+.tm-finder-form select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tm-finder-form .mono-label { display: block; margin-bottom: 4px; }
+.tm-finder-form .tm-clock { margin-top: 0; }
+.tm-finder-results { margin-top: 20px; font-size: 15px; }
+.tm-finder-lead { margin-bottom: 12px; }
+.tm-packages { list-style: none; counter-reset: pkg; }
+.tm-package { border-top: 1px solid var(--rule); padding: 12px 0; }
+.tm-package-offer { font-size: 16px; margin-bottom: 2px; }
+.tm-package-facts { list-style: none; margin: 6px 0 10px; font-size: 14px; }
+.tm-package-facts li { padding: 2px 0; }
+.tm-alternatives h4 { font-size: 15px; margin: 14px 0 6px; }
+.tm-alternatives h4:first-of-type { margin-top: 4px; }
+.tm-alternatives p { font-size: 15px; margin-bottom: 6px; }

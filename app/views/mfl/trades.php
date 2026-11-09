@@ -11,7 +11,30 @@
     <h2 id="tm-title">Trade machine</h2>
     <a class="link" href="/trades/values/how">How trade values are calculated</a>
   </div>
-  <p class="row-note">Try out a trade. Nothing here is sent to Sleeper.<?php if ($machine['updated']): ?> Values updated <?= esc($machine['updated']) ?>.<?php endif; ?></p>
+  <p class="row-note">Try out a trade, or find one. Nothing here is sent to Sleeper.<?php if ($machine['updated']): ?> Values updated <?= esc($machine['updated']) ?>.<?php endif; ?></p>
+  <div class="tm-modes" role="group" aria-label="Mode">
+    <button type="button" class="tm-mode" data-mode="build" aria-pressed="true">Build a trade</button>
+    <button type="button" class="tm-mode" data-mode="find" aria-pressed="false">Find a deal</button>
+  </div>
+  <div class="tm-finder" hidden>
+    <div class="tm-finder-form">
+      <div>
+        <label class="mono-label" for="tm-find-team">Your team</label>
+        <select id="tm-find-team"></select>
+      </div>
+      <div>
+        <label class="mono-label" for="tm-find-target">Player or pick you want</label>
+        <select id="tm-find-target"></select>
+      </div>
+      <div class="tm-clock">
+        <label class="mono-label" for="tm-find-clock">Their timeline</label>
+        <input type="range" id="tm-find-clock" class="tm-clock-input" min="0" max="<?= count($machine['clocks']) - 1 ?>" step="1" value="<?= (int) $machine['balanced'] ?>">
+        <output class="tm-clock-label" for="tm-find-clock"></output>
+      </div>
+    </div>
+    <div class="tm-finder-results" aria-live="polite"></div>
+  </div>
+  <div class="tm-build">
   <div class="tm-sides">
     <?php foreach (['a' => 'Your team', 'b' => 'Trade partner'] as $side => $label): ?>
     <div class="tm-side tm-side--<?= $side ?>" data-side="<?= $side ?>">
@@ -30,6 +53,7 @@
     <?php endforeach; ?>
   </div>
   <div class="tm-results" aria-live="polite"></div>
+  </div>
 </section>
 <script type="application/json" id="tm-data"><?= json_encode($machine, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
 <script src="<?= esc(mfl_asset('trade-machine.js')) ?>" defer></script>

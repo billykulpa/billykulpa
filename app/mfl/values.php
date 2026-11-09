@@ -177,103 +177,108 @@ function mfl_market_fetch(): ?array
 }
 
 /**
- * Recompute every player's value. Runs from the sync at most once a day,
- * since it downloads Sleeper's full player list, which Sleeper asks to fetch
- * no more than daily. Returns the number of players valued, or 0 if skipped.
+ * Every player's model value as of a point in a season.
+ *
+ * Live (the daily run) uses Sleeper's projection for each remaining week, so
+ * byes and injuries count. As of an old trade it uses only the projection for
+ * the trade's own week, so an injury that happened later can't leak into what
+ * the trade looked like then.
+ *
+ * $o: season; from, to (fantasy weeks left to play); through (last week of
+ * results to count); scoring; players (Sleeper's full list); weekly (live
+ * mode); before (only rookie drafts started before this time count).
+ * Returns ['players' => [pid => row], 'replacement' => [pos => ppg]].
  */
-function mfl_sync_values(bool $force = false): int
+function mfl_compute_values(array $o): array
 {
-    $run = mfl_value_meta('run');
-    if (!$force && $run && strtotime($run['computed_at']) > time() - 20 * 3600) return 0;
     $model = mfl_model();
     if (!$model) throw new RuntimeException('model.json is missing.');
+    $season = (int) $o['season'];
+    $weeksLeft = max(0, $o['to'] - $o['from'] + 1);
 
-    ini_set('memory_limit', '512M');
-    $w = mfl_value_window();
-    $season = $w['season'];
-    $league = sleeper_get('/league/' . $w['league_id']);
-    $scoring = $league['scoring_settings'] ?? [];
-
-    // What Sleeper projects for every remaining week.
+    // Projections: every remaining week when live, otherwise just the next one
+    // or two (the second covers a bye).
     $proj = [];
+    $last = $o['weekly'] ? $o['to'] : min($o['to'], $o['from'] + 1);
     $paths = [];
-    for ($wk = $w['from']; $wk <= $w['to']; $wk++) $paths[$wk] = "/projections/nfl/regular/$season/$wk";
+    for ($wk = $o['from']; $wk <= $last; $wk++) $paths[$wk] = "/projections/nfl/regular/$season/$wk";
     if ($paths) {
         $feeds = sleeper_get_many(array_values($paths), 45);
         foreach ($paths as $wk => $path) {
             foreach ($feeds[$path] ?? [] as $pid => $line) {
-                $pts = mfl_score_line((array) $line, $scoring);
+                $pts = mfl_score_line((array) $line, $o['scoring']);
                 if ($pts > 0) $proj[(string) $pid][$wk] = $pts;
             }
         }
         unset($feeds);
     }
 
-    // What they've actually scored, this season and last.
+    // Results: this season up to the cutoff, and all of last season.
     $actual = [];
     $stmt = db()->prepare('SELECT player_id, season, COUNT(*) games, SUM(points) pts FROM mfl_player_weeks
-                            WHERE season IN (?, ?) AND points <> 0 GROUP BY player_id, season');
-    $stmt->execute([$season, $season - 1]);
+                            WHERE ((season = ? AND week <= ?) OR season = ?) AND points <> 0 GROUP BY player_id, season');
+    $stmt->execute([$season, (int) $o['through'], $season - 1]);
     foreach ($stmt as $r) $actual[(string) $r['player_id']][(int) $r['season']] = ['games' => (int) $r['games'], 'pts' => (float) $r['pts']];
 
-    $all = sleeper_get_many(['/players/nfl'], 90)['/players/nfl'];
     $rostered = mfl_value_rosters();
-
-    // Each player's current points per game: Sleeper's projection, this
-    // season's scoring and last season's, blended by how much each has to say.
+    // Each player's scoring rate: Sleeper's projection, this season's points
+    // per game and last season's, blended by how much each has to say.
     $players = [];
-    foreach ($all as $pid => $p) {
+    foreach ($o['players'] as $pid => $p) {
         $pid = (string) $pid;
         $pos = $p['position'] ?? '';
         if (!in_array($pos, MFL_VALUE_POSITIONS, true)) continue;
         $team = (string) ($p['team'] ?? '');
-        if ($team === '' && !isset($rostered[$pid])) continue;
+        $now = $actual[$pid][$season] ?? null;
+        $prev = $actual[$pid][$season - 1] ?? null;
+        if ($team === '' && !isset($rostered[$pid]) && !$now && !$prev) continue;
         $parts = [];
         if (!empty($proj[$pid])) $parts[] = [array_sum($proj[$pid]) / count($proj[$pid]), 0.5];
-        $now = $actual[$pid][$season] ?? null;
         if ($now) $parts[] = [$now['pts'] / $now['games'], 0.35 * min(1, $now['games'] / 6)];
-        $prev = $actual[$pid][$season - 1] ?? null;
         if ($prev) $parts[] = [$prev['pts'] / $prev['games'], 0.15 * min(1, $prev['games'] / 8)];
         $weight = array_sum(array_column($parts, 1));
-        $ppg = $weight ? array_sum(array_map(fn($x) => $x[0] * $x[1], $parts)) / $weight : 0.0;
-        $players[$pid] = ['pid' => $pid, 'pos' => $pos, 'team' => $team, 'ppg' => $ppg,
+        $players[$pid] = ['pid' => $pid, 'pos' => $pos, 'team' => $team,
+                          'ppg' => $weight ? array_sum(array_map(fn($x) => $x[0] * $x[1], $parts)) / $weight : 0.0,
                           'name' => trim($p['full_name'] ?? (($p['first_name'] ?? '') . ' ' . ($p['last_name'] ?? ''))),
-                          'birth' => $p['birth_date'] ?? null, 'injury' => (string) ($p['injury_status'] ?? '')];
+                          'birth' => $p['birth_date'] ?? null, 'injury' => $o['weekly'] ? (string) ($p['injury_status'] ?? '') : ''];
     }
-    unset($all);
 
     $byPos = [];
-    foreach ($players as $p) if ($p['team'] !== '' && $p['ppg'] > 0) $byPos[$p['pos']][] = $p['ppg'];
+    foreach ($players as $p) if ($p['ppg'] > 0 && ($p['team'] !== '' || !$o['weekly'])) $byPos[$p['pos']][] = $p['ppg'];
     $repl = mfl_replacement($byPos);
 
-    // League rookie draft picks: a young player is still partly the pick he
-    // was, since one partial season says little about his future. That weight
-    // is 50% in his rookie season and 25% the year after.
+    // League rookie picks: a young player is still partly the pick he was,
+    // since one partial season says little about his future. That weight is
+    // 50% in his rookie season and 25% the year after.
     $rookies = [];
-    $stmt = db()->prepare('SELECT p.player_id, p.pick_no, d.season FROM mfl_draft_picks p JOIN mfl_drafts d ON d.id = p.draft_id
-                            WHERE d.rounds <= 6 AND d.season >= ?');
-    $stmt->execute([$season - 1]);
-    foreach ($stmt as $r) $rookies[(string) $r['player_id']] = ['pick' => (int) $r['pick_no'], 'draft' => (int) $r['season']];
-    $restOfSeason = $w['to'] >= $w['from'] ? ($w['to'] - $w['from'] + 1) / $w['to'] : 0;
+    $stmt = db()->prepare('SELECT p.player_id, p.pick_no, d.season, d.started_at FROM mfl_draft_picks p JOIN mfl_drafts d ON d.id = p.draft_id
+                            WHERE d.rounds <= 6 AND d.season BETWEEN ? AND ?');
+    $stmt->execute([$season - 1, $season]);
+    foreach ($stmt as $r) {
+        if (!empty($o['before']) && (!$r['started_at'] || $r['started_at'] >= $o['before'])) continue;
+        $rookies[(string) $r['player_id']] = ['pick' => (int) $r['pick_no'], 'draft' => (int) $r['season']];
+    }
+    $restOfSeason = $o['to'] > 0 ? $weeksLeft / $o['to'] : 0;
 
-    $market = mfl_market_fetch();
-    $rows = [];
+    $out = [];
     foreach ($players as $pid => $p) {
         $pos = $p['pos'];
         $par = [];
-        // This season: Sleeper's week-by-week projection, so byes and injuries count.
-        $ros = 0.0;
-        foreach ($proj[$pid] ?? [] as $pts) $ros += max(0, $pts - $repl[$pos]);
+        if ($o['weekly']) {
+            $ros = 0.0;
+            foreach ($proj[$pid] ?? [] as $wk => $pts) $ros += max(0, $pts - $repl[$pos]);
+        } else {
+            $ros = $weeksLeft * ($model['availability'][$pos] ?? 0.82) * max(0, $p['ppg'] - $repl[$pos]);
+        }
         $par[] = $ros;
         // Later seasons: age the scoring rate, and expect fewer games the
         // older a player gets and the further out we look. The further out,
         // the wider the range of outcomes, which is where young players'
         // upside comes from.
         $ppg = $p['ppg'];
-        $alive = $p['team'] === '' ? 0.5 : 1.0;
+        $alive = $p['team'] === '' && $o['weekly'] ? 0.5 : 1.0;
         for ($k = 1; $k < MFL_VALUE_YEARS; $k++) {
-            $age = mfl_age_in($p['birth'], $season + $k - 1) ?? 26;
-            $age = max(20, min(40, $age));
+            $age = max(20, min(40, mfl_age_in($p['birth'], $season + $k - 1) ?? 26));
             $ppg *= $model['aging'][$pos][$age] ?? 0.9;
             $alive *= $model['retain'][$pos][$age] ?? 0.8;
             $games = 17 * ($model['availability'][$pos] ?? 0.82) * $alive;
@@ -293,15 +298,46 @@ function mfl_sync_values(bool $force = false): int
                 }
             }
         }
-        $value = mfl_weighted($par);
+        $out[$pid] = $p + ['par' => $par, 'value' => mfl_weighted($par)];
+    }
+    return ['players' => $out, 'replacement' => $repl];
+}
+
+/**
+ * Recompute every player's value. Runs from the sync at most once a day,
+ * since it downloads Sleeper's full player list, which Sleeper asks to fetch
+ * no more than daily. Also saves today's market prices and values any new
+ * trade as it looked when it happened. Returns the number of players valued,
+ * or 0 if skipped.
+ */
+function mfl_sync_values(bool $force = false): int
+{
+    $run = mfl_value_meta('run');
+    if (!$force && $run && strtotime($run['computed_at']) > time() - 20 * 3600) return 0;
+
+    ini_set('memory_limit', '512M');
+    $w = mfl_value_window();
+    $season = $w['season'];
+    $league = sleeper_get('/league/' . $w['league_id']);
+    $scoring = $league['scoring_settings'] ?? [];
+    $all = sleeper_get_many(['/players/nfl'], 90)['/players/nfl'];
+    $through = $w['live'] ? $w['from'] - 1 : ($w['from'] > 1 ? $w['from'] - 1 : 0);
+    $computed = mfl_compute_values(['season' => $season, 'from' => $w['from'], 'to' => $w['to'], 'through' => $through,
+                                    'scoring' => $scoring, 'players' => $all, 'weekly' => true]);
+    $rostered = mfl_value_rosters();
+    $market = mfl_market_fetch();
+
+    $rows = [];
+    foreach ($computed['players'] as $pid => $p) {
         $m = $market['players'][$pid] ?? null;
-        if ($value < 1 && !$m && !isset($rostered[$pid])) continue;
+        if ($p['team'] === '' && !isset($rostered[$pid])) continue;
+        if ($p['value'] < 1 && !$m && !isset($rostered[$pid])) continue;
         $rows[] = [
-            'player_id' => $pid, 'name' => $p['name'], 'position' => $pos, 'nfl_team' => $p['team'],
+            'player_id' => $pid, 'name' => $p['name'], 'position' => $p['pos'], 'nfl_team' => $p['team'],
             'birth_date' => $p['birth'] && preg_match('/^\d{4}-\d{2}-\d{2}$/', $p['birth']) ? $p['birth'] : null,
             'injury' => substr($p['injury'], 0, 20), 'ppg' => round($p['ppg'], 2),
-            'par_json' => json_encode(array_map(fn($v) => round($v, 1), $par)),
-            'model_value' => round($value, 1),
+            'par_json' => json_encode(array_map(fn($v) => round($v, 1), $p['par'])),
+            'model_value' => round($p['value'], 1),
             'market_value' => $m['value'] ?? null, 'market_trend' => $m['trend'] ?? null,
         ];
     }
@@ -316,11 +352,29 @@ function mfl_sync_values(bool $force = false): int
     }
     mfl_set_value_meta('run', [
         'computed_at' => date('Y-m-d H:i:s'), 'season' => $season, 'weeks' => [$w['from'], $w['to']],
-        'replacement' => array_map(fn($v) => round($v, 2), $repl), 'market' => $market !== null,
+        'replacement' => array_map(fn($v) => round($v, 2), $computed['replacement']), 'market' => $market !== null,
     ]);
-    // A failed market fetch keeps yesterday's pick prices rather than none.
-    if ($market) mfl_set_value_meta('market_picks', $market['picks']);
+    if ($market) {
+        // A failed market fetch keeps yesterday's pick prices rather than none.
+        mfl_set_value_meta('market_picks', $market['picks']);
+        // Today's prices, so a trade made today can later show its market value at the time.
+        $snap = [];
+        foreach ($market['players'] as $pid => $m) $snap[] = [date('Y-m-d'), "p$pid", $m['value']];
+        foreach ($market['picks'] as $name => $v) $snap[] = [date('Y-m-d'), "n$name", $v];
+        foreach (array_chunk($snap, 300) as $chunk) {
+            db()->prepare('INSERT IGNORE INTO mfl_market_snapshots (day, item, value) VALUES '
+                . implode(',', array_fill(0, count($chunk), '(?,?,?)')))->execute(array_merge(...$chunk));
+        }
+    }
     db()->commit();
+
+    // Old trades as they looked at the time. Done once per trade, and a
+    // failure here never costs today's values.
+    try {
+        mfl_sync_trade_values($all, $scoring);
+    } catch (Throwable $e) {
+        if (db()->inTransaction()) db()->rollBack();
+    }
     return count($rows);
 }
 
@@ -337,64 +391,178 @@ function mfl_player_values(): array
     return $values;
 }
 
-/**
- * Where each team is likely to pick in the next draft, worst team first, as
- * [franchise_id => [slot => probability]]. Based on this season's record
- * against every team, every week; less certain the more season is left.
- */
-function mfl_pick_slot_odds(int $season): array
+/** One season's regular-season results so far: [franchise_id => wins, pf, games, allplay]. */
+function mfl_season_form(int $season, int $before): array
 {
-    $teams = array_map('intval', db()->query("SELECT franchise_id FROM mfl_team_seasons WHERE season = $season")->fetchAll(PDO::FETCH_COLUMN));
-    $n = count($teams);
-    if (!$n) return [];
-    $games = array_filter(mfl_games(), fn($g) => $g['season'] === $season && $g['kind'] === 'regular');
+    $stmt = db()->prepare('SELECT week, franchise_id, points, result FROM mfl_matchups
+                            WHERE season = ? AND week < ? AND result IS NOT NULL');
+    $stmt->execute([$season, $before]);
     $weeks = [];
-    foreach ($games as $g) $weeks[$g['week']][$g['franchise_id']] = (float) $g['points'];
-    $pct = array_fill_keys($teams, 0.5);
-    $wins = $played = [];
+    $form = [];
+    foreach ($stmt as $g) {
+        $fid = (int) $g['franchise_id'];
+        $form[$fid] ??= ['wins' => 0.0, 'pf' => 0.0, 'games' => 0, 'ap_w' => 0.0, 'ap_n' => 0];
+        $form[$fid]['wins'] += ['W' => 1, 'T' => 0.5][$g['result']] ?? 0;
+        $form[$fid]['pf'] += (float) $g['points'];
+        $form[$fid]['games']++;
+        $weeks[(int) $g['week']][$fid] = (float) $g['points'];
+    }
     foreach ($weeks as $scores) {
         foreach ($scores as $fid => $pts) {
             foreach ($scores as $other => $q) {
                 if ($other === $fid) continue;
-                $wins[$fid] = ($wins[$fid] ?? 0) + ($pts > $q ? 1 : ($pts == $q ? 0.5 : 0));
-                $played[$fid] = ($played[$fid] ?? 0) + 1;
+                $form[$fid]['ap_w'] += $pts > $q ? 1 : ($pts == $q ? 0.5 : 0);
+                $form[$fid]['ap_n']++;
             }
         }
     }
-    foreach ($played as $fid => $p) $pct[$fid] = $wins[$fid] / $p;
-    asort($pct);
-    $s = db()->query("SELECT playoff_week_start FROM mfl_seasons WHERE season = $season")->fetch();
-    $regular = max(1, (int) ($s['playoff_week_start'] ?? 15) - 1);
-    $left = max(0, $regular - count($weeks)) / $regular;
-    $sd = 1.2 + 3.5 * $left;
-    $odds = [];
-    $rank = 0;
-    foreach ($pct as $fid => $_) {
-        $rank++;
-        $row = [];
-        for ($slot = 1; $slot <= $n; $slot++) $row[$slot] = exp(-(($slot - $rank) ** 2) / (2 * $sd * $sd));
-        $sum = array_sum($row);
-        $odds[$fid] = array_map(fn($v) => $v / $sum, $row);
+    return ['teams' => $form, 'weeks' => count($weeks)];
+}
+
+/** Final standings order, best first: wins, then points for. */
+function mfl_standings_order(array $form): array
+{
+    $ids = array_keys($form);
+    usort($ids, fn($a, $b) => [$form[$b]['wins'], $form[$b]['pf']] <=> [$form[$a]['wins'], $form[$a]['pf']]);
+    return $ids;
+}
+
+/**
+ * Where each team will pick in the rookie draft that follows a season, as
+ * [franchise_id => [slot => probability]], or NULL before the season has a
+ * result. This league drafts in reverse order of finish: teams that miss the
+ * playoffs by standings (worst record first), then playoff teams by how far
+ * they got, so the champion picks last.
+ *
+ * A finished season gives the exact order. One in progress is simulated: the
+ * rest of the regular season from each team's record against every team,
+ * every week, then the bracket. $through counts only results up to that week,
+ * for valuing an old trade as it looked at the time.
+ */
+function mfl_draft_slot_odds(int $season, ?int $through = null): ?array
+{
+    static $cache = [];
+    $key = $season . '-' . ($through ?? 'all');
+    if (array_key_exists($key, $cache)) return $cache[$key];
+    $stmt = db()->prepare('SELECT * FROM mfl_seasons WHERE season = ?');
+    $stmt->execute([$season]);
+    $s = $stmt->fetch();
+    if (!$s) return $cache[$key] = null;
+    $regular = (int) $s['playoff_week_start'] - 1;
+    $cut = $through === null ? $regular + 1 : min($regular, $through) + 1;
+    $f = mfl_season_form($season, $cut);
+    $form = $f['teams'];
+    $n = count($form);
+    $playoffs = (int) $s['playoff_teams'];
+    if (!$f['weeks'] || $n < 2) return $cache[$key] = null;
+
+    $odds = array_fill_keys(array_keys($form), array_fill(1, $n, 0.0));
+    // Finished: the bracket's placement games give places 1 to 6.
+    if ($s['status'] === 'complete' && $through === null) {
+        $place = [];
+        $stmt = db()->prepare("SELECT winner_franchise_id w, loser_franchise_id l, placement FROM mfl_brackets
+                                WHERE season = ? AND bracket = 'winners' AND placement IS NOT NULL");
+        $stmt->execute([$season]);
+        foreach ($stmt as $b) {
+            if ($b['w']) $place[(int) $b['w']] = (int) $b['placement'];
+            if ($b['l']) $place[(int) $b['l']] = (int) $b['placement'] + 1;
+        }
+        if (count($place) === $playoffs) {
+            $next = $playoffs;
+            foreach (mfl_standings_order($form) as $fid) if (!isset($place[$fid])) $place[$fid] = ++$next;
+            foreach ($place as $fid => $p) $odds[$fid][$n + 1 - $p] = 1.0;
+            return $cache[$key] = $odds;
+        }
     }
-    return $odds;
+
+    // In progress: simulate. Early-season form is shrunk toward average, since
+    // a few weeks say little.
+    $remaining = max(0, $regular - $f['weeks']);
+    $trust = $f['weeks'] / ($f['weeks'] + 4);
+    $p = $ppg = [];
+    $avgPpg = array_sum(array_column($form, 'pf')) / max(1, array_sum(array_column($form, 'games')));
+    foreach ($form as $fid => $t) {
+        $ap = $t['ap_n'] ? $t['ap_w'] / $t['ap_n'] : 0.5;
+        $p[$fid] = min(0.95, max(0.05, 0.5 + $trust * ($ap - 0.5)));
+        $ppg[$fid] = $t['games'] ? $t['pf'] / $t['games'] : $avgPpg;
+    }
+    // Head to head, from each team's chance against an average one (log5).
+    $beats = fn($a, $b) => mt_rand() / mt_getrandmax() < $p[$a] * (1 - $p[$b]) / ($p[$a] * (1 - $p[$b]) + $p[$b] * (1 - $p[$a]));
+    // The same answer all day, so pages don't flicker between loads.
+    mt_srand(crc32("$key-" . date('Y-m-d')));
+    $runs = 3000;
+    for ($i = 0; $i < $runs; $i++) {
+        $final = [];
+        foreach ($form as $fid => $t) {
+            $wins = $t['wins'];
+            for ($g = 0; $g < $remaining; $g++) if (mt_rand() / mt_getrandmax() < $p[$fid]) $wins++;
+            $final[$fid] = ['wins' => $wins, 'pf' => $t['pf'] + $remaining * $ppg[$fid] * (0.85 + 0.3 * mt_rand() / mt_getrandmax())];
+        }
+        $seeds = mfl_standings_order($final);
+        $place = [];
+        if ($playoffs === 6 && $n >= 6) {
+            // Seeds 1 and 2 get byes; 3 plays 6 and 4 plays 5, without reseeding.
+            [$s1, $s2, $s3, $s4, $s5, $s6] = array_slice($seeds, 0, 6);
+            [$w36, $l36] = $beats($s3, $s6) ? [$s3, $s6] : [$s6, $s3];
+            [$w45, $l45] = $beats($s4, $s5) ? [$s4, $s5] : [$s5, $s4];
+            [$wa, $la] = $beats($s1, $w45) ? [$s1, $w45] : [$w45, $s1];
+            [$wb, $lb] = $beats($s2, $w36) ? [$s2, $w36] : [$w36, $s2];
+            [$place[$wa], $place[$wb]] = $beats($wa, $wb) ? [1, 2] : [2, 1];
+            [$place[$la], $place[$lb]] = $beats($la, $lb) ? [3, 4] : [4, 3];
+            [$place[$l36], $place[$l45]] = $beats($l36, $l45) ? [5, 6] : [6, 5];
+        } else {
+            // Other bracket sizes: playoff teams finish in seed order.
+            foreach (array_slice($seeds, 0, $playoffs) as $k => $fid) $place[$fid] = $k + 1;
+        }
+        $next = count($place);
+        foreach ($seeds as $fid) if (!isset($place[$fid])) $place[$fid] = ++$next;
+        foreach ($place as $fid => $pl) $odds[$fid][$n + 1 - $pl] += 1 / $runs;
+    }
+    return $cache[$key] = $odds;
+}
+
+/** A pick's points above replacement for each valued season, starting with $season. */
+function mfl_pick_par(int $draft, int $round, array $slotOdds, int $season): array
+{
+    $model = mfl_model();
+    $n = count($slotOdds);
+    $par = array_fill(0, MFL_VALUE_YEARS, 0.0);
+    foreach ($slotOdds as $slot => $p) {
+        if ($p <= 0) continue;
+        foreach ($model['picks'][(string) (($round - 1) * $n + $slot)] ?? [] as $i => $v) {
+            $offset = $draft - $season + $i;
+            if ($offset >= 0 && $offset < MFL_VALUE_YEARS) $par[$offset] += $p * $v;
+        }
+    }
+    return $par;
+}
+
+/** FantasyCalc's name for a pick: "2027 1st (Early)" when its slot is known well enough, else "2027 1st". */
+function mfl_pick_market_name(int $draft, int $round, ?array $slotOdds, array $prices): string
+{
+    $ordinal = [1 => '1st', 2 => '2nd', 3 => '3rd', 4 => '4th', 5 => '5th'];
+    $base = "$draft " . ($ordinal[$round] ?? "{$round}th");
+    if (!$slotOdds) return $base;
+    $n = count($slotOdds);
+    $expected = array_sum(array_map(fn($s, $p) => $s * $p, array_keys($slotOdds), $slotOdds));
+    $tier = $expected <= $n / 3 ? ' (Early)' : ($expected <= 2 * $n / 3 ? ' (Mid)' : ' (Late)');
+    return isset($prices[$base . $tier]) ? $base . $tier : $base;
 }
 
 /**
  * Every tradable future pick with its owner and both values.
- * Returns rows of [season, round, original, owner, slot_odds, expected_slot,
- * par (per valued season), model_value, market_value, market_name].
+ * Returns rows of [season, round, original, owner, near, slot_odds,
+ * expected_slot, par (per valued season), model_value, market_value, market_name].
  */
 function mfl_pick_values(): array
 {
     static $rows = null;
     if ($rows !== null) return $rows;
     $rows = [];
-    $model = mfl_model();
     $run = mfl_value_meta('run');
-    if (!$model || !$run) return $rows;
+    if (!mfl_model() || !$run) return $rows;
     $season = (int) $run['season'];
     $marketPicks = mfl_value_meta('market_picks') ?? [];
-    $ordinal = [1 => '1st', 2 => '2nd', 3 => '3rd', 4 => '4th', 5 => '5th'];
 
     $latest = db()->query("SELECT d.season, d.rounds, d.status FROM mfl_drafts d WHERE d.rounds <= 6 ORDER BY d.season DESC LIMIT 1")->fetch();
     $rounds = (int) ($latest['rounds'] ?? 4);
@@ -406,32 +574,21 @@ function mfl_pick_values(): array
     foreach (db()->query('SELECT * FROM mfl_traded_picks') as $t) {
         $traded["{$t['pick_season']}-{$t['round']}-{$t['original_franchise_id']}"] = (int) $t['current_franchise_id'];
     }
-    $oddsSeason = (int) db()->query('SELECT MAX(season) FROM mfl_seasons')->fetchColumn();
-    $odds = mfl_pick_slot_odds($oddsSeason);
     $uniform = array_fill(1, $n, 1 / $n);
 
     for ($draft = $first; $draft <= $first + 2; $draft++) {
-        // Only the next draft has a meaningful order yet.
-        $near = $draft === $oddsSeason + 1;
+        // A draft's order comes from the season before it, once that has results.
+        $odds = mfl_draft_slot_odds($draft - 1);
         foreach ($teams as $fid) {
-            $slotOdds = $near ? ($odds[$fid] ?? $uniform) : $uniform;
+            $slotOdds = $odds[$fid] ?? $uniform;
             $expected = array_sum(array_map(fn($s, $p) => $s * $p, array_keys($slotOdds), $slotOdds));
             for ($round = 1; $round <= $rounds; $round++) {
-                $par = array_fill(0, MFL_VALUE_YEARS, 0.0);
-                foreach ($slotOdds as $slot => $p) {
-                    $years = $model['picks'][(string) (($round - 1) * $n + $slot)] ?? [];
-                    foreach ($years as $i => $v) {
-                        $offset = $draft - $season + $i;
-                        if ($offset >= 0 && $offset < MFL_VALUE_YEARS) $par[$offset] += $p * $v;
-                    }
-                }
-                $tier = $expected <= $n / 3 ? ' (Early)' : ($expected <= 2 * $n / 3 ? ' (Mid)' : ' (Late)');
-                $base = "$draft " . ($ordinal[$round] ?? "{$round}th");
-                $marketName = $near && isset($marketPicks[$base . $tier]) ? $base . $tier : $base;
+                $par = mfl_pick_par($draft, $round, $slotOdds, $season);
+                $marketName = mfl_pick_market_name($draft, $round, $odds ? $slotOdds : null, $marketPicks);
                 $rows[] = [
                     'season' => $draft, 'round' => $round, 'original' => $fid,
                     'owner' => $traded["$draft-$round-$fid"] ?? $fid,
-                    'near' => $near, 'slot_odds' => $slotOdds, 'expected_slot' => $expected,
+                    'near' => $odds !== null, 'slot_odds' => $slotOdds, 'expected_slot' => $expected,
                     'par' => $par, 'model_value' => mfl_weighted($par),
                     'market_value' => $marketPicks[$marketName] ?? null, 'market_name' => $marketName,
                 ];
@@ -439,6 +596,70 @@ function mfl_pick_values(): array
         }
     }
     return $rows;
+}
+
+/**
+ * Value every trade that hasn't been yet, as it looked when it happened:
+ * players by the model as of that week, picks by the draft order as it stood
+ * then, and market prices from that day's snapshot if there is one (snapshots
+ * start with this feature, so older trades have none).
+ */
+function mfl_sync_trade_values(array $all, array $scoring): void
+{
+    $done = array_flip(db()->query('SELECT DISTINCT trade_id FROM mfl_trade_values')->fetchAll(PDO::FETCH_COLUMN));
+    $trades = array_filter(db()->query("SELECT * FROM mfl_transactions WHERE type = 'trade' AND status = 'complete'")->fetchAll(),
+                           fn($t) => !isset($done[$t['id']]));
+    if (!$trades) return;
+    $seasons = [];
+    foreach (db()->query('SELECT * FROM mfl_seasons') as $s) $seasons[(int) $s['season']] = $s;
+    $n = (int) db()->query('SELECT COUNT(*) FROM mfl_franchises')->fetchColumn();
+    $uniform = array_fill(1, $n, 1 / $n);
+    $computed = [];
+
+    foreach ($trades as $t) {
+        $season = (int) $t['season'];
+        $s = $seasons[$season] ?? null;
+        if (!$s) continue;
+        $at = $t['completed_at'] ?: $t['created_at'];
+        $rounds = (int) ceil(log(max(2, (int) $s['playoff_teams']), 2));
+        $lastWeek = (int) $s['playoff_week_start'] + $rounds - 1;
+        // Before the NFL season (September) a trade sees the whole season ahead.
+        $preseason = $at < "$season-09-01";
+        $from = $preseason ? 1 : max(1, min($lastWeek, (int) $t['week']));
+        $through = $from - 1;
+        $key = "$season-$from";
+        $computed[$key] ??= mfl_compute_values(['season' => $season, 'from' => $from, 'to' => $lastWeek, 'through' => $through,
+                                                'scoring' => $scoring, 'players' => $all, 'weekly' => false, 'before' => $at]);
+        $players = $computed[$key]['players'];
+
+        $stmt = db()->prepare('SELECT item, value FROM mfl_market_snapshots WHERE day = ?');
+        $stmt->execute([substr($at, 0, 10)]);
+        $prices = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+        $rows = [];
+        foreach (array_keys(json_decode((string) $t['adds_json'], true) ?: []) as $pid) {
+            $pid = (string) $pid;
+            $rows[] = [$t['id'], "p$pid", round($players[$pid]['value'] ?? 0, 1), $prices["p$pid"] ?? null];
+        }
+        foreach (json_decode((string) $t['picks_json'], true) ?: [] as $pick) {
+            $draft = (int) $pick['season'];
+            $round = (int) $pick['round'];
+            $original = (int) $pick['roster_id'];
+            // The order then: settled if the season before the draft was over, a
+            // simulation from the results so far if it was under way.
+            $basis = $draft - 1;
+            $odds = $basis < $season ? mfl_draft_slot_odds($basis) : ($basis === $season && !$preseason ? mfl_draft_slot_odds($basis, $through) : null);
+            $slotOdds = $odds[$original] ?? $uniform;
+            $value = mfl_weighted(mfl_pick_par($draft, $round, $slotOdds, $season));
+            $names = [];
+            foreach ($prices as $item => $v) if ($item[0] === 'n') $names[substr($item, 1)] = $v;
+            $name = mfl_pick_market_name($draft, $round, $odds ? $slotOdds : null, $names);
+            $rows[] = [$t['id'], "k$draft-$round-$original", round($value, 1), $names[$name] ?? null];
+        }
+        if (!$rows) continue;
+        db()->prepare('INSERT IGNORE INTO mfl_trade_values (trade_id, item, model_then, market_then) VALUES '
+            . implode(',', array_fill(0, count($rows), '(?,?,?,?)')))->execute(array_merge(...$rows));
+    }
 }
 
 /** "1.03–1.07": the likely range of a pick, or just the round when it's anyone's guess. */
@@ -658,4 +879,117 @@ function mfl_trade_machine_data(array $owner): array
     return ['teams' => $teams, 'mine' => $mine, 'players' => $players, 'picks' => $picks,
             'clocks' => MFL_CLOCKS, 'balanced' => 2, 'seasons' => $seasons,
             'updated' => $run ? central_time($run['computed_at'], 'M j, g:i a') . ' CT' : null];
+}
+
+/**
+ * Reference points for reading the numbers, for the FAQ: the value at a few
+ * ranks under each view, and where first-round picks land among players.
+ * Ranks are across every valued player, rostered or not.
+ */
+function mfl_value_anchors(array $ranks = [6, 12, 24, 50, 100]): array
+{
+    $values = array_values(mfl_player_values());
+    if (!$values) return [];
+    $model = array_map('floatval', array_column($values, 'model_value'));
+    rsort($model);
+    $market = array_map('intval', array_filter(array_column($values, 'market_value'), fn($v) => $v !== null));
+    rsort($market);
+    $tiers = [];
+    foreach ($ranks as $r) $tiers[$r] = ['model' => $model[$r - 1] ?? null, 'market' => $market[$r - 1] ?? null];
+    $rankOf = fn(array $list, ?float $v) => $v === null ? null : count(array_filter($list, fn($x) => $x > $v)) + 1;
+    $picks = [];
+    $first = array_filter(mfl_pick_values(), fn($p) => $p['round'] === 1);
+    if ($first) {
+        $near = array_filter($first, fn($p) => $p['near']);
+        $later = array_filter($first, fn($p) => !$p['near']);
+        usort($near, fn($a, $b) => $b['model_value'] <=> $a['model_value']);
+        $rows = [];
+        if ($near) {
+            $rows['An early ' . $near[0]['season'] . ' 1st'] = $near[0];
+            $rows['A late ' . $near[0]['season'] . ' 1st'] = end($near);
+        }
+        if ($later) $rows['A ' . reset($later)['season'] . ' 1st'] = reset($later);
+        foreach ($rows as $label => $p) {
+            $picks[] = ['label' => $label, 'model' => $p['model_value'], 'market' => $p['market_value'],
+                        'model_rank' => $rankOf($model, $p['model_value']), 'market_rank' => $rankOf($market, $p['market_value'])];
+        }
+    }
+    return ['tiers' => $tiers, 'picks' => $picks];
+}
+
+/* ---- Trade scorecards ---- */
+
+/**
+ * How a past trade looked then and how it looks now, for each side, from what
+ * that side received:
+ *   then    the model and market value when the trade happened
+ *   so_far  points above a replacement starter in games the player started for this team since
+ *   held    today's value of whatever this team still has from the deal (a
+ *           pick that was used counts as the player it became)
+ *   now     so_far + held
+ * Something traded on again counts here only until it left: its value moves
+ * to the later trade. Returns NULL until the trade has been valued.
+ */
+function mfl_trade_scorecard(array $trade): ?array
+{
+    static $then = null;
+    if ($then === null) {
+        $then = [];
+        foreach (db()->query('SELECT * FROM mfl_trade_values') as $r) $then[$r['trade_id']][$r['item']] = $r;
+    }
+    if (!isset($then[$trade['id']])) return null;
+    $run = mfl_value_meta('run');
+    $repl = $run['replacement'] ?? [];
+    $values = mfl_player_values();
+    $holders = mfl_current_rosters();
+    $picks = [];
+    foreach (mfl_pick_values() as $p) $picks["k{$p['season']}-{$p['round']}-{$p['original']}"] = $p;
+
+    $sides = [];
+    foreach ($trade['sides'] as $side) {
+        $fid = $side['franchise_id'];
+        $card = ['franchise_id' => $fid, 'model_then' => 0.0, 'market_then' => 0, 'market_then_known' => true,
+                 'so_far' => 0.0, 'held' => 0.0, 'held_market' => 0, 'left' => []];
+        foreach ($side['assets'] as $a) {
+            $item = $a['item'] ?? null;
+            $t = $item ? ($then[$trade['id']][$item] ?? null) : null;
+            $card['model_then'] += (float) ($t['model_then'] ?? 0);
+            if ($t && $t['market_then'] !== null) $card['market_then'] += (int) $t['market_then'];
+            else $card['market_then_known'] = false;
+            if (!empty($a['is_pick'])) {
+                // Not drafted yet: worth today's pick value if this team still has it.
+                $p = $picks[$item] ?? null;
+                if ($p && ($a['holder'] ?? null) === $fid) {
+                    $card['held'] += $p['model_value'];
+                    $card['held_market'] += (int) ($p['market_value'] ?? 0);
+                }
+                continue;
+            }
+            if (($a['used_by'] ?? $fid) !== $fid) continue;   // the pick was traded on before the draft
+            $pos = $a['position'] ?? '';
+            if (isset($repl[$pos])) $card['so_far'] += max(0, (float) ($a['all']['points'] ?? 0) - ($a['all']['starts'] ?? 0) * $repl[$pos]);
+            if (($holders[$a['player_id']] ?? null) === $fid) {
+                $card['held'] += (float) ($values[$a['player_id']]['model_value'] ?? 0);
+                $card['held_market'] += (int) ($values[$a['player_id']]['market_value'] ?? 0);
+            } else {
+                $card['left'][] = $a['name'];
+            }
+        }
+        $card['now'] = $card['so_far'] + $card['held'];
+        $sides[] = $card;
+    }
+    return $sides;
+}
+
+/** "Jim Sorgi by 18%", or "Even" within 5%, comparing one number across two sides. */
+function mfl_scorecard_edge(array $cards, string $key, array $names): string
+{
+    if (count($cards) !== 2) return '';
+    [$a, $b] = $cards;
+    $hi = max($a[$key], $b[$key]);
+    if ($hi <= 0) return 'Even';
+    $gap = abs($a[$key] - $b[$key]) / $hi;
+    if ($gap < 0.05) return 'Even';
+    $win = $a[$key] > $b[$key] ? $a : $b;
+    return ($names[$win['franchise_id']] ?? 'Team') . ' by ' . round($gap * 100) . '%';
 }

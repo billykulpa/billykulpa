@@ -218,6 +218,7 @@ function mfl_trades(int $season): array
             $p = $players[$pid] ?? [];
             $stats = mfl_trade_stats((int) $fid, $pid, mfl_weeks_held((int) $fid, $pid, $season, (int) $t['week']), $season);
             $sides[(int) $fid]['assets'][] = $stats + [
+                'item' => "p$pid", 'used_by' => (int) $fid,
                 'player_id' => $pid, 'name' => ($p['full_name'] ?? '') ?: $pid, 'position' => $p['position'] ?? '', 'note' => '',
                 'status' => mfl_player_status($pid, (int) $fid, $at, $names),
             ];
@@ -235,6 +236,7 @@ function mfl_trades(int $season): array
                 $by = (int) $outcome['franchise_id'];
                 $stats = mfl_trade_stats($by, $pid, mfl_weeks_held($by, $pid, (int) $outcome['season'], 1), $season);
                 $sides[$fid]['assets'][] = $stats + [
+                    'item' => "k{$pick['season']}-{$pick['round']}-$original", 'used_by' => $by,
                     'player_id' => $pid, 'name' => $outcome['player_name'], 'position' => $outcome['position'],
                     'note' => $label . ', used at ' . mfl_pick_label($outcome) . ($by !== $fid ? ' by ' . ($names[$by] ?? '') : ''),
                     'status' => mfl_player_status($pid, $by, (string) $outcome['started_at'], $names),
@@ -244,6 +246,7 @@ function mfl_trades(int $season): array
             }
             $holder = $traded["{$pick['season']}-{$pick['round']}-$original"] ?? $fid;
             $sides[$fid]['assets'][] = [
+                'item' => "k{$pick['season']}-{$pick['round']}-$original", 'holder' => $holder,
                 'name' => ucfirst($label), 'position' => 'Pick', 'note' => '', 'season' => ['weeks' => 0], 'all' => ['weeks' => 0], 'is_pick' => true,
                 'status' => ['label' => $holder === $fid ? 'Not drafted yet' : 'Now held by ' . ($names[$holder] ?? "Team $holder"), 'path' => [], 'state' => 'pick'],
             ];

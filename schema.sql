@@ -418,3 +418,21 @@ CREATE TABLE IF NOT EXISTS mfl_value_meta (
   value_json MEDIUMTEXT NOT NULL,
   updated_at DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Trade scorecards. What each traded player or pick was worth when the trade
+-- happened (worked out once, by the daily sync), and daily market prices so
+-- future trades have a market value at the time too.
+CREATE TABLE IF NOT EXISTS mfl_trade_values (
+  trade_id VARCHAR(32) NOT NULL,
+  item VARCHAR(40) NOT NULL,                    -- p<player id> or k<draft>-<round>-<original team>
+  model_then DECIMAL(7,1) NOT NULL,
+  market_then INT NULL,
+  PRIMARY KEY (trade_id, item)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_market_snapshots (
+  day DATE NOT NULL,
+  item VARCHAR(40) NOT NULL,                    -- p<player id> or n<pick name>
+  value INT NOT NULL,
+  PRIMARY KEY (day, item)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

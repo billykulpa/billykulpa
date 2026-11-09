@@ -6,7 +6,9 @@ $ages = array_keys($aging['RB']);
 $firstRound = [];
 for ($slot = 1; $slot <= 12; $slot++) $firstRound[$slot] = array_sum($model['picks'][(string) $slot] ?? []);
 $weights = array_map(fn($w) => round($w * 100) . '%', MFL_VALUE_WEIGHTS);
-$season = (int) ($run['season'] ?? date('Y')); ?>
+$season = (int) ($run['season'] ?? date('Y'));
+$anchors = $run ? mfl_value_anchors() : [];
+$tierNames = [6 => 'Franchise player', 12 => 'Top starter', 24 => 'Every-week starter', 50 => 'Solid starter or rising young player', 100 => 'Flex, depth or a long-shot bet']; ?>
 <section class="hero hero--tight">
   <p class="mono-label"><a class="link" href="/trades">Trades</a> · FAQ</p>
   <h1>How trade values are calculated</h1>
@@ -19,7 +21,44 @@ $season = (int) ($run['season'] ?? date('Y')); ?>
     <li><b>Model</b> is our own estimate: the fantasy points a player should score above a replacement starter, this season and the next four, under this league's scoring. A pick is worth what its draft slot has produced in the past.</li>
     <li><b>Market</b> is what dynasty managers are actually paying, from <a class="link" href="https://fantasycalc.com" rel="noopener">FantasyCalc</a>, which builds its values from real trades in leagues set up like ours: 12 teams, 1 QB, full PPR.</li>
   </ul>
-  <p>The two use different scales, so compare a player's ranks, not the raw numbers. The Model number reads as points: 100 means about 100 points more than a replacement starter, spread over the next five seasons.</p>
+  <p>The two use different scales, so compare a player's ranks, not the raw numbers. The next answer shows how to read each one.</p>
+
+  <h2>How should I read the numbers?</h2>
+  <p><b>The Model number is points.</b> A value of 100 means about 100 more points than a replacement starter would give you, added up over the next five seasons, with nearer seasons counting more. For a sense of size: a player 6 points per game better than replacement who plays all 17 games adds about 100 points in that season alone.</p>
+  <p><b>The Market number has no unit.</b> It's FantasyCalc's trade scale, where bigger means more expensive. Only compare it to other Market numbers.</p>
+  <?php if (!empty($anchors['tiers'])): ?>
+  <p>Where today's values fall, across every player the site values:</p>
+  <div class="table-scroll">
+    <table class="pickups faq-table faq-tiers">
+      <thead><tr><th scope="col" class="sticky">Rank</th><th scope="col">Roughly</th><th scope="col" class="num">Model</th><th scope="col" class="num">Market</th></tr></thead>
+      <tbody>
+      <?php foreach ($anchors['tiers'] as $rank => $t): ?>
+        <tr><th scope="row" class="sticky">#<?= (int) $rank ?></th><td><?= esc($tierNames[$rank] ?? '') ?></td>
+          <td class="num"><?= $t['model'] !== null ? number_format($t['model']) : '—' ?></td>
+          <td class="num"><?= $t['market'] !== null ? number_format($t['market']) : '—' ?></td></tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+  <?php $top = reset($anchors['tiers']); ?>
+  <p class="note">Read each row as a cutoff: a Model value of <?= number_format((float) $top['model']) ?> or more is a top-<?= (int) array_key_first($anchors['tiers']) ?> player.</p>
+  <?php endif; ?>
+  <?php if (!empty($anchors['picks'])): ?>
+  <p>Where first-round picks land among players:</p>
+  <ul>
+    <?php foreach ($anchors['picks'] as $p): ?>
+    <li><b><?= esc($p['label']) ?></b>: Model <?= number_format($p['model']) ?> (like the #<?= (int) $p['model_rank'] ?> player)<?php if ($p['market'] !== null): ?>, Market <?= number_format($p['market']) ?> (like the #<?= (int) $p['market_rank'] ?> player)<?php endif; ?></li>
+    <?php endforeach; ?>
+  </ul>
+  <?php endif; ?>
+  <p>A few rules of thumb:</p>
+  <ul>
+    <li><b>Small gaps are noise.</b> Every number here is an estimate. Two players within about 10% of each other are a coin flip.</li>
+    <li><b>Values add up; lineups don't.</b> Two players worth 100 each aren't the same as one worth 200, because only so many can start. Depth matters less than it looks, and the team getting the best player in a 2-for-1 usually wins it. The trade machine's Starting lineup panel shows this.</li>
+    <li><b>The market is the price, the model is the production.</b> The market tells you what you could get for a player today. The model tells you what he's likely to score. Where the model is higher, he may be a buy. Where the market is higher, he may be a sell.</li>
+    <li><b>Your timeline changes the answer.</b> A contender should care most about the next few months; a rebuilding team about the years after. Set the timeline in the trade machine, and the Model numbers follow.</li>
+    <li><b>Picks are averages.</b> A pick's Model value is the typical outcome for that slot, hits and misses included. Most of what you're buying is the small chance at a star.</li>
+  </ul>
 
   <h2>What is a "replacement starter"?</h2>
   <p>The best players who wouldn't start for anyone in a 12-team league with our lineup (QB, 2 RB, 2 WR, TE, FLEX). They're roughly who you could find on waivers. A player is only worth what he scores above that level, because that's what he adds to a lineup.</p>
@@ -69,7 +108,8 @@ $season = (int) ($run['season'] ?? date('Y')); ?>
       <tbody><tr><th scope="row" class="sticky">Points</th><?php foreach ($firstRound as $v): ?><td class="num"><?= number_format($v, 0) ?></td><?php endforeach; ?></tr></tbody>
     </table>
   </div>
-  <p>A future pick's value depends on where it's likely to land. The next draft's order is estimated from this season's record against every team, every week, worst team first, and gets more certain as the season goes on. Drafts after that could land anywhere, so those picks are valued as an average pick in their round.</p>
+  <p>A future pick's value depends on where it lands, and this league drafts in reverse order of finish. Teams that miss the playoffs pick first, worst record first. Playoff teams pick 7th through 12th by how far they got, so the champion picks last. In 2026, the regular season's #2 team picked 10th after finishing third in the playoffs.</p>
+  <p>Until the season ends, the next draft's order is simulated thousands of times: the rest of the regular season from each team's record against every team, every week, then the playoff bracket. A pick's value is the average across those outcomes, and it sharpens as the season goes on. Once the season is over, the order is exact. Drafts after that could land anywhere, so those picks are valued as an average pick in their round.</p>
 
   <h2>Why does the model like picks less than the market does?</h2>
   <p>Because many picks miss. Plenty of first-rounders never become fantasy starters, and the history counts those misses at zero. Managers tend to price picks by their best-case outcome. That gap is real, and it's one of the more useful things this page shows.</p>
@@ -100,6 +140,15 @@ $season = (int) ($run['season'] ?? date('Y')); ?>
     <li><b>If they say no</b>: players at the same position (or picks in the same round) on other teams with a similar model value, so you can ask someone else with the same offer.</li>
     <li><b>Other ways to pay for it</b>: different packages from your roster that should also get the deal done.</li>
   </ul>
+
+  <h2 id="scorecards">How are past trades scored?</h2>
+  <p>Signed-in owners see a scorecard on every past trade, with two views of what each team received.</p>
+  <ul>
+    <li><b>At the time</b>: the model value of each side as of the trade, worked out the way it would have been then: results up to that week, and only the projection for that week, so later injuries don't leak in. Picks are valued with the draft order as it stood then. The market value at the time appears for trades made after the site started saving daily prices (November 2026). FantasyCalc doesn't publish old prices, so earlier trades show a dash.</li>
+    <li><b>Now</b>: what each side has actually produced plus what it still holds. <b>So far</b> counts points above a replacement starter in games the player started for that team since the trade. <b>Still held</b> is today's model value of whatever that team still has from the deal: the player if he's still on the roster, the player a pick became, or the pick itself if it hasn't been used.</li>
+  </ul>
+  <p>A player or pick that gets traded again counts toward the first trade only until it leaves. After that, its value belongs to the later trade, so nothing is counted twice. A player who was dropped counts for what he scored before he was cut.</p>
+  <p>The two views answer different questions. <b>At the time</b> asks whether it was a fair deal. <b>Now</b> asks who's winning it so far. In a dynasty league, a trade that looked even can tilt years later.</p>
 
   <h2>What isn't counted?</h2>
   <ul>

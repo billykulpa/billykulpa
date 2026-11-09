@@ -492,3 +492,12 @@ td.wrap { white-space: normal; }
 .tm-alternatives h4 { font-size: 15px; margin: 14px 0 6px; }
 .tm-alternatives h4:first-of-type { margin-top: 4px; }
 .tm-alternatives p { font-size: 15px; margin-bottom: 6px; }
+.faq-tiers td:nth-child(2) { white-space: normal; min-width: 150px; }
+
+/* Trade scorecards */
+.scorecard { margin: 0 0 16px; padding: 12px 14px; background: #fff; border: 1px solid var(--rule); border-radius: 2px; }
+.scorecard-verdict { display: flex; flex-wrap: wrap; gap: 4px 24px; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.scorecard-verdict .mono-label { margin-right: 6px; font-weight: 400; }
+.scorecard-table th.sticky { text-align: left; font-weight: 600; }
+.scorecard .row-note { display: block; margin-top: 6px; }
+.scorecard-table tbody th { font-family: var(--font-sans); text-transform: none; letter-spacing: normal; font-size: 15px; color: var(--ink); border-bottom: 1px solid var(--rule); }

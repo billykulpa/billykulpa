@@ -4,10 +4,10 @@
  * league keeps its own copy of the mfl_ tables. ("mfl_" is the engine's name
  * now, not just the Midwest Football League's.)
  *
- * MFL's tables live in the main site database, so its connection is db().
- * Every other league names a block under config()['league_db'] for a database
- * of its own, which keeps one league's rows from ever showing on another's
- * site. CMS accounts (the users table) stay in the main database for all.
+ * Each league names a block under config()['league_db'] for a database of its
+ * own, which keeps one league's rows from ever showing on another's site. CMS
+ * accounts (the users table) stay in the main database for all. A league with
+ * 'db' => null would use the main database; MFL did until November 2026.
  *
  * Scoring, lineup, team count and playoff format are read from Sleeper, so
  * they need no entry here.
@@ -27,7 +27,7 @@ const MFL_LEAGUES = [
         // A Sleeper user in the league (Billy), whose league list is how next
         // season's renewed league is found.
         'tracker_user_id' => '1175642773426860032',
-        'db'         => null,
+        'db'         => 'mfl',
         'model'      => 'model.json',
         // Bench depth value is off for MFL, so its trade values stay exactly
         // as they were before SSFFL. See mfl_depth().

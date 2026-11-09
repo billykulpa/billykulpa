@@ -30,11 +30,18 @@ return [
     ],
 
     // ---- League databases ----------------------------------------------
-    // MFL's tables live in the main database above. Every other league site
-    // (app/mfl/league.php) has a database of its own with league-schema.sql
-    // imported into it. On Hostinger: hPanel -> Databases, one database and
-    // user per league.
+    // Each league site (app/mfl/league.php) has a database of its own with
+    // league-schema.sql imported into it. On Hostinger: hPanel -> Databases,
+    // one database and user per league.
     'league_db' => [
+        'mfl' => [
+            'host'    => 'localhost',
+            'port'    => 3306,
+            'name'    => 'u000000000_mfl',
+            'user'    => 'u000000000_mfl',
+            'pass'    => 'change-me',
+            'charset' => 'utf8mb4',
+        ],
         'ssffl' => [
             'host'    => 'localhost',
             'port'    => 3306,

@@ -89,6 +89,6 @@ INSERT INTO pages (slug, label, h1, meta_title, meta_description) VALUES
 ON DUPLICATE KEY UPDATE label = VALUES(label);
 
 -- ---------------------------------------------------------------------------
--- League site tables (MFL and the others) are in league-schema.sql. For MFL,
--- import it into this same database after this file.
+-- League site tables (MFL, SSFFL) are in league-schema.sql, imported into
+-- each league's own database, not this one.
 -- ---------------------------------------------------------------------------

@@ -67,9 +67,11 @@ Apache — no docroot or vhost changes, and it coexists with other MAMP projects
 `app/mfl/` runs every league site. `app/mfl/league.php` lists the leagues
 (name, address, Sleeper IDs, which database, which value model). Scoring,
 lineup, team count and playoff format come from each league's Sleeper settings,
-so they need no entry. MFL's tables sit in the main database; every other
-league has its own database with `league-schema.sql` imported, named under
-`league_db` in `config.php` (see `config.sample.php`). CMS accounts stay in the
+so they need no entry. Each league has its own database with `league-schema.sql`
+imported, named under `league_db` in `config.php` (see `config.sample.php`):
+`u908084654_mfl` and `u908084654_ssffl` on Hostinger. MFL moved out of the
+main database in November 2026; its old `mfl_*` tables there are a backup
+until they're dropped. CMS accounts stay in the
 main database for all leagues.
 
 CLI scripts take `--league=<key>` (default `mfl`):

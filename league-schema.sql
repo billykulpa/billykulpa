@@ -1,14 +1,13 @@
 -- ---------------------------------------------------------------------------
 -- League sites (mfl.billykulpa.com, ssffl.billykulpa.com)
--- One copy of these tables per league: MFL's sit in the main billykulpa
--- database, every other league gets a database of its own (app/mfl/league.php).
+-- One copy of these tables per league, each league in a database of its own
+-- (app/mfl/league.php).
 -- Most of it is filled by the Sleeper sync (app/mfl/sync.php), so a table can
 -- be rebuilt with `php app/mfl/sync-cli.php --league=<key> --full`.
 --
--- author_user_id points at the main database's users table. Because a league
--- database can't hold a foreign key into another database, these columns
--- have none here. (MFL's production tables still carry the original key,
--- from before this file was split out of schema.sql.)
+-- author_user_id points at the main database's users table. A league
+-- database can't hold a foreign key into another database, so these columns
+-- have none.
 -- ---------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS mfl_seasons (

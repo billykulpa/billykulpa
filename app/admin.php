@@ -37,9 +37,9 @@ function admin_route(string $route): void
 
         /* ------------------------------ Auth ------------------------------ */
         case $route === 'login':
-            // Only MFL screens can be returned to, so this can't redirect off-site.
+            // Only admin screens on this site can be returned to, so this can't redirect off-site.
             $next = (string) ($_POST['next'] ?? $_GET['next'] ?? '');
-            if (!preg_match('#^/admin/(mfl|ssffl)(/[a-z/-]+)?(\?id=\d+)?$#', $next)) $next = '';
+            if (!preg_match('#^/admin(/[a-z/-]+)?(\?id=\d+)?$#', $next)) $next = '';
             if (current_user()) { header('Location: ' . ($next ?: '/admin')); exit; }
             $error = '';
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -113,8 +113,7 @@ function admin_route(string $route): void
 
         /* --------------------------- Dashboard ---------------------------- */
         case $route === '':
-            $user = require_login(ROLES_ALL);
-            if ($user['role'] !== 'admin') { header('Location: /admin/mfl'); exit; }
+            $user = require_login();
             $pageCount = (int) db()->query("SELECT COUNT(*) FROM pages WHERE slug NOT LIKE 'work/%'")->fetchColumn();
             $caseCount = (int) db()->query("SELECT COUNT(*) FROM pages WHERE slug LIKE 'work/%'")->fetchColumn();
             $postCount = (int) db()->query('SELECT COUNT(*) FROM posts')->fetchColumn();
@@ -122,72 +121,24 @@ function admin_route(string $route): void
             render_admin('dashboard', compact('user', 'pageCount', 'caseCount', 'postCount', 'drafts') + ['title' => 'Dashboard']);
             break;
 
-        /* ------------------------------- MFL ------------------------------ */
-        // The league CMS lives in its own file. Those routes set their own
-        // role gates, because MFL Members are allowed in.
+        /* --------------------------- League sites -------------------------- */
+        // Each league's admin lives on its own site with its own accounts
+        // (app/mfl/admin.php). Old links here forward there.
         case $route === 'mfl' || str_starts_with($route, 'mfl/'):
-            require APP_DIR . '/mfl/admin.php';
-            mfl_admin_route($route);
-            break;
-
-        // Other leagues run the same screens against their own database. Admin
-        // only for now: MFL Members can't open them, and there's no member
-        // role for these leagues yet.
         case $route === 'ssffl' || str_starts_with($route, 'ssffl/'):
-            require_login();
-            require APP_DIR . '/mfl/admin.php';
-            mfl_use_league('ssffl');
-            mfl_admin_route('mfl' . substr($route, strlen('ssffl')));
-            break;
+            [$key, $rest] = array_pad(explode('/', $route, 2), 2, '');
+            require_once APP_DIR . '/mfl/league.php';
+            $query = (string) ($_SERVER['QUERY_STRING'] ?? '');
+            header('Location: ' . MFL_LEAGUES[$key]['base_url'] . '/admin' . ($rest !== '' ? "/$rest" : '') . ($query !== '' ? "?$query" : ''), true, 301);
+            exit;
 
         /* ---------------------------- Accounts ---------------------------- */
-        // Admin-only. MFL Members get a generated password shown once here;
-        // the site sends no invite email, so Billy passes it on himself.
+        // This site's own sign-ins. League accounts are managed on each
+        // league's site, under Members.
         case $route === 'users':
             $me = require_login();
-            $error = $ok = '';
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                verify_csrf();
-                $action = $_POST['action'] ?? '';
-                $temp   = bin2hex(random_bytes(8));
-                if ($action === 'add') {
-                    $email = trim($_POST['email'] ?? '');
-                    $name  = trim($_POST['display_name'] ?? '');
-                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        $error = 'Enter a valid email address.';
-                    } elseif ($name === '' || mb_strlen($name) > 80) {
-                        $error = 'Enter a display name of up to 80 characters. It is shown as the author on rankings.';
-                    } else {
-                        try {
-                            $stmt = db()->prepare("INSERT INTO users (email, display_name, password_hash, role) VALUES (?, ?, ?, 'mfl_member')");
-                            $stmt->execute([$email, $name, password_hash($temp, PASSWORD_DEFAULT)]);
-                            $ok = "Account created for {$name}. Temporary password: {$temp}. It will not be shown again.";
-                        } catch (PDOException $e) {
-                            if ($e->getCode() !== '23000') throw $e;
-                            $error = 'That email already has an account.';
-                        }
-                    }
-                } else {
-                    // Reset and remove only ever touch MFL Members, so this
-                    // screen can't lock the admin out of the CMS.
-                    $stmt = db()->prepare("SELECT id, display_name FROM users WHERE id = ? AND role = 'mfl_member'");
-                    $stmt->execute([(int) ($_POST['id'] ?? 0)]);
-                    $target = $stmt->fetch();
-                    if (!$target) {
-                        $error = 'That account was not found.';
-                    } elseif ($action === 'reset') {
-                        $stmt = db()->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
-                        $stmt->execute([password_hash($temp, PASSWORD_DEFAULT), $target['id']]);
-                        $ok = "New temporary password for {$target['display_name']}: {$temp}. It will not be shown again.";
-                    } elseif ($action === 'remove') {
-                        $stmt = db()->prepare('DELETE FROM users WHERE id = ?');
-                        $stmt->execute([$target['id']]);
-                        $ok = "Removed {$target['display_name']}.";
-                    }
-                }
-            }
             $accounts = db()->query('SELECT id, email, display_name, role, created_at FROM users ORDER BY role, display_name, email')->fetchAll();
-            render_admin('users', compact('accounts', 'error', 'ok', 'me') + ['title' => 'Accounts']);
+            render_admin('users', compact('accounts', 'me') + ['title' => 'Accounts']);
             break;
 
         /* ----------------------------- Pages ------------------------------ */

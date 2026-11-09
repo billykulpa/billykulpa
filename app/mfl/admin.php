@@ -1,13 +1,141 @@
 <?php
 /**
- * A league's CMS tab: /admin/mfl/... or /admin/ssffl/... (mfl_admin_base()).
- * Open to admins and MFL Members. Every route here sets its own gate.
+ * A league's CMS, at /admin on its own site (mfl.billykulpa.com/admin), signed
+ * in with that league's accounts. mfl_site_admin_route() handles sign-in and
+ * accounts, then hands the league screens to mfl_admin_route(), whose routes
+ * are named "mfl/..." from when they lived at billykulpa.com/admin/mfl.
+ * Open to league admins and members. Every route sets its own gate.
  */
 
 require_once __DIR__ . '/data.php';
 require_once __DIR__ . '/rankings.php';
 require_once __DIR__ . '/polls.php';
 require_once __DIR__ . '/email.php';
+
+/** $path is "admin" or "admin/...", from a league site's front controller. */
+function mfl_site_admin_route(string $path): void
+{
+    start_session();
+    header('X-Robots-Tag: noindex, nofollow');
+    $route = trim(substr($path, 5), '/');
+
+    switch ($route) {
+        case 'login':
+            // Only this CMS can be returned to, so this can't redirect off-site.
+            $next = (string) ($_POST['next'] ?? $_GET['next'] ?? '');
+            if (!preg_match('#^/admin(/[a-z/-]+)?(\?id=\d+)?$#', $next)) $next = '';
+            if (current_user()) { header('Location: ' . ($next ?: '/admin')); exit; }
+            $error = '';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                verify_csrf();
+                $stmt = league_db()->prepare('SELECT * FROM mfl_accounts WHERE email = ?');
+                $stmt->execute([trim($_POST['email'] ?? '')]);
+                $account = $stmt->fetch();
+                if ($account && password_verify($_POST['password'] ?? '', $account['password_hash'])) {
+                    session_regenerate_id(true);
+                    $_SESSION['user_id'] = (int) $account['id'];
+                    header('Location: ' . ($next ?: '/admin'));
+                    exit;
+                }
+                sleep(2); // flat cost per failed attempt, as on billykulpa.com
+                $error = 'Wrong email or password.';
+            }
+            render_admin('login', ['error' => $error, 'next' => $next, 'title' => 'Sign in']);
+            return;
+
+        case 'logout':
+            verify_csrf();
+            session_destroy();
+            header('Location: /admin/login');
+            return;
+
+        case 'password':
+            $user = require_login(ROLES_ALL);
+            $error = $ok = '';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                verify_csrf();
+                $new = $_POST['new_password'] ?? '';
+                $stmt = league_db()->prepare('SELECT password_hash FROM mfl_accounts WHERE id = ?');
+                $stmt->execute([$user['id']]);
+                if (!password_verify($_POST['current_password'] ?? '', (string) $stmt->fetchColumn())) {
+                    sleep(2);
+                    $error = 'Current password is incorrect.';
+                } elseif (strlen($new) < 12) {
+                    $error = 'Use at least 12 characters for the new password.';
+                } elseif ($new !== ($_POST['confirm_password'] ?? '')) {
+                    $error = 'New passwords do not match.';
+                } else {
+                    league_db()->prepare('UPDATE mfl_accounts SET password_hash = ? WHERE id = ?')
+                        ->execute([password_hash($new, PASSWORD_DEFAULT), $user['id']]);
+                    session_regenerate_id(true);
+                    $ok = 'Password updated.';
+                }
+            }
+            render_admin('password', ['error' => $error, 'ok' => $ok, 'title' => 'Change password']);
+            return;
+
+        case 'members':
+            mfl_members_route();
+            return;
+    }
+    mfl_admin_route('mfl' . ($route === '' ? '' : "/$route"));
+}
+
+/**
+ * The league's accounts. Admin only. New accounts and resets get a temporary
+ * password, shown once, for the admin to pass on; the site sends no invites.
+ * Nobody can remove or demote themselves, so a league always keeps an admin.
+ */
+function mfl_members_route(): void
+{
+    $me = require_login();
+    $error = $ok = '';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        verify_csrf();
+        $action = $_POST['action'] ?? '';
+        $temp = bin2hex(random_bytes(8));
+        $role = ($_POST['role'] ?? '') === 'admin' ? 'admin' : 'member';
+        if ($action === 'add') {
+            $email = trim($_POST['email'] ?? '');
+            $name = trim($_POST['display_name'] ?? '');
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $error = 'Enter a valid email address.';
+            } elseif ($name === '' || mb_strlen($name) > 80) {
+                $error = 'Enter a display name of up to 80 characters. It is shown as the author on rankings and polls.';
+            } else {
+                try {
+                    league_db()->prepare('INSERT INTO mfl_accounts (email, display_name, password_hash, role) VALUES (?, ?, ?, ?)')
+                        ->execute([$email, $name, password_hash($temp, PASSWORD_DEFAULT), $role]);
+                    $ok = "Account created for {$name}. Temporary password: {$temp}. It will not be shown again.";
+                } catch (PDOException $e) {
+                    if ($e->getCode() !== '23000') throw $e;
+                    $error = 'That email already has an account.';
+                }
+            }
+        } else {
+            $stmt = league_db()->prepare('SELECT id, display_name FROM mfl_accounts WHERE id = ?');
+            $stmt->execute([(int) ($_POST['id'] ?? 0)]);
+            $target = $stmt->fetch();
+            if (!$target) {
+                $error = 'That account was not found.';
+            } elseif ((int) $target['id'] === (int) $me['id'] && $action !== 'reset') {
+                $error = "You can't remove or change your own account here.";
+            } elseif ($action === 'reset') {
+                league_db()->prepare('UPDATE mfl_accounts SET password_hash = ? WHERE id = ?')
+                    ->execute([password_hash($temp, PASSWORD_DEFAULT), $target['id']]);
+                $ok = "New temporary password for {$target['display_name']}: {$temp}. It will not be shown again.";
+            } elseif ($action === 'role') {
+                league_db()->prepare('UPDATE mfl_accounts SET role = ? WHERE id = ?')->execute([$role, $target['id']]);
+                $ok = "{$target['display_name']} is now " . ($role === 'admin' ? 'a league admin.' : 'a member.');
+            } elseif ($action === 'remove') {
+                league_db()->prepare('DELETE FROM mfl_accounts WHERE id = ?')->execute([$target['id']]);
+                $ok = "Removed {$target['display_name']}.";
+            }
+        }
+    }
+    $accounts = league_db()->query('SELECT id, email, display_name, role, created_at FROM mfl_accounts ORDER BY role, display_name, email')->fetchAll();
+    render_admin('mfl/members', compact('accounts', 'error', 'ok', 'me') + ['title' => 'Members']);
+}
 
 function mfl_admin_route(string $route): void
 {
@@ -26,7 +154,7 @@ function mfl_admin_route(string $route): void
                 'picks'      => (int) league_db()->query('SELECT COUNT(*) FROM mfl_draft_picks')->fetchColumn(),
                 'franchises' => mfl_franchises(),
                 'syncs'      => mfl_recent_syncs(),
-                'title'      => mfl_league()['short'],
+                'title'      => 'Overview',
             ]);
             break;
 
@@ -313,21 +441,9 @@ function mfl_admin_route(string $route): void
     }
 }
 
-/**
- * The last few syncs with who ran them. Accounts live in the main database and
- * a league's tables may not, so the names are looked up separately.
- */
+/** The last few syncs with who ran them. */
 function mfl_recent_syncs(): array
 {
-    $syncs = league_db()->query('SELECT * FROM mfl_sync_log ORDER BY id DESC LIMIT 8')->fetchAll();
-    $ids = array_values(array_unique(array_filter(array_map('intval', array_column($syncs, 'user_id')))));
-    $users = [];
-    if ($ids) {
-        $stmt = db()->prepare('SELECT id, display_name, email FROM users WHERE id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')');
-        $stmt->execute($ids);
-        foreach ($stmt as $u) $users[(int) $u['id']] = $u;
-    }
-    foreach ($syncs as &$s) $s += $users[(int) $s['user_id']] ?? ['display_name' => null, 'email' => null];
-    unset($s);
-    return $syncs;
+    return league_db()->query('SELECT l.*, a.display_name, a.email FROM mfl_sync_log l LEFT JOIN mfl_accounts a ON a.id = l.user_id
+                               ORDER BY l.id DESC LIMIT 8')->fetchAll();
 }

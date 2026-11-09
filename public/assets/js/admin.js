@@ -273,7 +273,8 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
   /* 'ok', 'out' or 'offline'. A fresh token also rescues a form left open
      across a sign-out and sign-in in another tab. */
   function check() {
-    return fetch('/admin/mfl/keepalive', { credentials: 'same-origin', redirect: 'manual', cache: 'no-store' })
+    // League admins set their own address (/admin/keepalive on a league site).
+    return fetch(document.body.dataset.keepalive || '/admin/keepalive', { credentials: 'same-origin', redirect: 'manual', cache: 'no-store' })
       .then(function (r) {
         if (!r.ok) return 'out';
         return r.json().then(function (data) {

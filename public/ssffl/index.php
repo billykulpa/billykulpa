@@ -14,6 +14,7 @@ require APP_DIR . '/db.php';
 require APP_DIR . '/helpers.php';
 require APP_DIR . '/mfl/site.php';
 mfl_use_league('ssffl');
+$GLOBALS['league_site'] = 'ssffl';
 
 $path = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/', '/');
 
@@ -32,9 +33,10 @@ if (in_array($host, ['billykulpa.com', 'www.billykulpa.com'], true)) {
     exit;
 }
 
-/* The CMS and its session cookie live on the main host only. */
+/* The league's own admin, signed in with its own accounts. */
 if ($path === 'admin' || str_starts_with($path, 'admin/')) {
-    header('Location: ' . config()['site']['base_url'] . '/admin/ssffl');
+    require APP_DIR . '/mfl/admin.php';
+    mfl_site_admin_route($path);
     exit;
 }
 

@@ -167,7 +167,12 @@ function mfl_serve_shared_asset(string $file): void
     $path = null;
     // Plain names in known folders only, so nothing outside the assets folder can be read.
     if (isset($types[$ext]) && preg_match('#^[a-z0-9_-]+(/[a-z0-9_.-]+)?\.[a-z0-9]+$#i', $file) && !str_contains($file, '..')) {
-        foreach (["$root/public/mfl/assets/$file", "$root/mfl/assets/$file"] as $candidate) {
+        $candidates = ["$root/public/mfl/assets/$file", "$root/mfl/assets/$file"];
+        // The league admin uses billykulpa.com's admin stylesheet, script and fonts.
+        if (in_array($file, ['css/admin.css', 'js/admin.js'], true) || str_starts_with($file, 'fonts/')) {
+            array_push($candidates, "$root/public/assets/$file", "$root/assets/$file");
+        }
+        foreach ($candidates as $candidate) {
             if (is_file($candidate)) { $path = $candidate; break; }
         }
     }

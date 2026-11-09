@@ -5,9 +5,9 @@
 -- Most of it is filled by the Sleeper sync (app/mfl/sync.php), so a table can
 -- be rebuilt with `php app/mfl/sync-cli.php --league=<key> --full`.
 --
--- author_user_id points at the main database's users table. A league
--- database can't hold a foreign key into another database, so these columns
--- have none.
+-- author_user_id points at mfl_accounts (at the end of this file). Every
+-- statement is CREATE TABLE IF NOT EXISTS, so importing this file again into
+-- a league database only adds tables it doesn't have yet.
 -- ---------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS mfl_seasons (
@@ -349,4 +349,17 @@ CREATE TABLE IF NOT EXISTS mfl_market_snapshots (
   item VARCHAR(40) NOT NULL,                    -- p<player id> or n<pick name>
   value INT NOT NULL,
   PRIMARY KEY (day, item)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- The league's CMS accounts, signed in at <league site>/admin. Each league has
+-- its own, apart from billykulpa.com's. A league admin runs everything for
+-- the league, including these accounts; a member writes rankings and polls
+-- and comments on awards. author_user_id and mfl_sync_log.user_id point here.
+CREATE TABLE IF NOT EXISTS mfl_accounts (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  display_name VARCHAR(80) NOT NULL DEFAULT '',  -- author credit on rankings and polls
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('admin','member') NOT NULL DEFAULT 'member',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

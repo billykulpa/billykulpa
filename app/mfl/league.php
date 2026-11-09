@@ -82,10 +82,10 @@ function mfl_league(): array
     return ['key' => $key] + MFL_LEAGUES[$key];
 }
 
-/** The league's CMS tab, "/admin/mfl" or "/admin/ssffl". */
+/** Where the league's CMS lives on its own site. */
 function mfl_admin_base(): string
 {
-    return '/admin/' . mfl_league()['key'];
+    return '/admin';
 }
 
 /** Prefix for editor autosave keys, so two leagues' drafts with the same id can't restore into each other. */

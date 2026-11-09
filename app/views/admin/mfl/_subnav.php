@@ -3,7 +3,7 @@ $me = current_user();
 $here = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '', '/');
 $base = trim(mfl_admin_base(), '/');
 $tabs = [$base => 'Overview', "$base/rankings" => 'Power Rankings', "$base/polls" => 'Polls', "$base/awards" => 'Awards'];
-if ($me['role'] === 'admin') $tabs["$base/owners"] = 'Owners';
+if ($me['role'] === 'admin') $tabs += ["$base/owners" => 'Owners', "$base/members" => 'Members'];
 ?>
 <nav class="a-subnav" aria-label="<?= esc(mfl_league()['short']) ?>">
   <?php foreach ($tabs as $url => $label):

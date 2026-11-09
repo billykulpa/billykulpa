@@ -74,6 +74,16 @@ main database in November 2026; its old `mfl_*` tables there are a backup
 until they're dropped. CMS accounts stay in the
 main database for all leagues.
 
+**League admins and accounts.** Each league's CMS is at its own site's
+`/admin` (`mfl.billykulpa.com/admin`, `ssffl.billykulpa.com/admin`), signed in
+with that league's own accounts (`mfl_accounts` in its database), not
+billykulpa.com's. A league admin runs everything there, including accounts
+under Members; a member writes power rankings and polls and comments on
+awards. New accounts and resets get a temporary password shown once.
+`billykulpa.com/admin/mfl/...` and `/admin/ssffl/...` forward to the league
+sites. The shared admin stylesheet, script and fonts are served to the league
+sites by `mfl_serve_shared_asset()`.
+
 CLI scripts take `--league=<key>` (default `mfl`):
 ```
 php app/mfl/sync-cli.php --league=ssffl
@@ -84,7 +94,7 @@ php app/mfl/model-build.php --league=ssffl
 (deployed to `public_html/ssffl/`). It has no logo yet, so the header shows its
 name; `logo` in `league.php` turns logo files in `public/ssffl/assets` on. The
 shared CSS, JS and fonts stay in `public/mfl/assets` and `public/ssffl/index.php`
-serves them. Its CMS tab is `/admin/ssffl`, admin-only for now. Locally: database
+serves them. Its admin is at `ssffl.billykulpa.com/admin`. Locally: database
 `ssffl_dev`, preview with `router-ssffl.php` on port 8093.
 
 SSFFL server setup, in this order:

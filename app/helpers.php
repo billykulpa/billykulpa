@@ -115,14 +115,24 @@ function portrait_url(): string
  * ------------------------------------------------------------------------- */
 
 /**
- * The sign-in cookie. It's shared with mfl.billykulpa.com so the league site
- * can show the Admin and Sign out buttons. The name differs from the old
- * main-site-only cookie because a browser holding both would send two values
- * and PHP could read the stale one, which would look like a failed login.
+ * The league whose site is serving this request ('mfl', 'ssffl'), or NULL on
+ * billykulpa.com. A league site's front controller sets it. Its CMS signs in
+ * against that league's own accounts (mfl_accounts), with its own cookie.
+ */
+function league_site(): ?string
+{
+    return $GLOBALS['league_site'] ?? null;
+}
+
+/**
+ * The sign-in cookie. billykulpa.com's ends in "_shared" because it once
+ * served the MFL site too; the name differs from the old main-site-only
+ * cookie because a browser holding both would send two values and PHP could
+ * read the stale one. A league site has its own, kept to its own host.
  */
 function session_cookie_name(): string
 {
-    return config()['session_name'] . '_shared';
+    return config()['session_name'] . (league_site() ? '_' . league_site() : '_shared');
 }
 
 function start_session(): void
@@ -133,7 +143,7 @@ function start_session(): void
     session_set_cookie_params([
         'lifetime' => 0,
         'path'     => '/',
-        'domain'   => str_ends_with($host, 'billykulpa.com') ? '.billykulpa.com' : '',
+        'domain'   => !league_site() && str_ends_with($host, 'billykulpa.com') ? '.billykulpa.com' : '',
         'httponly' => true,
         'samesite' => 'Lax',
         'secure'   => !empty($_SERVER['HTTPS']),
@@ -145,16 +155,21 @@ function current_user(): ?array
 {
     start_session();
     if (empty($_SESSION['user_id'])) return null;
-    $stmt = db()->prepare('SELECT id, email, display_name, role FROM users WHERE id = ?');
+    $stmt = league_site()
+        ? league_db()->prepare('SELECT id, email, display_name, role FROM mfl_accounts WHERE id = ?')
+        : db()->prepare('SELECT id, email, display_name, role FROM users WHERE id = ?');
     $stmt->execute([$_SESSION['user_id']]);
     return $stmt->fetch() ?: null;
 }
 
-/** The league site's public address. MFL Members land here from "View site". */
+/** The MFL site's public address. */
 const MFL_BASE_URL = 'https://mfl.billykulpa.com';
 
-/** Every role that may sign in. Pass to require_login() to open a route to guests. */
-const ROLES_ALL = ['admin', 'mfl_member'];
+/**
+ * Every role that may sign in: billykulpa.com has only admins; a league site
+ * has admins and members. Pass to require_login() to open a route to members.
+ */
+const ROLES_ALL = ['admin', 'member'];
 
 /**
  * Gate a route. Admin-only unless the route explicitly opts in a wider list,

@@ -1,7 +1,9 @@
 <?php /** @var string $content */ /** @var string $title */ $u = current_user();
-// "View site" follows the work: the league site from the MFL tab, and always for MFL Members.
-$inMfl = str_starts_with(trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '', '/'), 'admin/mfl');
-$siteUrl = $inMfl || ($u['role'] ?? '') !== 'admin' ? MFL_BASE_URL : '/'; ?>
+// "View site" follows the work: a league site from its tab, and always MFL for MFL Members.
+$here = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '', '/');
+$inMfl = str_starts_with($here, 'admin/mfl');
+$inSsffl = str_starts_with($here, 'admin/ssffl');
+$siteUrl = $inSsffl ? 'https://ssffl.billykulpa.com' : ($inMfl || ($u['role'] ?? '') !== 'admin' ? MFL_BASE_URL : '/'); ?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -30,6 +32,7 @@ $siteUrl = $inMfl || ($u['role'] ?? '') !== 'admin' ? MFL_BASE_URL : '/'; ?>
       <?php endif; ?>
       <a href="/admin/mfl">MFL</a>
       <?php if ($u['role'] === 'admin'): ?>
+      <a href="/admin/ssffl">SSFFL</a>
       <a href="/admin/users">Accounts</a>
       <?php endif; ?>
       <a href="/admin/password">Password</a>

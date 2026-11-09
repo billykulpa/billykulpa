@@ -1,5 +1,5 @@
 <?php /** @var ?array $flash */ /** @var array $form */
-$action = '/admin/mfl/polls/' . ($form['id'] ? 'edit?id=' . (int) $form['id'] : 'new');
+$action = mfl_admin_base() . '/polls/' . ($form['id'] ? 'edit?id=' . (int) $form['id'] : 'new');
 $locked = $form['votes'] > 0; ?>
 <?php require __DIR__ . '/_subnav.php'; ?>
 <h1><?= $form['id'] ? 'Edit poll' : 'New poll' ?></h1>
@@ -7,13 +7,13 @@ $locked = $form['votes'] > 0; ?>
 <p class="a-sub">
   <span class="a-pill a-pill--<?= $form['state'] === 'open' ? 'published' : 'draft' ?>"><?= esc($form['state']) ?></span>
   By <?= esc($form['author']) ?> · <?= (int) $form['votes'] ?> <?= $form['votes'] === 1 ? 'vote' : 'votes' ?>
-  <?php if ($form['status'] === 'published'): ?>· <a href="<?= esc(MFL_BASE_URL) ?>/polls#poll-<?= (int) $form['id'] ?>" target="_blank" rel="noopener" style="text-decoration:underline">View live &nearr;</a><?php endif; ?>
+  <?php if ($form['status'] === 'published'): ?>· <a href="<?= esc(mfl_league()['base_url']) ?>/polls#poll-<?= (int) $form['id'] ?>" target="_blank" rel="noopener" style="text-decoration:underline">View live &nearr;</a><?php endif; ?>
 </p>
 <?php endif; ?>
 <?php if ($flash): ?><div class="a-flash a-flash--<?= $flash['status'] === 'ok' ? 'ok' : 'err' ?>"><?= esc($flash['summary']) ?></div><?php endif; ?>
 
 <form method="post" action="<?= esc($action) ?>"
-      data-autosave="poll-<?= $form['id'] ? (int) $form['id'] : 'new' ?>"<?= ($flash['status'] ?? '') === 'ok' ? ' data-saved data-clear="poll-new"' : '' ?>><?= csrf_field() ?>
+      data-autosave="<?= mfl_autosave_prefix() ?>poll-<?= $form['id'] ? (int) $form['id'] : 'new' ?>"<?= ($flash['status'] ?? '') === 'ok' ? ' data-saved data-clear="' . mfl_autosave_prefix() . 'poll-new"' : '' ?>><?= csrf_field() ?>
   <label class="a-label" for="question">Title</label>
   <input type="text" id="question" name="question" required maxlength="200" value="<?= esc($form['question']) ?>"
          placeholder="Best Waiver Wire Pickup">
@@ -55,14 +55,14 @@ $locked = $form['votes'] > 0; ?>
 </form>
 
 <?php if ($form['id']): ?>
-<form method="post" action="/admin/mfl/polls/clone" class="a-poll-clone"><?= csrf_field() ?>
+<form method="post" action="<?= mfl_admin_base() ?>/polls/clone" class="a-poll-clone"><?= csrf_field() ?>
   <input type="hidden" name="id" value="<?= (int) $form['id'] ?>">
   <button class="a-btn a-btn--ghost" type="submit">Clone this poll</button>
 </form>
 <?php endif; ?>
 
 <?php if ($form['id'] && $form['status'] === 'draft'): ?>
-<form method="post" action="/admin/mfl/polls/delete" class="a-rank-delete"><?= csrf_field() ?>
+<form method="post" action="<?= mfl_admin_base() ?>/polls/delete" class="a-rank-delete"><?= csrf_field() ?>
   <input type="hidden" name="id" value="<?= (int) $form['id'] ?>">
   <button class="a-btn a-btn--danger" type="submit" onclick="return confirm('Delete this poll and its votes?')">Delete poll</button>
 </form>

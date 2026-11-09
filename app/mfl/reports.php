@@ -33,7 +33,7 @@ function mfl_pickup_list(?int $season): array
     // Walk the transactions in order, opening a pickup on each add and closing
     // the matching one when that team drops or trades the player.
     $sql = "SELECT season, week, type, created_at, adds_json, drops_json FROM mfl_transactions WHERE status = 'complete'";
-    $stmt = db()->prepare($sql . ($allTime ? '' : ' AND season = ?') . ' ORDER BY created_at, id');
+    $stmt = league_db()->prepare($sql . ($allTime ? '' : ' AND season = ?') . ' ORDER BY created_at, id');
     $stmt->execute($allTime ? [] : [$season]);
     $pickups = $open = [];
     foreach ($stmt as $t) {
@@ -56,9 +56,9 @@ function mfl_pickup_list(?int $season): array
     foreach ($pickups as $i => $p) $adds["{$p['franchise_id']}-{$p['player_id']}"][$i] = [$p['season'], $p['week']];
 
     $players = [];
-    foreach (db()->query('SELECT * FROM mfl_players') as $p) $players[$p['id']] = $p;
+    foreach (league_db()->query('SELECT * FROM mfl_players') as $p) $players[$p['id']] = $p;
     $teams = [];
-    foreach (db()->query('SELECT ts.season, ts.franchise_id, ts.team_name, ts.owner_id, o.display_name, o.real_name
+    foreach (league_db()->query('SELECT ts.season, ts.franchise_id, ts.team_name, ts.owner_id, o.display_name, o.real_name
                             FROM mfl_team_seasons ts LEFT JOIN mfl_owners o ON o.id = ts.owner_id') as $t) {
         $teams[$t['season']][$t['franchise_id']] = $t;
     }

@@ -76,7 +76,7 @@
 
 <?php if ($timeline): ?>
 <section>
-  <h2>MFL history</h2>
+  <h2><?= esc(mfl_league()['short']) ?> history</h2>
   <ul class="plain-list">
     <?php foreach ($timeline as $e): ?>
     <li><?= $e['href'] ? '<a class="link" href="' . esc($e['href']) . '">' . esc($e['text']) . '</a>' : esc($e['text']) ?></li>

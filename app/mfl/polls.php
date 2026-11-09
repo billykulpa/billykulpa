@@ -19,11 +19,11 @@ function mfl_voter_hash(): ?string
 /** Published polls, open ones first, soonest to close at the top; then closed, newest first. */
 function mfl_public_polls(): array
 {
-    $polls = db()->query("SELECT * FROM mfl_polls WHERE status = 'published'")->fetchAll();
+    $polls = league_db()->query("SELECT * FROM mfl_polls WHERE status = 'published'")->fetchAll();
     if (!$polls) return [];
 
     $answers = [];
-    foreach (db()->query(
+    foreach (league_db()->query(
         "SELECT a.*, COUNT(v.answer_id) AS votes
            FROM mfl_poll_answers a
            JOIN mfl_polls p ON p.id = a.poll_id AND p.status = 'published'
@@ -36,7 +36,7 @@ function mfl_public_polls(): array
 
     $mine = [];
     if ($hash = mfl_voter_hash()) {
-        $stmt = db()->prepare('SELECT poll_id, answer_id FROM mfl_poll_votes WHERE voter_hash = ?');
+        $stmt = league_db()->prepare('SELECT poll_id, answer_id FROM mfl_poll_votes WHERE voter_hash = ?');
         $stmt->execute([$hash]);
         $mine = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
     }
@@ -58,7 +58,7 @@ function mfl_public_polls(): array
 /** Record an owner's vote. Quietly does nothing for a closed poll, a bad answer or a repeat vote. */
 function mfl_poll_vote(int $pollId, int $answerId, array $owner): void
 {
-    $stmt = db()->prepare(
+    $stmt = league_db()->prepare(
         "SELECT a.id FROM mfl_poll_answers a
            JOIN mfl_polls p ON p.id = a.poll_id
           WHERE a.id = ? AND a.poll_id = ? AND p.status = 'published' AND p.expires_at > ?"
@@ -66,7 +66,7 @@ function mfl_poll_vote(int $pollId, int $answerId, array $owner): void
     $stmt->execute([$answerId, $pollId, date('Y-m-d H:i:s')]);
     if (!$stmt->fetchColumn()) return;
 
-    $stmt = db()->prepare('INSERT IGNORE INTO mfl_poll_votes (poll_id, voter_hash, answer_id, created_at) VALUES (?, ?, ?, ?)');
+    $stmt = league_db()->prepare('INSERT IGNORE INTO mfl_poll_votes (poll_id, voter_hash, answer_id, created_at) VALUES (?, ?, ?, ?)');
     $stmt->execute([$pollId, mfl_owner_hash($owner['id']), $answerId, date('Y-m-d H:i:s')]);
 }
 
@@ -87,7 +87,7 @@ function mfl_poll_state(array $poll): string
 
 function mfl_admin_polls(): array
 {
-    return db()->query(
+    return league_db()->query(
         'SELECT p.*, COUNT(v.voter_hash) AS votes
            FROM mfl_polls p
            LEFT JOIN mfl_poll_votes v ON v.poll_id = p.id
@@ -99,7 +99,7 @@ function mfl_admin_polls(): array
 /** Load a poll the signed-in user may change. Authors edit their own; the admin edits all. */
 function mfl_poll_for_edit(int $id, array $user): array
 {
-    $stmt = db()->prepare('SELECT * FROM mfl_polls WHERE id = ?');
+    $stmt = league_db()->prepare('SELECT * FROM mfl_polls WHERE id = ?');
     $stmt->execute([$id]);
     $poll = $stmt->fetch();
     if (!$poll) { http_response_code(404); exit('Not found.'); }
@@ -112,7 +112,7 @@ function mfl_poll_for_edit(int $id, array $user): array
 
 function mfl_poll_vote_count(int $pollId): int
 {
-    $stmt = db()->prepare('SELECT COUNT(*) FROM mfl_poll_votes WHERE poll_id = ?');
+    $stmt = league_db()->prepare('SELECT COUNT(*) FROM mfl_poll_votes WHERE poll_id = ?');
     $stmt->execute([$pollId]);
     return (int) $stmt->fetchColumn();
 }
@@ -122,7 +122,7 @@ function mfl_poll_form(?array $poll, ?array $posted): array
 {
     $answers = [];
     if ($poll) {
-        $stmt = db()->prepare('SELECT label FROM mfl_poll_answers WHERE poll_id = ? ORDER BY sort_order');
+        $stmt = league_db()->prepare('SELECT label FROM mfl_poll_answers WHERE poll_id = ? ORDER BY sort_order');
         $stmt->execute([$poll['id']]);
         $answers = $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
@@ -150,7 +150,7 @@ function mfl_poll_form(?array $poll, ?array $posted): array
  */
 function mfl_poll_clone(int $id, array $user): int
 {
-    $db = db();
+    $db = league_db();
     $stmt = $db->prepare('SELECT * FROM mfl_polls WHERE id = ?');
     $stmt->execute([$id]);
     $poll = $stmt->fetch();
@@ -191,7 +191,7 @@ function mfl_poll_parse_expiry(string $value): ?string
  */
 function mfl_poll_save(?array $poll, array $in, string $action, array $user): int|string
 {
-    $db = db();
+    $db = league_db();
     $now = date('Y-m-d H:i:s');
     $question = trim((string) ($in['question'] ?? ''));
     if ($question === '' || mb_strlen($question) > 200) return 'Enter a title of up to 200 characters.';

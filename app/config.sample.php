@@ -29,6 +29,22 @@ return [
         'charset' => 'utf8mb4',
     ],
 
+    // ---- League databases ----------------------------------------------
+    // MFL's tables live in the main database above. Every other league site
+    // (app/mfl/league.php) has a database of its own with league-schema.sql
+    // imported into it. On Hostinger: hPanel -> Databases, one database and
+    // user per league.
+    'league_db' => [
+        'ssffl' => [
+            'host'    => 'localhost',
+            'port'    => 3306,
+            'name'    => 'u000000000_ssffl',
+            'user'    => 'u000000000_ssffl',
+            'pass'    => 'change-me',
+            'charset' => 'utf8mb4',
+        ],
+    ],
+
     // ---- Site ----------------------------------------------------------
     // base_url is the canonical host, used in <title> fallbacks and
     // structured data. Apex, no www — www should 301 here so the two hosts

@@ -4,7 +4,7 @@
 <?php if ($saved): ?><div class="a-flash a-flash--ok">Saved.</div><?php endif; ?>
 <?php if ($bad): ?><div class="a-flash a-flash--err">Not saved, because they aren't valid email addresses: <?= esc(implode(', ', $bad)) ?></div><?php endif; ?>
 <p class="a-hint">Sleeper doesn't share real names. Names entered here appear on the public site as Username (First Last); blank ones show the username alone. Emails are for league emails only and never appear on the site. Leave one blank to skip that owner.</p>
-<form method="post" action="/admin/mfl/owners"><?= csrf_field() ?>
+<form method="post" action="<?= mfl_admin_base() ?>/owners"><?= csrf_field() ?>
   <div class="a-table-scroll"><table>
     <thead><tr><th>Team</th><th>Username</th><th>First and last name</th><th>Email</th></tr></thead>
     <tbody>

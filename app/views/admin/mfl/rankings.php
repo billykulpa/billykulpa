@@ -3,7 +3,7 @@
 <?php require __DIR__ . '/_subnav.php'; ?>
 <?php if ($flash): ?><div class="a-flash a-flash--<?= $flash['status'] === 'ok' ? 'ok' : 'err' ?>"><?= esc($flash['summary']) ?></div><?php endif; ?>
 
-<form method="post" action="/admin/mfl/rankings/new" class="a-inline-fields"><?= csrf_field() ?>
+<form method="post" action="<?= mfl_admin_base() ?>/rankings/new" class="a-inline-fields"><?= csrf_field() ?>
   <div>
     <label class="a-label" for="season">Season</label>
     <select id="season" name="season">
@@ -29,7 +29,7 @@
     $canEdit = $user['role'] === 'admin' || (int) $r['author_user_id'] === (int) $user['id']; ?>
     <tr>
       <td>
-        <?php if ($canEdit): ?><a class="a-rowlink" href="/admin/mfl/rankings/edit?id=<?= (int) $r['id'] ?>"><?= esc(mfl_ranking_title($r)) ?></a>
+        <?php if ($canEdit): ?><a class="a-rowlink" href="<?= mfl_admin_base() ?>/rankings/edit?id=<?= (int) $r['id'] ?>"><?= esc(mfl_ranking_title($r)) ?></a>
         <?php else: ?><?= esc(mfl_ranking_title($r)) ?><?php endif; ?>
         <div class="a-hint"><?= (int) $r['season'] ?> · <?= esc(mfl_week_label((int) $r['week'])) ?></div>
       </td>
@@ -37,8 +37,8 @@
       <td><span class="a-pill a-pill--<?= esc($r['status']) ?>"><?= esc($r['status']) ?></span></td>
       <td><?= $r['published_at'] ? esc(central_time($r['published_at'], 'M j, Y')) : '—' ?></td>
       <td class="a-row-actions">
-        <?php if ($r['status'] === 'published'): ?><a class="a-link-btn" href="<?= esc(MFL_BASE_URL . mfl_ranking_url($r)) ?>" target="_blank" rel="noopener">View</a><?php endif; ?>
-        <?php if ($canEdit): ?><a class="a-btn a-btn--small" href="/admin/mfl/rankings/edit?id=<?= (int) $r['id'] ?>">Edit</a><?php endif; ?>
+        <?php if ($r['status'] === 'published'): ?><a class="a-link-btn" href="<?= esc(mfl_league()['base_url'] . mfl_ranking_url($r)) ?>" target="_blank" rel="noopener">View</a><?php endif; ?>
+        <?php if ($canEdit): ?><a class="a-btn a-btn--small" href="<?= mfl_admin_base() ?>/rankings/edit?id=<?= (int) $r['id'] ?>">Edit</a><?php endif; ?>
       </td>
     </tr>
   <?php endforeach; ?>

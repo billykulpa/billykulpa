@@ -18,7 +18,7 @@ function mfl_games(): array
     if ($games !== null) return $games;
 
     $titlePath = [];
-    foreach (db()->query(
+    foreach (league_db()->query(
         "SELECT b.season, b.round, b.team1_franchise_id t1, b.team2_franchise_id t2, s.playoff_week_start
            FROM mfl_brackets b JOIN mfl_seasons s ON s.season = b.season
           WHERE b.bracket = 'winners' AND (b.placement IS NULL OR b.placement = 1)"
@@ -29,7 +29,7 @@ function mfl_games(): array
         }
     }
 
-    $games = db()->query(
+    $games = league_db()->query(
         'SELECT m.season, m.week, m.franchise_id, m.opponent_franchise_id, m.points, m.result, m.is_playoff,
                 ts.team_name, ots.team_name AS opponent_name, om.points AS opponent_points
            FROM mfl_matchups m
@@ -106,7 +106,7 @@ function mfl_seasons(): array
     static $seasons = null;
     if ($seasons === null) {
         $seasons = [];
-        foreach (db()->query('SELECT * FROM mfl_seasons ORDER BY season') as $s) $seasons[(int) $s['season']] = $s;
+        foreach (league_db()->query('SELECT * FROM mfl_seasons ORDER BY season') as $s) $seasons[(int) $s['season']] = $s;
     }
     return $seasons;
 }
@@ -121,7 +121,7 @@ function mfl_finishes(): array
     static $places = null;
     if ($places !== null) return $places;
     $places = [];
-    foreach (db()->query("SELECT season, placement, winner_franchise_id w, loser_franchise_id l FROM mfl_brackets
+    foreach (league_db()->query("SELECT season, placement, winner_franchise_id w, loser_franchise_id l FROM mfl_brackets
                           WHERE bracket = 'winners' AND placement IS NOT NULL AND winner_franchise_id IS NOT NULL") as $b) {
         $places[(int) $b['season']][(int) $b['w']] = (int) $b['placement'];
         $places[(int) $b['season']][(int) $b['l']] = (int) $b['placement'] + 1;
@@ -152,7 +152,7 @@ function mfl_season_rows(array $games): array
     $bySeason = [];
     foreach ($games as $g) $bySeason[$g['season']][$g['franchise_id']][] = $g;
 
-    $stmt = db()->query('SELECT ts.season, ts.franchise_id, o.display_name, o.real_name FROM mfl_team_seasons ts LEFT JOIN mfl_owners o ON o.id = ts.owner_id');
+    $stmt = league_db()->query('SELECT ts.season, ts.franchise_id, o.display_name, o.real_name FROM mfl_team_seasons ts LEFT JOIN mfl_owners o ON o.id = ts.owner_id');
     $owners = [];
     foreach ($stmt as $o) $owners[$o['season']][$o['franchise_id']] = $o;
 
@@ -203,7 +203,7 @@ function mfl_team_table(): array
 function mfl_tenures(string $column, string $value): array
 {
     $column = $column === 'owner' ? 'owner_id' : 'franchise_id';
-    $stmt = db()->prepare(
+    $stmt = league_db()->prepare(
         "SELECT t.*, o.display_name AS owner_name, o.real_name, f.name AS franchise_name
            FROM mfl_tenures t
            JOIN mfl_owners o ON o.id = t.owner_id
@@ -230,7 +230,7 @@ function mfl_tenure_span(array $t): string
 /** Record against each opponent, regular season and title-path games together. */
 function mfl_head_to_head(array $games): array
 {
-    $names = db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
+    $names = league_db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
     $rows = [];
     foreach ($games as $g) {
         if ($g['kind'] === 'other' || !$g['opponent_franchise_id'] || !$g['result']) continue;
@@ -248,7 +248,7 @@ function mfl_head_to_head(array $games): array
 /** A franchise's picks in one draft-order list, newest draft first. A tenure narrows it to that owner's drafts. */
 function mfl_franchise_picks(int $franchise, ?array $tenure = null): array
 {
-    $stmt = db()->prepare(
+    $stmt = league_db()->prepare(
         'SELECT p.*, d.season, d.type, s.num_teams
            FROM mfl_draft_picks p
            JOIN mfl_drafts d ON d.id = p.draft_id
@@ -269,11 +269,11 @@ function mfl_pick_label(array $p): string
 /** Who's on the roster now, grouped by position. */
 function mfl_current_roster(int $franchise): array
 {
-    $stmt = db()->prepare('SELECT roster_json FROM mfl_team_seasons WHERE franchise_id = ? ORDER BY season DESC LIMIT 1');
+    $stmt = league_db()->prepare('SELECT roster_json FROM mfl_team_seasons WHERE franchise_id = ? ORDER BY season DESC LIMIT 1');
     $stmt->execute([$franchise]);
     $ids = json_decode((string) $stmt->fetchColumn(), true) ?: [];
     if (!$ids) return [];
-    $stmt = db()->prepare('SELECT * FROM mfl_players WHERE id IN (' . implode(',', array_fill(0, count($ids), '?')) . ') ORDER BY full_name');
+    $stmt = league_db()->prepare('SELECT * FROM mfl_players WHERE id IN (' . implode(',', array_fill(0, count($ids), '?')) . ') ORDER BY full_name');
     $stmt->execute($ids);
     $groups = array_fill_keys(['QB', 'RB', 'WR', 'TE', 'K', 'DEF'], []);
     foreach ($stmt as $p) $groups[$p['position'] ?: 'Other'][] = $p;
@@ -283,10 +283,10 @@ function mfl_current_roster(int $franchise): array
 /** Picks in undrafted classes that have changed hands: ['owned' => [...], 'traded' => [...]]. */
 function mfl_future_picks(int $franchise): array
 {
-    $names = db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
-    $done = db()->query("SELECT season FROM mfl_drafts WHERE status = 'complete'")->fetchAll(PDO::FETCH_COLUMN);
+    $names = league_db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
+    $done = league_db()->query("SELECT season FROM mfl_drafts WHERE status = 'complete'")->fetchAll(PDO::FETCH_COLUMN);
     $out = ['owned' => [], 'traded' => []];
-    foreach (db()->query('SELECT * FROM mfl_traded_picks ORDER BY pick_season, round') as $p) {
+    foreach (league_db()->query('SELECT * FROM mfl_traded_picks ORDER BY pick_season, round') as $p) {
         if (in_array($p['pick_season'], $done)) continue;
         $from = (int) $p['original_franchise_id'];
         $to = (int) $p['current_franchise_id'];
@@ -303,7 +303,7 @@ function mfl_playoff_rounds(int $season): array
 {
     $s = mfl_seasons()[$season] ?? null;
     if (!$s) return [];
-    $stmt = db()->prepare("SELECT * FROM mfl_brackets WHERE season = ? AND bracket = 'winners' AND (placement IS NULL OR placement = 1) AND team1_franchise_id IS NOT NULL AND team2_franchise_id IS NOT NULL ORDER BY round DESC, match_id");
+    $stmt = league_db()->prepare("SELECT * FROM mfl_brackets WHERE season = ? AND bracket = 'winners' AND (placement IS NULL OR placement = 1) AND team1_franchise_id IS NOT NULL AND team2_franchise_id IS NOT NULL ORDER BY round DESC, match_id");
     $stmt->execute([$season]);
     $bracket = $stmt->fetchAll();
     if (!$bracket) return [];
@@ -324,7 +324,7 @@ function mfl_playoff_rounds(int $season): array
 
 function mfl_draft_board(int $season, ?int $team): array
 {
-    $stmt = db()->prepare(
+    $stmt = league_db()->prepare(
         'SELECT p.*, d.season, s.num_teams, ts.team_name
            FROM mfl_draft_picks p
            JOIN mfl_drafts d ON d.id = p.draft_id
@@ -345,14 +345,14 @@ function mfl_draft_board(int $season, ?int $team): array
 /** Seasons that have a draft on file, newest first. */
 function mfl_draft_seasons(): array
 {
-    return db()->query('SELECT DISTINCT d.season FROM mfl_drafts d JOIN mfl_draft_picks p ON p.draft_id = d.id ORDER BY d.season DESC')->fetchAll(PDO::FETCH_COLUMN);
+    return league_db()->query('SELECT DISTINCT d.season FROM mfl_drafts d JOIN mfl_draft_picks p ON p.draft_id = d.id ORDER BY d.season DESC')->fetchAll(PDO::FETCH_COLUMN);
 }
 
 /** Roster moves per franchise, from completed transactions. */
 function mfl_move_counts(): array
 {
     $counts = [];
-    foreach (db()->query("SELECT type, franchise_ids_json FROM mfl_transactions WHERE status = 'complete'") as $t) {
+    foreach (league_db()->query("SELECT type, franchise_ids_json FROM mfl_transactions WHERE status = 'complete'") as $t) {
         foreach (json_decode($t['franchise_ids_json'], true) ?: [] as $fid) {
             $counts[$fid] ??= ['moves' => 0, 'trades' => 0];
             $counts[$fid][$t['type'] === 'trade' ? 'trades' : 'moves']++;
@@ -407,7 +407,7 @@ function mfl_records(): array
     ], array_values($seasons));
 
     $moves = [];
-    $names = db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
+    $names = league_db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
     foreach (mfl_move_counts() as $fid => $c) $moves[] = $c + ['franchise_id' => $fid, 'team_name' => $names[$fid] ?? "Team $fid"];
 
     $career = array_map(fn($t) => $t + ['franchise_id' => (int) $t['id'], 'team_name' => $t['name']], mfl_team_table());
@@ -519,7 +519,7 @@ function mfl_history_route(string $path): bool
     }
 
     if (preg_match('#^owners/([^/]+)$#', $path, $m)) {
-        $stmt = db()->prepare('SELECT * FROM mfl_owners WHERE display_name = ?');
+        $stmt = league_db()->prepare('SELECT * FROM mfl_owners WHERE display_name = ?');
         $stmt->execute([rawurldecode($m[1])]);
         $owner = $stmt->fetch();
         if (!$owner) return false;
@@ -578,7 +578,7 @@ function mfl_history_route(string $path): bool
         mfl_render('players', [
             'nav' => 'players', 'title' => 'Players', 'script' => true, 'f' => $f, 'rows' => mfl_player_rows($f),
             'cards' => mfl_player_leaders($f['counted']), 'seasons' => array_reverse(array_keys(mfl_seasons())),
-            'names' => db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR),
+            'names' => league_db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR),
             'holders' => mfl_current_rosters(),
         ]);
         return true;
@@ -589,7 +589,7 @@ function mfl_history_route(string $path): bool
         if (!$p || $p['name'] === '') return false;
         mfl_render('player', [
             'nav' => 'players', 'title' => $p['name'], 'p' => $p, 'holder' => mfl_current_rosters()[$m[1]] ?? null,
-            'names' => db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR),
+            'names' => league_db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR),
             'timeline' => mfl_player_timeline($m[1]), 'updated' => mfl_last_updated(),
         ]);
         return true;

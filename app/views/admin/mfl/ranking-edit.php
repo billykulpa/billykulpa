@@ -5,13 +5,13 @@ $published = $ranking['status'] === 'published'; ?>
 <p class="a-sub">
   <span class="a-pill a-pill--<?= esc($ranking['status']) ?>"><?= esc($ranking['status']) ?></span>
   <?= (int) $ranking['season'] ?> · By <?= esc($ranking['author_name']) ?>
-  <?php if ($published): ?>· <a href="<?= esc(MFL_BASE_URL . mfl_ranking_url($ranking)) ?>" target="_blank" rel="noopener" style="text-decoration:underline">View live &nearr;</a><?php endif; ?>
+  <?php if ($published): ?>· <a href="<?= esc(mfl_league()['base_url'] . mfl_ranking_url($ranking)) ?>" target="_blank" rel="noopener" style="text-decoration:underline">View live &nearr;</a><?php endif; ?>
 </p>
 <?php if ($flash): ?><div class="a-flash a-flash--<?= $flash['status'] === 'ok' ? 'ok' : 'err' ?>"><?= esc($flash['summary']) ?></div><?php endif; ?>
 <?php if (!empty($flash['warning'])): ?><div class="a-flash a-flash--err"><?= esc($flash['warning']) ?></div><?php endif; ?>
 
-<form method="post" action="/admin/mfl/rankings/edit?id=<?= (int) $ranking['id'] ?>" id="a-ranking-form"
-      data-autosave="ranking-<?= (int) $ranking['id'] ?>"<?= isset($_GET['revision']) ? ' data-no-restore' : (($flash['status'] ?? '') === 'ok' ? ' data-saved' : '') ?>><?= csrf_field() ?>
+<form method="post" action="<?= mfl_admin_base() ?>/rankings/edit?id=<?= (int) $ranking['id'] ?>" id="a-ranking-form"
+      data-autosave="<?= mfl_autosave_prefix() ?>ranking-<?= (int) $ranking['id'] ?>"<?= isset($_GET['revision']) ? ' data-no-restore' : (($flash['status'] ?? '') === 'ok' ? ' data-saved' : '') ?>><?= csrf_field() ?>
   <div class="a-grid-2">
     <div>
       <label class="a-label" for="title">Title (optional)</label>
@@ -84,12 +84,12 @@ $published = $ranking['status'] === 'published'; ?>
   The email uses the last saved version.
 </p>
 <div class="a-email-actions">
-  <form method="post" action="/admin/mfl/rankings/email"><?= csrf_field() ?>
+  <form method="post" action="<?= mfl_admin_base() ?>/rankings/email"><?= csrf_field() ?>
     <input type="hidden" name="id" value="<?= (int) $ranking['id'] ?>">
     <button class="a-btn a-btn--ghost" type="submit" name="mode" value="test">Send me a test</button>
   </form>
   <?php if ($published && $recipients): ?>
-  <form method="post" action="/admin/mfl/rankings/email"><?= csrf_field() ?>
+  <form method="post" action="<?= mfl_admin_base() ?>/rankings/email"><?= csrf_field() ?>
     <input type="hidden" name="id" value="<?= (int) $ranking['id'] ?>">
     <?php if ($ranking['emailed_at']): ?>
     <button class="a-btn a-btn--ghost" type="submit" name="mode" value="again" onclick="return confirm('Email everyone again?')">Email the league again</button>
@@ -103,7 +103,7 @@ $published = $ranking['status'] === 'published'; ?>
 <?php endif; ?>
 
 <?php if (!$published): ?>
-<form method="post" action="/admin/mfl/rankings/delete" class="a-rank-delete"><?= csrf_field() ?>
+<form method="post" action="<?= mfl_admin_base() ?>/rankings/delete" class="a-rank-delete"><?= csrf_field() ?>
   <input type="hidden" name="id" value="<?= (int) $ranking['id'] ?>">
   <button class="a-btn a-btn--danger" type="submit" onclick="return confirm('Delete this draft?')">Delete draft</button>
 </form>
@@ -123,7 +123,7 @@ $published = $ranking['status'] === 'published'; ?>
       <td><?= esc($v['summary'] ?: '—') ?></td>
       <td class="a-row-actions">
         <?php if ($i === 0): ?><span class="a-hint">Current</span>
-        <?php else: ?><a class="a-link-btn" href="/admin/mfl/rankings/edit?id=<?= (int) $ranking['id'] ?>&amp;revision=<?= (int) $v['id'] ?>">Load</a><?php endif; ?>
+        <?php else: ?><a class="a-link-btn" href="<?= mfl_admin_base() ?>/rankings/edit?id=<?= (int) $ranking['id'] ?>&amp;revision=<?= (int) $v['id'] ?>">Load</a><?php endif; ?>
       </td>
     </tr>
   <?php endforeach; ?>

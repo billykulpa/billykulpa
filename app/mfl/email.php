@@ -9,7 +9,10 @@
 
 function mfl_email_settings(): array
 {
-    return (config()['mfl_email'] ?? []) + ['mode' => 'resend', 'resend_key' => '', 'from' => 'MFL Power Rankings <rankings@billykulpa.com>', 'reply_to' => ''];
+    $s = (config()['mfl_email'] ?? []) + ['mode' => 'resend', 'resend_key' => '', 'from' => 'MFL Power Rankings <rankings@billykulpa.com>', 'reply_to' => ''];
+    // One Resend account for every league; each league other than MFL names its own sender.
+    if (isset(mfl_league()['email_from'])) $s['from'] = mfl_league()['email_from'];
+    return $s;
 }
 
 /** Whether sending is configured. 'log' mode writes to a local file instead of sending. */
@@ -22,7 +25,7 @@ function mfl_email_ready(): bool
 /** Email addresses of the current owners. */
 function mfl_league_recipients(): array
 {
-    return db()->query(
+    return league_db()->query(
         "SELECT DISTINCT o.email FROM mfl_owners o
            JOIN mfl_team_seasons ts ON ts.owner_id = o.id
           WHERE ts.season = (SELECT MAX(season) FROM mfl_seasons) AND o.email <> ''"
@@ -78,14 +81,15 @@ function mfl_send_emails(array $recipients, array $message, string $key): ?strin
 /** The email for a set of rankings, draft or published: ['subject', 'html', 'text']. */
 function mfl_ranking_message(array $ranking): array
 {
-    $stmt = db()->prepare('SELECT franchise_id, rank_no FROM mfl_ranking_entries WHERE ranking_id = ?');
+    $stmt = league_db()->prepare('SELECT franchise_id, rank_no FROM mfl_ranking_entries WHERE ranking_id = ?');
     $stmt->execute([$ranking['id']]);
     $ranking['ranks'] = array_map('intval', $stmt->fetchAll(PDO::FETCH_KEY_PAIR));
     $earlier = array_filter(mfl_rank_history(), fn($h) => [(int) $h['season'], (int) $h['week']] < [(int) $ranking['season'], (int) $ranking['week']]);
     $rows = mfl_ranking_rows($ranking, [...$earlier, $ranking]);
 
     $title = mfl_ranking_title($ranking);
-    $url = MFL_BASE_URL . mfl_ranking_url($ranking);
+    $league = mfl_league();
+    $url = $league['base_url'] . mfl_ranking_url($ranking);
     $ink = 'color:#16150f;';
     $soft = 'color:#4c4a40;';
     $sans = "font-family:Helvetica,Arial,sans-serif;";
@@ -114,7 +118,7 @@ function mfl_ranking_message(array $ranking): array
         if (trim((string) $e['writeup_md']) !== '') $text .= trim($e['writeup_md']) . "\n";
         $text .= "\n";
     }
-    $text .= "Read it on the site: $url\n\nYou're getting this because you're in the Midwest Football League.\n";
+    $text .= "Read it on the site: $url\n\nYou're getting this because you're in the {$league['name']}.\n";
 
     $intro = trim((string) $ranking['intro_md']) !== ''
         ? str_replace('<p>', "<p style=\"margin:12px 0 0;{$ink}{$sans}font-size:16px;line-height:1.5;\">", str_replace('class="link"', 'style="color:#0a70c2;"', mfl_writeup_html($ranking['intro_md'])))
@@ -124,13 +128,15 @@ function mfl_ranking_message(array $ranking): array
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#faf9f5;"><tr><td align="center" style="padding:24px 16px;">'
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">'
         // A PNG on the live site, because most email clients won't show SVG.
-        . '<tr><td style="padding-bottom:8px;"><img src="' . esc(MFL_BASE_URL) . '/assets/logo-email.png" width="140" height="109" alt="Midwest Football League" style="display:block;border:0;' . $ink . $sans . 'font-size:14px;font-weight:bold;"></td></tr>'
+        . ($league['logo']
+            ? '<tr><td style="padding-bottom:8px;"><img src="' . esc($league['base_url']) . '/assets/logo-email.png" width="140" height="109" alt="' . esc($league['name']) . '" style="display:block;border:0;' . $ink . $sans . 'font-size:14px;font-weight:bold;"></td></tr>'
+            : '<tr><td style="padding-bottom:8px;' . $soft . $sans . 'font-size:13px;font-weight:bold;letter-spacing:0.04em;text-transform:uppercase;">' . esc($league['name']) . '</td></tr>')
         . '<tr><td style="padding-top:8px;' . $ink . $sans . 'font-size:30px;font-weight:bold;line-height:1.15;">' . esc($title) . '</td></tr>'
         . '<tr><td style="padding-top:6px;' . $soft . $sans . 'font-size:14px;">By ' . esc($ranking['author_name']) . '</td></tr>'
         . ($intro ? "<tr><td>$intro</td></tr>" : '')
         . '<tr><td style="padding-top:20px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">' . $body . '</table></td></tr>'
         . '<tr><td style="padding:20px 0;border-top:1px solid #dcd9cf;' . $sans . 'font-size:15px;"><a href="' . esc($url) . '" style="color:#0a70c2;">Read it on the site</a></td></tr>'
-        . '<tr><td style="' . $soft . $sans . 'font-size:12px;">You\'re getting this because you\'re in the Midwest Football League.</td></tr>'
+        . '<tr><td style="' . $soft . $sans . 'font-size:12px;">You\'re getting this because you\'re in the ' . esc($league['name']) . '.</td></tr>'
         . '</table></td></tr></table></body></html>';
 
     return ['subject' => $title, 'html' => $html, 'text' => $text];
@@ -145,7 +151,7 @@ function mfl_email_league(array $ranking, bool $again = false): ?string
     $key = 'mfl-ranking/' . (int) $ranking['id'] . '/' . sha1($message['html']) . ($again ? '/' . time() : '');
     $error = mfl_send_emails($recipients, $message, $key);
     if ($error !== null) return $error;
-    db()->prepare('UPDATE mfl_rankings SET emailed_at = ?, emailed_count = ? WHERE id = ?')
+    league_db()->prepare('UPDATE mfl_rankings SET emailed_at = ?, emailed_count = ? WHERE id = ?')
         ->execute([date('Y-m-d H:i:s'), count($recipients), $ranking['id']]);
     return null;
 }

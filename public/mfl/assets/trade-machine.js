@@ -236,17 +236,28 @@
   }
 
   const OUT = ['IR', 'PUP', 'Sus', 'NA', 'DNR'];
+  /* The league's lineup slots and the positions each takes (MFL_SLOT_POSITIONS
+     in values.php). Narrower slots fill first, as on the server, so a
+     superflex doesn't take the running back a FLEX needed. */
+  const SLOTS = { QB: ['QB'], RB: ['RB'], WR: ['WR'], TE: ['TE'], FLEX: ['RB', 'WR', 'TE'],
+    WRRB_FLEX: ['RB', 'WR'], REC_FLEX: ['WR', 'TE'], SUPER_FLEX: ['QB', 'RB', 'WR', 'TE'] };
+  const LINEUP = data.lineup.filter(s => SLOTS[s]).sort((x, y) => SLOTS[x].length - SLOTS[y].length);
 
-  /** Best starting lineup by current points per game: QB, 2 RB, 2 WR, TE, FLEX. */
+  /** Best starting lineup by current points per game, in the league's lineup. */
   function lineup(ids) {
     const pool = ids.map(id => assets.get(id)).filter(a => a.kind === 'player' && !OUT.includes(a.injury))
       .sort((x, y) => y.ppg - x.ppg);
-    const need = { QB: 1, RB: 2, WR: 2, TE: 1 };
-    const starters = [];
-    const left = [];
-    pool.forEach(p => { if (need[p.pos] > 0) { need[p.pos]--; starters.push(p); } else left.push(p); });
-    const flex = left.find(p => ['RB', 'WR', 'TE'].includes(p.pos));
-    if (flex) starters.push(flex);
+    const used = new Set();
+    const fixed = [];
+    const flex = [];
+    LINEUP.forEach(slot => {
+      const p = pool.find(x => !used.has(x.id) && SLOTS[slot].includes(x.pos));
+      if (!p) return;
+      used.add(p.id);
+      (SLOTS[slot].length === 1 ? fixed : flex).push(p);
+    });
+    // Position slots in scoring order, then the flex slots, for the In/Out lists.
+    const starters = fixed.sort((x, y) => pool.indexOf(x) - pool.indexOf(y)).concat(flex);
     return { total: starters.reduce((s, p) => s + p.ppg, 0), starters };
   }
 
@@ -325,7 +336,7 @@
       <div class="tm-panel">
         <h3>Starting lineup this season</h3>
         <ul class="tm-lineups">${lineupBlock('a')}${lineupBlock('b')}</ul>
-        <p class="row-note">Best lineup by current points per game: QB, 2 RB, 2 WR, TE, FLEX. Players on IR don't count.</p>
+        <p class="row-note">Best lineup by current points per game: ${esc(data.lineupLabel)}. Players on IR don't count.</p>
       </div>
       <div class="tm-panel tm-balance">
         <h3>Balance it</h3>

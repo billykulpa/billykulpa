@@ -2,18 +2,21 @@
 // Same pattern as the main site: probe the session before any output, and only
 // when the cookie exists, so ordinary visitors never get a session.
 $signed_in = !empty($_COOKIE[session_cookie_name()]) ? current_user() : null;
-$cms = config()['site']['base_url'] . '/admin'; ?>
+$cms = config()['site']['base_url'] . '/admin';
+$league = mfl_league(); ?>
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title><?= isset($title) ? esc($title) . ' — ' : '' ?>Midwest Football League</title>
+  <title><?= isset($title) ? esc($title) . ' — ' : '' ?><?= esc($league['name']) ?></title>
+  <?php if ($league['logo']): ?>
   <link rel="icon" type="image/png" href="/assets/favicon-64.png">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-  <meta property="og:title" content="<?= isset($title) ? esc($title) . ' — ' : '' ?>Midwest Football League">
-  <meta property="og:image" content="<?= esc(MFL_BASE_URL) ?>/assets/logo-share.png">
+  <?php endif; ?>
+  <meta property="og:title" content="<?= isset($title) ? esc($title) . ' — ' : '' ?><?= esc($league['name']) ?>">
+  <?php if ($league['logo']): ?><meta property="og:image" content="<?= esc($league['base_url']) ?>/assets/logo-share.png"><?php endif; ?>
   <link rel="preload" href="/assets/fonts/archivo-latin-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="<?= esc(mfl_asset('mfl.css')) ?>">
 </head>
@@ -21,7 +24,7 @@ $cms = config()['site']['base_url'] . '/admin'; ?>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap header-grid">
-      <a class="wordmark" href="/" aria-label="Midwest Football League home"<?= $nav === 'home' ? ' aria-current="page"' : '' ?>><img class="wordmark-logo" src="<?= esc(mfl_asset('logo.svg')) ?>" alt="" width="64" height="50"><span class="wordmark-name">Midwest Football League</span></a>
+      <a class="wordmark<?= $league['logo'] ? '' : ' wordmark--text' ?>" href="/" aria-label="<?= esc($league['name']) ?> home"<?= $nav === 'home' ? ' aria-current="page"' : '' ?>><?php if ($league['logo']): ?><img class="wordmark-logo" src="<?= esc(mfl_asset('logo.svg')) ?>" alt="" width="64" height="50"><?php endif; ?><span class="wordmark-name"><?= esc($league['name']) ?></span></a>
       <nav class="site-nav" aria-label="Primary">
         <a href="/rankings" <?= $nav === 'rankings' ? 'aria-current="page"' : '' ?>>Power Rankings</a>
         <a href="/polls" <?= $nav === 'polls' ? 'aria-current="page"' : '' ?>>Polls</a>
@@ -46,7 +49,7 @@ $cms = config()['site']['base_url'] . '/admin'; ?>
   </footer>
   <?php if ($signed_in): ?>
   <div class="admin-quick">
-    <a class="admin-quick-btn" href="<?= esc($cms) ?>/mfl">Admin</a>
+    <a class="admin-quick-btn" href="<?= esc($cms) ?>/<?= esc($league['key']) ?>">Admin</a>
     <form method="post" action="<?= esc($cms) ?>/logout"><?= csrf_field() ?><button class="admin-quick-btn" type="submit">Sign out</button></form>
   </div>
   <?php endif; ?>

@@ -153,6 +153,35 @@ function mfl_asset(string $file): string
     return "/assets/$file?v=$mtime";
 }
 
+/**
+ * Serve a file from the shared league assets folder (public/mfl/assets), for a
+ * league site whose own docroot doesn't hold them. Versioned URLs (?v=) are
+ * cached for a year, like the static files they stand in for.
+ */
+function mfl_serve_shared_asset(string $file): void
+{
+    $types = ['css' => 'text/css; charset=utf-8', 'js' => 'text/javascript; charset=utf-8', 'woff2' => 'font/woff2',
+              'svg' => 'image/svg+xml', 'png' => 'image/png'];
+    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+    $root = dirname(APP_DIR);
+    $path = null;
+    // Plain names in known folders only, so nothing outside the assets folder can be read.
+    if (isset($types[$ext]) && preg_match('#^[a-z0-9_-]+(/[a-z0-9_.-]+)?\.[a-z0-9]+$#i', $file) && !str_contains($file, '..')) {
+        foreach (["$root/public/mfl/assets/$file", "$root/mfl/assets/$file"] as $candidate) {
+            if (is_file($candidate)) { $path = $candidate; break; }
+        }
+    }
+    if (!$path) { http_response_code(404); exit('Not found.'); }
+    $mtime = filemtime($path);
+    header('Content-Type: ' . $types[$ext]);
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+    header(isset($_GET['v']) ? 'Cache-Control: public, max-age=31536000, immutable' : 'Cache-Control: public, max-age=3600');
+    $since = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '') ?: 0;
+    if ($since >= $mtime) { http_response_code(304); return; }
+    header('Content-Length: ' . filesize($path));
+    readfile($path);
+}
+
 function mfl_render(string $view, array $data = []): void
 {
     extract($data, EXTR_SKIP);

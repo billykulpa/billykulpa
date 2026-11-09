@@ -18,7 +18,7 @@ function mfl_weekly_rosters(): array
     static $data = null;
     if ($data !== null) return $data;
     $data = ['weeks' => [], 'rosters' => [], 'starts' => [], 'points' => []];
-    foreach (db()->query('SELECT season, week, franchise_id, players_json, player_points_json, starters_json, starter_points_json FROM mfl_matchups ORDER BY season, week') as $m) {
+    foreach (league_db()->query('SELECT season, week, franchise_id, players_json, player_points_json, starters_json, starter_points_json FROM mfl_matchups ORDER BY season, week') as $m) {
         $key = "{$m['season']}-{$m['week']}";
         $data['weeks'][$key] = [(int) $m['season'], (int) $m['week']];
         $data['rosters'][$key][$m['franchise_id']] = array_flip(array_map('strval', json_decode((string) $m['players_json'], true) ?: []));
@@ -109,8 +109,8 @@ function mfl_current_rosters(): array
     static $map = null;
     if ($map !== null) return $map;
     $map = [];
-    $latest = (int) db()->query('SELECT MAX(season) FROM mfl_seasons')->fetchColumn();
-    $stmt = db()->prepare('SELECT franchise_id, roster_json FROM mfl_team_seasons WHERE season = ?');
+    $latest = (int) league_db()->query('SELECT MAX(season) FROM mfl_seasons')->fetchColumn();
+    $stmt = league_db()->prepare('SELECT franchise_id, roster_json FROM mfl_team_seasons WHERE season = ?');
     $stmt->execute([$latest]);
     foreach ($stmt as $t) {
         foreach (json_decode((string) $t['roster_json'], true) ?: [] as $pid) $map[(string) $pid] = (int) $t['franchise_id'];
@@ -124,7 +124,7 @@ function mfl_player_moves(): array
     static $moves = null;
     if ($moves !== null) return $moves;
     $moves = [];
-    foreach (db()->query("SELECT id, season, type, COALESCE(completed_at, created_at) AS at, adds_json, drops_json
+    foreach (league_db()->query("SELECT id, season, type, COALESCE(completed_at, created_at) AS at, adds_json, drops_json
                           FROM mfl_transactions WHERE status = 'complete' ORDER BY at, id") as $t) {
         $adds = json_decode((string) $t['adds_json'], true) ?: [];
         $drops = json_decode((string) $t['drops_json'], true) ?: [];
@@ -166,7 +166,7 @@ function mfl_player_status(string $player, int $team, string $since, array $name
 /** What a traded pick became, if that draft has happened. */
 function mfl_pick_outcome(array $pick): ?array
 {
-    $stmt = db()->prepare("SELECT p.*, s.num_teams, d.started_at, d.season
+    $stmt = league_db()->prepare("SELECT p.*, s.num_teams, d.started_at, d.season
                              FROM mfl_draft_picks p
                              JOIN mfl_drafts d ON d.id = p.draft_id
                              JOIN mfl_seasons s ON s.season = d.season
@@ -187,8 +187,8 @@ function mfl_pick_outcome(array $pick): ?array
 /** A season's completed trades, newest first, with what each side received. */
 function mfl_trades(int $season): array
 {
-    $names = db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
-    $stmt = db()->prepare(
+    $names = league_db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
+    $stmt = league_db()->prepare(
         'SELECT ts.franchise_id, ts.team_name, o.display_name AS owner_name, o.real_name
            FROM mfl_team_seasons ts LEFT JOIN mfl_owners o ON o.id = ts.owner_id WHERE ts.season = ?'
     );
@@ -198,11 +198,11 @@ function mfl_trades(int $season): array
     foreach ($teams as $fid => $t) $names[$fid] = $t['team_name'];
 
     $players = [];
-    foreach (db()->query('SELECT * FROM mfl_players') as $p) $players[$p['id']] = $p;
+    foreach (league_db()->query('SELECT * FROM mfl_players') as $p) $players[$p['id']] = $p;
     $traded = [];
-    foreach (db()->query('SELECT * FROM mfl_traded_picks') as $p) $traded["{$p['pick_season']}-{$p['round']}-{$p['original_franchise_id']}"] = (int) $p['current_franchise_id'];
+    foreach (league_db()->query('SELECT * FROM mfl_traded_picks') as $p) $traded["{$p['pick_season']}-{$p['round']}-{$p['original_franchise_id']}"] = (int) $p['current_franchise_id'];
 
-    $stmt = db()->prepare("SELECT * FROM mfl_transactions WHERE season = ? AND type = 'trade' AND status = 'complete' ORDER BY COALESCE(completed_at, created_at) DESC");
+    $stmt = league_db()->prepare("SELECT * FROM mfl_transactions WHERE season = ? AND type = 'trade' AND status = 'complete' ORDER BY COALESCE(completed_at, created_at) DESC");
     $stmt->execute([$season]);
     $trades = [];
     foreach ($stmt as $t) {

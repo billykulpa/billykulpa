@@ -1,10 +1,15 @@
 <?php /** @var ?array $run */
 $model = mfl_model();
+$rules = mfl_current_rules();
+$depth = $run['depth'] ?? mfl_model_depth($rules);
+$deep = !empty($depth['waiver']);
+$lineupLabel = mfl_lineup_label($rules['lineup']);
+$superflex = $rules['qbs'] === 2;
 $repl = $run['replacement'] ?? null;
 $aging = mfl_aging_table();
 $ages = array_keys($aging['RB']);
 $firstRound = [];
-for ($slot = 1; $slot <= 12; $slot++) $firstRound[$slot] = array_sum($model['picks'][(string) $slot] ?? []);
+for ($slot = 1; $slot <= $rules['teams']; $slot++) $firstRound[$slot] = array_sum($model['picks'][(string) $slot] ?? []);
 $weights = array_map(fn($w) => round($w * 100) . '%', MFL_VALUE_WEIGHTS);
 $season = (int) ($run['season'] ?? date('Y'));
 $anchors = $run ? mfl_value_anchors() : [];
@@ -19,7 +24,7 @@ $tierNames = [6 => 'Franchise player', 12 => 'Top starter', 24 => 'Every-week st
   <p>Every player and pick gets two numbers, worked out separately so you can see where they disagree.</p>
   <ul>
     <li><b>Model</b> is our own estimate: the fantasy points a player should score above a replacement starter, this season and the next four, under this league's scoring. A pick is worth what its draft slot has produced in the past.</li>
-    <li><b>Market</b> is what dynasty managers are actually paying, from <a class="link" href="https://fantasycalc.com" rel="noopener">FantasyCalc</a>, which builds its values from real trades in leagues set up like ours: 12 teams, 1 QB, full PPR.</li>
+    <li><b>Market</b> is what dynasty managers are actually paying, from <a class="link" href="https://fantasycalc.com" rel="noopener">FantasyCalc</a>, which builds its values from real trades in leagues set up like ours: <?= esc(mfl_market_label($rules, true)) ?>.</li>
   </ul>
   <p>The two use different scales, so compare a player's ranks, not the raw numbers. The next answer shows how to read each one.</p>
 
@@ -54,20 +59,39 @@ $tierNames = [6 => 'Franchise player', 12 => 'Top starter', 24 => 'Every-week st
   <p>A few rules of thumb:</p>
   <ul>
     <li><b>Small gaps are noise.</b> Every number here is an estimate. Two players within about 10% of each other are a coin flip.</li>
+    <?php if ($deep): ?>
+    <li><b>Values add up; lineups don't.</b> Two players worth 100 each aren't the same as one worth 200, because only so many can start. Bench players do count for something here, since rosters run deep enough that waivers are thin (see <a class="link" href="#depth">bench depth</a>), but the team getting the best player in a 2-for-1 still usually wins it. The trade machine's Starting lineup panel shows this.</li>
+    <?php else: ?>
     <li><b>Values add up; lineups don't.</b> Two players worth 100 each aren't the same as one worth 200, because only so many can start. Depth matters less than it looks, and the team getting the best player in a 2-for-1 usually wins it. The trade machine's Starting lineup panel shows this.</li>
+    <?php endif; ?>
     <li><b>The market is the price, the model is the production.</b> The market tells you what you could get for a player today. The model tells you what he's likely to score. Where the model is higher, he may be a buy. Where the market is higher, he may be a sell.</li>
     <li><b>Your timeline changes the answer.</b> A contender should care most about the next few months; a rebuilding team about the years after. Set the timeline in the trade machine, and the Model numbers follow.</li>
     <li><b>Picks are averages.</b> A pick's Model value is the typical outcome for that slot, hits and misses included. Most of what you're buying is the small chance at a star.</li>
   </ul>
 
   <h2>What is a "replacement starter"?</h2>
-  <p>The best players who wouldn't start for anyone in a 12-team league with our lineup (QB, 2 RB, 2 WR, TE, FLEX). They're roughly who you could find on waivers. A player is only worth what he scores above that level, because that's what he adds to a lineup.</p>
+  <?php if ($deep): ?>
+  <p>The best players who wouldn't start for anyone in a <?= (int) $rules['teams'] ?>-team league with our lineup (<?= esc($lineupLabel) ?>). With rosters this deep, they're on someone's bench, not on waivers. A player's value starts with what he scores above that level, because that's what he adds to a lineup. Bench players add a little more, covered <a class="link" href="#depth">below</a>.</p>
+  <?php else: ?>
+  <p>The best players who wouldn't start for anyone in a <?= (int) $rules['teams'] ?>-team league with our lineup (<?= esc($lineupLabel) ?>). They're roughly who you could find on waivers. A player is only worth what he scores above that level, because that's what he adds to a lineup.</p>
+  <?php endif; ?>
   <?php if ($repl): ?>
   <p>Right now, replacement level is <b><?= number_format($repl['QB'], 1) ?></b> points per game at QB, <b><?= number_format($repl['RB'], 1) ?></b> at RB, <b><?= number_format($repl['WR'], 1) ?></b> at WR and <b><?= number_format($repl['TE'], 1) ?></b> at TE.</p>
   <?php endif; ?>
 
+  <?php if ($superflex): ?>
+  <h2>Why are quarterbacks worth so much?</h2>
+  <p>The superflex. Quarterbacks score the most points, so nearly every team starts two, and the replacement quarterback is well down the list<?php if ($repl): ?> (<?= number_format($repl['QB'], 1) ?> points per game right now)<?php endif; ?>. A team without a second starter has to fill that slot with a running back or receiver who scores far less, every week. That gap is what a starting quarterback is worth.</p>
+  <?php else: ?>
   <h2>Why are quarterbacks worth less than in other leagues?</h2>
-  <p>We start one quarterback, so all 12 teams start a good one and the 13th-best is still decent. A quarterback has to score well above that bar to be worth much. Superflex leagues, where teams start two, value them far more.</p>
+  <p>We start one quarterback, so all <?= (int) $rules['teams'] ?> teams start a good one and the <?= (int) $rules['teams'] + 1 ?>th-best is still decent. A quarterback has to score well above that bar to be worth much. Superflex leagues, where teams start two, value them far more.</p>
+  <?php endif; ?>
+
+  <?php if ($deep): ?>
+  <h2 id="depth">Are bench players worth anything?</h2>
+  <p>Yes, in a league this deep. Between full benches, taxi squads and injured reserve, almost every useful player is on a roster, so what's left on waivers scores very little<?php if ($repl): ?>: about <?= number_format($depth['waiver']['QB'], 1) ?> points per game at QB, <?= number_format($depth['waiver']['RB'], 1) ?> at RB, <?= number_format($depth['waiver']['WR'], 1) ?> at WR and <?= number_format($depth['waiver']['TE'], 1) ?> at TE<?php endif; ?>. When a starter is hurt, on a bye or sat for a matchup, a bench player starts instead.</p>
+  <p>So on top of his points above a replacement starter, a player is worth his points above that waiver level in the weeks a bench player fills in. How often that happens comes from this league's own lineups: a bench player at each position has started about <?= (int) round(100 * array_sum($depth['fill']) / max(1, count($depth['fill']))) ?>% of weeks. Starters get this too, because adding one pushes your weakest starter to the bench, where he becomes the fill-in.</p>
+  <?php endif; ?>
 
   <h2>Where does a player's value start?</h2>
   <p>With his scoring rate right now, a blend of three things:</p>
@@ -100,7 +124,7 @@ $tierNames = [6 => 'Franchise player', 12 => 'Top starter', 24 => 'Every-week st
 
   <h2>How are draft picks valued?</h2>
   <p>By what that draft slot actually produced. For every rookie class from <?= esc(implode(' to ', $model['rookie_classes'] ?? [])) ?>, the model lines up the rookies in the order a dynasty rookie draft would take them, then adds up what each one scored above replacement in his first four seasons.</p>
-  <p>Sleeper's rookie draft rankings only go back to about 2021, so classes are ordered by NFL draft position, adjusted the way 1-QB rookie drafts go: quarterbacks much later, running backs much earlier, tight ends a little later. That order matches Sleeper's 2021-25 rookie rankings closely.</p>
+  <p>Sleeper's rookie draft rankings only go back to about 2021, so classes are ordered by NFL draft position, <?= esc(mfl_league()['rookie_order_note']) ?></p>
   <p>Average points above replacement over a rookie's first four seasons, by first-round slot:</p>
   <div class="table-scroll">
     <table class="pickups faq-table">
@@ -108,7 +132,8 @@ $tierNames = [6 => 'Franchise player', 12 => 'Top starter', 24 => 'Every-week st
       <tbody><tr><th scope="row" class="sticky">Points</th><?php foreach ($firstRound as $v): ?><td class="num"><?= number_format($v, 0) ?></td><?php endforeach; ?></tr></tbody>
     </table>
   </div>
-  <p>A future pick's value depends on where it lands, and this league drafts in reverse order of finish. Teams that miss the playoffs pick first, worst record first. Playoff teams pick 7th through 12th by how far they got, so the champion picks last. In 2026, the regular season's #2 team picked 10th after finishing third in the playoffs.</p>
+  <?php $po = (int) (mfl_latest_season()['playoff_teams'] ?? 6); $first = $rules['teams'] - $po + 1; ?>
+  <p>A future pick's value depends on where it lands, and this league drafts in reverse order of finish. Teams that miss the playoffs pick first, worst record first. Playoff teams pick <?= $first ?><?= [1 => 'st', 2 => 'nd', 3 => 'rd'][$first % 10] ?? 'th' ?> through <?= (int) $rules['teams'] ?>th by how far they got, so the champion picks last.<?php if (mfl_league()['key'] === 'mfl'): ?> In 2026, the regular season's #2 team picked 10th after finishing third in the playoffs.<?php else: ?> Teams with the same record are separated by points scored, and the lower-scoring team picks first.<?php endif; ?></p>
   <p>Until the season ends, the next draft's order is simulated thousands of times: the rest of the regular season from each team's record against every team, every week, then the playoff bracket. A pick's value is the average across those outcomes, and it sharpens as the season goes on. Once the season is over, the order is exact. Drafts after that could land anywhere, so those picks are valued as an average pick in their round.</p>
 
   <h2>Why does the model like picks less than the market does?</h2>

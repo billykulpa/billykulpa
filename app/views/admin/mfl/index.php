@@ -1,7 +1,7 @@
 <?php /** @var ?array $flash */ /** @var ?string $updated */ /** @var ?array $season */
 /** @var int $seasons */ /** @var int $matchups */ /** @var int $picks */
 /** @var array $franchises */ /** @var array $syncs */ ?>
-<h1>Midwest Football League</h1>
+<h1><?= esc(mfl_league()['name']) ?></h1>
 <?php require __DIR__ . '/_subnav.php'; ?>
 
 <?php if ($flash): ?>
@@ -12,7 +12,7 @@
   <span class="a-updated">
     <?= $updated ? 'Last updated ' . esc(central_time($updated, 'M j, Y, g:i a')) . ' CT' : 'Not synced yet.' ?>
   </span>
-  <form method="post" action="/admin/mfl/sync"><?= csrf_field() ?>
+  <form method="post" action="<?= mfl_admin_base() ?>/sync"><?= csrf_field() ?>
     <button class="a-btn" type="submit">Sync now</button>
   </form>
 </div>

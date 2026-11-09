@@ -19,7 +19,7 @@ $num = fn($v) => number_format((float) $v, 0); ?>
 
 <div class="values-intro">
   <p><b>Model</b>: points above a replacement starter, this season and the next four, from each player's current scoring, how players at the position age, and how long they last. Nearer seasons count more. Picks are worth what their draft slot has produced in the past.</p>
-  <p><b>Market</b>: what dynasty managers are paying in real trades, from FantasyCalc (12 teams, 1 QB, PPR). <a class="link" href="/trades/values/how">How trade values are calculated</a><?php if (!$run['market']): ?> <i>Today's market prices didn't load, so player market values may be missing.</i><?php endif; ?></p>
+  <p><b>Market</b>: what dynasty managers are paying in real trades, from FantasyCalc (<?= esc(mfl_market_label(mfl_current_rules())) ?>). <a class="link" href="/trades/values/how">How trade values are calculated</a><?php if (!$run['market']): ?> <i>Today's market prices didn't load, so player market values may be missing.</i><?php endif; ?></p>
 </div>
 
 <nav class="era-tabs" aria-label="What to show" data-swap>
@@ -65,7 +65,7 @@ $num = fn($v) => number_format((float) $v, 0); ?>
           <?= mfl_values_th($f, 'name', 'Player', 'sticky') ?>
           <th scope="col">Pos</th>
           <?= mfl_values_th($f, 'age', 'Age') ?>
-          <th scope="col">MFL team</th>
+          <th scope="col"><?= esc(mfl_league()['short']) ?> team</th>
           <?= mfl_values_th($f, 'model', 'Model', 'num group-start') ?>
           <?= mfl_values_th($f, 'market', 'Market') ?>
           <?= mfl_values_th($f, 'lean', 'Lean', '') ?>

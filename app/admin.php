@@ -39,7 +39,7 @@ function admin_route(string $route): void
         case $route === 'login':
             // Only MFL screens can be returned to, so this can't redirect off-site.
             $next = (string) ($_POST['next'] ?? $_GET['next'] ?? '');
-            if (!preg_match('#^/admin/mfl(/[a-z/-]+)?(\?id=\d+)?$#', $next)) $next = '';
+            if (!preg_match('#^/admin/(mfl|ssffl)(/[a-z/-]+)?(\?id=\d+)?$#', $next)) $next = '';
             if (current_user()) { header('Location: ' . ($next ?: '/admin')); exit; }
             $error = '';
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -128,6 +128,16 @@ function admin_route(string $route): void
         case $route === 'mfl' || str_starts_with($route, 'mfl/'):
             require APP_DIR . '/mfl/admin.php';
             mfl_admin_route($route);
+            break;
+
+        // Other leagues run the same screens against their own database. Admin
+        // only for now: MFL Members can't open them, and there's no member
+        // role for these leagues yet.
+        case $route === 'ssffl' || str_starts_with($route, 'ssffl/'):
+            require_login();
+            require APP_DIR . '/mfl/admin.php';
+            mfl_use_league('ssffl');
+            mfl_admin_route('mfl' . substr($route, strlen('ssffl')));
             break;
 
         /* ---------------------------- Accounts ---------------------------- */

@@ -1,36 +1,88 @@
 <?php
 /**
- * Builds app/mfl/model.json, the slow-moving half of the trade value model:
- * how players age, how long they last, and what each rookie draft slot has
- * historically turned into. Run it locally about once a year, after the NFL
- * season, and commit the result:
+ * Builds a league's model file (model.json for MFL, model-ssffl.json for
+ * SSFFL; see league.php), the slow-moving half of the trade value model: how
+ * players age, how long they last, and what each rookie draft slot has
+ * historically turned into, all scored and valued by that league's rules.
+ * Run it locally about once a year, after the NFL season, and commit the result:
  *
  *   php app/mfl/model-build.php
+ *   php app/mfl/model-build.php --league=ssffl
  *
  * Sources: Sleeper's season stat totals (2012 on), scored with this league's
  * settings, and nflverse's NFL draft list (github.com/nflverse/nflverse-data),
  * which supplies the draft order of each rookie class. Sleeper's own rookie
- * rankings only go back to about 2021, too few classes to learn from.
+ * rankings only go back to about 2021, too few classes to learn from. For a
+ * league that values bench depth, also the league's own lineups, so sync the
+ * league first.
  */
 
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 
 define('APP_DIR', dirname(__DIR__));
+require APP_DIR . '/db.php';
 require __DIR__ . '/sleeper.php';
 require __DIR__ . '/values.php';   // mfl_replacement(), mfl_age_in()
 ini_set('memory_limit', '1G');
+mfl_use_league(mfl_cli_league($argv));
 
 const BUILD_FIRST_SEASON = 2012;
 const BUILD_POSITIONS = ['QB', 'RB', 'WR', 'TE'];
 const BUILD_DRAFT_CSV = 'https://github.com/nflverse/nflverse-data/releases/download/draft_picks/draft_picks.csv';
-const BUILD_PICKS = 48;   // 4 rounds of 12
 const BUILD_ROOKIE_YEARS = 4;
 
 $lastSeason = (int) date('Y') - (date('n') >= 3 ? 1 : 2);   // the latest finished NFL season
-$league = sleeper_get('/league/' . MFL_SEED_LEAGUE_ID);
+$league = sleeper_get('/league/' . mfl_league()['seed_league_id']);
 $scoring = $league['scoring_settings'];
+$rules = mfl_value_rules($league);
+$buildPicks = $rules['rookie_rounds'] * $rules['teams'];   // every slot of a rookie draft
 $players = sleeper_get_many(['/players/nfl'], 120)['/players/nfl'];
 fwrite(STDERR, 'players: ' . count($players) . PHP_EOL);
+
+// Bench depth (see mfl_waiver_levels()): how deep today's rosters go, taxi
+// squads and injured reserve included, and how often a bench player at each
+// position has started in this league's regular seasons.
+$rostered = array_fill_keys(BUILD_POSITIONS, 0);
+$fill = [];
+if ($rules['depth']) {
+    foreach (sleeper_get('/league/' . $league['league_id'] . '/rosters') ?? [] as $r) {
+        foreach ($r['players'] ?? [] as $pid) {
+            $pos = $players[(string) $pid]['position'] ?? '';
+            if (isset($rostered[$pos])) $rostered[$pos]++;
+        }
+    }
+    // A fill-in start is one by anyone but the team's regulars at the position
+    // that season (as many as it started per week, with the most starts).
+    // Divided by the weeks bench players at the position sat, that's how
+    // often a bench player gets used.
+    $teams = [];
+    foreach (league_db()->query('SELECT season, franchise_id, starters_json, players_json FROM mfl_matchups WHERE is_playoff = 0') as $m) {
+        $t = &$teams[$m['season'] . '-' . $m['franchise_id']];
+        $t['weeks'] = ($t['weeks'] ?? 0) + 1;
+        foreach (json_decode((string) $m['starters_json'], true) ?: [] as $pid) {
+            $pos = $players[(string) $pid]['position'] ?? '';
+            if (in_array($pos, BUILD_POSITIONS, true)) $t['starts'][$pos][$pid] = ($t['starts'][$pos][$pid] ?? 0) + 1;
+        }
+        foreach (json_decode((string) $m['players_json'], true) ?: [] as $pid) {
+            $pos = $players[(string) $pid]['position'] ?? '';
+            if (in_array($pos, BUILD_POSITIONS, true)) $t['held'][$pos] = ($t['held'][$pos] ?? 0) + 1;
+        }
+        unset($t);
+    }
+    $fillIns = $benchWeeks = array_fill_keys(BUILD_POSITIONS, 0);
+    foreach ($teams as $t) {
+        foreach (BUILD_POSITIONS as $pos) {
+            $starts = $t['starts'][$pos] ?? [];
+            arsort($starts);
+            $all = array_sum($starts);
+            $fillIns[$pos] += $all - array_sum(array_slice($starts, 0, (int) round($all / $t['weeks'])));
+            $benchWeeks[$pos] += ($t['held'][$pos] ?? 0) - $all;
+        }
+    }
+    foreach (BUILD_POSITIONS as $pos) $fill[$pos] = round($fillIns[$pos] / max(1, $benchWeeks[$pos]), 3);
+    if (!array_sum($benchWeeks)) { fwrite(STDERR, "No lineups stored; sync the league first.\n"); exit(1); }
+    fwrite(STDERR, 'rostered: ' . json_encode($rostered) . ' fill: ' . json_encode($fill) . PHP_EOL);
+}
 
 // Every season's totals, scored the league's way.
 $seasons = [];   // season => pid => ['pos', 'pts', 'gp', 'ppg', 'age']
@@ -50,11 +102,12 @@ foreach ($paths as $y => $path) {
     fwrite(STDERR, "$y: " . count($seasons[$y] ?? []) . PHP_EOL);
 }
 
-$repl = [];
+$repl = $byPosYear = [];
 foreach ($seasons as $y => $rows) {
     $byPos = [];
     foreach ($rows as $r) if ($r['gp'] >= 6) $byPos[$r['pos']][] = $r['ppg'];
-    $repl[$y] = mfl_replacement($byPos);
+    $repl[$y] = mfl_replacement($byPos, $rules);
+    $byPosYear[$y] = $byPos;
 }
 
 // Aging: how a player's points per game change from one season to the next,
@@ -141,11 +194,21 @@ foreach (BUILD_POSITIONS as $pos) {
     ksort($aging[$pos]); ksort($retain[$pos]);
 }
 
-// Rookie classes, ordered the way dynasty rookie drafts go. NFL draft order is
-// the starting point; these adjustments were fit to Sleeper's 2021-25 rookie
-// rankings (rank agreement 0.68 on NFL order alone, 0.86 with them): 1QB
-// leagues take quarterbacks much later, running backs much earlier, and tight
-// ends a bit later than the NFL does.
+// Bench depth by season (empty unless the league values depth). Live values
+// use the last three seasons' waiver levels.
+$depth = $waiver = [];
+foreach ($byPosYear as $y => $byPos) {
+    $depth[$y] = $rules['depth'] ? ['waiver' => mfl_waiver_levels($byPos, $rules, $rostered), 'fill' => $fill] : ['waiver' => [], 'fill' => []];
+}
+if ($rules['depth']) {
+    $recent = array_slice($depth, -3, 3, true);
+    foreach (BUILD_POSITIONS as $pos) $waiver[$pos] = round(array_sum(array_map(fn($d) => $d['waiver'][$pos], $recent)) / count($recent), 2);
+}
+
+// Rookie classes, ordered the way this league's rookie drafts go: NFL draft
+// order, adjusted by position (league.php's rookie_order says where the
+// adjustments came from).
+$order = mfl_league()['rookie_order'];
 $csv = file_get_contents(BUILD_DRAFT_CSV);
 if (!$csv) { fwrite(STDERR, "Couldn't download the NFL draft list.\n"); exit(1); }
 $lines = array_map('str_getcsv', explode("\n", trim($csv)));
@@ -176,21 +239,21 @@ foreach ($lines as $row) {
     if (!$pid) { $unmatched++; }
     $overall = (int) $row[$head['pick']];
     $classes[$season][] = ['pid' => $pid, 'name' => $row[$head['pfr_player_name']], 'pos' => $pos,
-                           'order' => match ($pos) { 'QB' => 3 * $overall + 24, 'RB' => 0.5 * $overall, 'TE' => 1.5 * $overall, default => $overall }];
+                           'order' => ($order[$pos][0] ?? 1) * $overall + ($order[$pos][1] ?? 0)];
 }
 fwrite(STDERR, "unmatched drafted players: $unmatched\n");
 
 // What each slot produced in its first four seasons, in points above replacement.
-$slotYears = array_fill(1, BUILD_PICKS, array_fill(0, BUILD_ROOKIE_YEARS, 0.0));
+$slotYears = array_fill(1, $buildPicks, array_fill(0, BUILD_ROOKIE_YEARS, 0.0));
 $examples = [];
 foreach ($classes as $season => $list) {
     usort($list, fn($a, $b) => $a['order'] <=> $b['order']);
-    foreach (array_slice($list, 0, BUILD_PICKS) as $i => $r) {
+    foreach (array_slice($list, 0, $buildPicks) as $i => $r) {
         $slot = $i + 1;
         $sum = 0;
         for ($k = 0; $k < BUILD_ROOKIE_YEARS; $k++) {
             $s = $seasons[$season + $k][$r['pid']] ?? null;
-            $par = $s ? max(0, $s['ppg'] - $repl[$season + $k][$r['pos']]) * $s['gp'] : 0;
+            $par = $s ? mfl_par_per_game($s['ppg'], $r['pos'], $repl[$season + $k], $depth[$season + $k]) * $s['gp'] : 0;
             $slotYears[$slot][$k] += $par / count($classes);
             $sum += $par;
         }
@@ -204,7 +267,7 @@ $totalsBySlot = array_map('array_sum', $slotYears);
 $smooth = [];
 foreach ($totalsBySlot as $slot => $v) {
     $win = [];
-    for ($j = max(1, $slot - 2); $j <= min(BUILD_PICKS, $slot + 2); $j++) $win[] = $totalsBySlot[$j];
+    for ($j = max(1, $slot - 2); $j <= min($buildPicks, $slot + 2); $j++) $win[] = $totalsBySlot[$j];
     $smooth[$slot] = array_sum($win) / count($win);
 }
 $blocks = [];
@@ -238,8 +301,12 @@ $model = [
     'availability' => $avail,
     'spread' => $spread,
     'replacement' => $repl,
+    'depth' => $depth,
+    'waiver' => $waiver ?: null,
+    'fill' => $fill ?: null,
     'picks' => $picks,
     'pick_examples' => $examples,
 ];
-file_put_contents(__DIR__ . '/model.json', json_encode($model, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n");
-fwrite(STDERR, 'wrote ' . __DIR__ . "/model.json\n");
+$file = __DIR__ . '/' . mfl_league()['model'];
+file_put_contents($file, json_encode($model, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n");
+fwrite(STDERR, "wrote $file\n");

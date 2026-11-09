@@ -1,6 +1,6 @@
 <?php
 /**
- * The MFL tab: /admin/mfl/...
+ * A league's CMS tab: /admin/mfl/... or /admin/ssffl/... (mfl_admin_base()).
  * Open to admins and MFL Members. Every route here sets its own gate.
  */
 
@@ -21,12 +21,12 @@ function mfl_admin_route(string $route): void
                 'flash'      => $flash,
                 'updated'    => mfl_last_updated(),
                 'season'     => mfl_latest_season(),
-                'seasons'    => (int) db()->query('SELECT COUNT(*) FROM mfl_seasons')->fetchColumn(),
-                'matchups'   => (int) db()->query('SELECT COUNT(*) FROM mfl_matchups')->fetchColumn(),
-                'picks'      => (int) db()->query('SELECT COUNT(*) FROM mfl_draft_picks')->fetchColumn(),
+                'seasons'    => (int) league_db()->query('SELECT COUNT(*) FROM mfl_seasons')->fetchColumn(),
+                'matchups'   => (int) league_db()->query('SELECT COUNT(*) FROM mfl_matchups')->fetchColumn(),
+                'picks'      => (int) league_db()->query('SELECT COUNT(*) FROM mfl_draft_picks')->fetchColumn(),
                 'franchises' => mfl_franchises(),
-                'syncs'      => db()->query('SELECT l.*, u.display_name, u.email FROM mfl_sync_log l LEFT JOIN users u ON u.id = l.user_id ORDER BY l.id DESC LIMIT 8')->fetchAll(),
-                'title'      => 'MFL',
+                'syncs'      => mfl_recent_syncs(),
+                'title'      => mfl_league()['short'],
             ]);
             break;
 
@@ -42,7 +42,7 @@ function mfl_admin_route(string $route): void
                 session_start();
                 $_SESSION['mfl_flash'] = $result;
             }
-            header('Location: /admin/mfl');
+            header('Location: ' . mfl_admin_base());
             break;
 
         case 'mfl/rankings':
@@ -53,8 +53,8 @@ function mfl_admin_route(string $route): void
             render_admin('mfl/rankings', [
                 'flash'    => $flash,
                 'user'     => $user,
-                'rankings' => db()->query('SELECT * FROM mfl_rankings ORDER BY season DESC, week DESC')->fetchAll(),
-                'seasons'  => db()->query('SELECT season FROM mfl_seasons ORDER BY season DESC')->fetchAll(PDO::FETCH_COLUMN),
+                'rankings' => league_db()->query('SELECT * FROM mfl_rankings ORDER BY season DESC, week DESC')->fetchAll(),
+                'seasons'  => league_db()->query('SELECT season FROM mfl_seasons ORDER BY season DESC')->fetchAll(PDO::FETCH_COLUMN),
                 'nextWeek' => $season ? mfl_next_ranking_week($season) : 0,
                 'title'    => 'Power Rankings',
             ]);
@@ -62,25 +62,25 @@ function mfl_admin_route(string $route): void
 
         case 'mfl/rankings/new':
             $user = require_login(ROLES_ALL);
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: /admin/mfl/rankings'); exit; }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: ' . mfl_admin_base() . '/rankings'); exit; }
             verify_csrf();
             $season = (int) ($_POST['season'] ?? 0);
             $week   = (int) ($_POST['week'] ?? -1);
-            $stmt = db()->prepare('SELECT COUNT(*) FROM mfl_seasons WHERE season = ?');
+            $stmt = league_db()->prepare('SELECT COUNT(*) FROM mfl_seasons WHERE season = ?');
             $stmt->execute([$season]);
             if (!$stmt->fetchColumn() || $week < 0 || $week > MFL_FINAL_WEEK) {
                 $_SESSION['mfl_flash'] = ['status' => 'error', 'summary' => 'Choose a season and week.'];
-                header('Location: /admin/mfl/rankings');
+                header('Location: ' . mfl_admin_base() . '/rankings');
                 exit;
             }
             $id = mfl_ranking_create($season, $week, $user);
             if (!$id) {
                 $_SESSION['mfl_flash'] = ['status' => 'error',
                     'summary' => mfl_week_label($week) . " of $season already has rankings. There's one set per week."];
-                header('Location: /admin/mfl/rankings');
+                header('Location: ' . mfl_admin_base() . '/rankings');
                 exit;
             }
-            header("Location: /admin/mfl/rankings/edit?id=$id");
+            header("Location: " . mfl_admin_base() . "/rankings/edit?id=$id");
             break;
 
         case 'mfl/rankings/edit':
@@ -107,7 +107,7 @@ function mfl_admin_route(string $route): void
                         if ($mailError === null) $_SESSION['mfl_flash']['summary'] = 'Published and emailed to the league.';
                         else $_SESSION['mfl_flash']['warning'] = "The rankings are published, but the email didn't send. $mailError";
                     }
-                    header('Location: /admin/mfl/rankings/edit?id=' . (int) $ranking['id']);
+                    header('Location: ' . mfl_admin_base() . '/rankings/edit?id=' . (int) $ranking['id']);
                     exit;
                 }
                 // Hand the typed text back, so a rejected save loses nothing.
@@ -143,7 +143,7 @@ function mfl_admin_route(string $route): void
         // every owner, and only for published rankings.
         case 'mfl/rankings/email':
             $user = require_login(ROLES_ALL);
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: /admin/mfl/rankings'); exit; }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: ' . mfl_admin_base() . '/rankings'); exit; }
             verify_csrf();
             $ranking = mfl_ranking_for_edit((int) ($_POST['id'] ?? 0), $user);
             $mode = $_POST['mode'] ?? '';
@@ -161,7 +161,7 @@ function mfl_admin_route(string $route): void
                 $done = '';
             }
             $_SESSION['mfl_flash'] = $error === null ? ['status' => 'ok', 'summary' => $done] : ['status' => 'error', 'summary' => $error];
-            header('Location: /admin/mfl/rankings/edit?id=' . (int) $ranking['id']);
+            header('Location: ' . mfl_admin_base() . '/rankings/edit?id=' . (int) $ranking['id']);
             break;
 
         case 'mfl/rankings/delete':
@@ -172,11 +172,11 @@ function mfl_admin_route(string $route): void
                 // A published set has to be unpublished first, so one click
                 // can't remove something the whole league has read.
                 if ($ranking['status'] === 'draft') {
-                    db()->prepare('DELETE FROM mfl_rankings WHERE id = ?')->execute([$ranking['id']]);
+                    league_db()->prepare('DELETE FROM mfl_rankings WHERE id = ?')->execute([$ranking['id']]);
                     $_SESSION['mfl_flash'] = ['status' => 'ok', 'summary' => 'Draft deleted.'];
                 }
             }
-            header('Location: /admin/mfl/rankings');
+            header('Location: ' . mfl_admin_base() . '/rankings');
             break;
 
         case 'mfl/polls':
@@ -204,7 +204,7 @@ function mfl_admin_route(string $route): void
                         'close'     => 'Poll closed.',
                         default     => 'Saved.',
                     }];
-                    header("Location: /admin/mfl/polls/edit?id=$result");
+                    header("Location: " . mfl_admin_base() . "/polls/edit?id=$result");
                     exit;
                 }
                 // Hand the typed text back, so a rejected save loses nothing.
@@ -221,11 +221,11 @@ function mfl_admin_route(string $route): void
         // Anyone can clone any poll, since the copy is their own draft.
         case 'mfl/polls/clone':
             $user = require_login(ROLES_ALL);
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: /admin/mfl/polls'); exit; }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: ' . mfl_admin_base() . '/polls'); exit; }
             verify_csrf();
             $copy = mfl_poll_clone((int) ($_POST['id'] ?? 0), $user);
             $_SESSION['mfl_flash'] = ['status' => 'ok', 'summary' => 'Cloned. This is a new draft, so edit it and publish when you\'re ready.'];
-            header("Location: /admin/mfl/polls/edit?id=$copy");
+            header("Location: " . mfl_admin_base() . "/polls/edit?id=$copy");
             break;
 
         case 'mfl/polls/delete':
@@ -236,16 +236,16 @@ function mfl_admin_route(string $route): void
                 // Same rule as rankings: unpublish first, so one click can't
                 // remove something the league has already seen.
                 if ($poll['status'] === 'draft') {
-                    db()->prepare('DELETE FROM mfl_polls WHERE id = ?')->execute([$poll['id']]);
+                    league_db()->prepare('DELETE FROM mfl_polls WHERE id = ?')->execute([$poll['id']]);
                     $_SESSION['mfl_flash'] = ['status' => 'ok', 'summary' => 'Poll deleted.'];
                 }
             }
-            header('Location: /admin/mfl/polls');
+            header('Location: ' . mfl_admin_base() . '/polls');
             break;
 
         // Best Pickups moved to the public site.
         case 'mfl/pickups':
-            header('Location: ' . MFL_BASE_URL . '/pickups');
+            header('Location: ' . mfl_league()['base_url'] . '/pickups');
             break;
 
         case 'mfl/awards':
@@ -257,16 +257,16 @@ function mfl_admin_route(string $route): void
             unset($_SESSION['mfl_flash']);
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 verify_csrf();
-                $save = db()->prepare('INSERT INTO mfl_award_notes (season, award_key, note_md, updated_at) VALUES (?, ?, ?, ?)
+                $save = league_db()->prepare('INSERT INTO mfl_award_notes (season, award_key, note_md, updated_at) VALUES (?, ?, ?, ?)
                                        ON DUPLICATE KEY UPDATE note_md = VALUES(note_md), updated_at = VALUES(updated_at)');
-                $clear = db()->prepare('DELETE FROM mfl_award_notes WHERE season = ? AND award_key = ?');
+                $clear = league_db()->prepare('DELETE FROM mfl_award_notes WHERE season = ? AND award_key = ?');
                 foreach (mfl_awards($year) as $award) {
                     $note = mb_substr(trim((string) ($_POST['note'][$award['key']] ?? '')), 0, 2000);
                     if ($note === '') $clear->execute([$year, $award['key']]);
                     else $save->execute([$year, $award['key'], $note, date('Y-m-d H:i:s')]);
                 }
                 $_SESSION['mfl_flash'] = ['status' => 'ok', 'summary' => 'Saved.'];
-                header("Location: /admin/mfl/awards?season=$year");
+                header("Location: " . mfl_admin_base() . "/awards?season=$year");
                 exit;
             }
             render_admin('mfl/awards', ['flash' => $flash, 'awards' => mfl_awards($year), 'notes' => mfl_award_notes($year),
@@ -280,8 +280,8 @@ function mfl_admin_route(string $route): void
             $bad = [];
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 verify_csrf();
-                $saveName = db()->prepare('UPDATE mfl_owners SET real_name = ? WHERE id = ?');
-                $saveEmail = db()->prepare('UPDATE mfl_owners SET email = ? WHERE id = ?');
+                $saveName = league_db()->prepare('UPDATE mfl_owners SET real_name = ? WHERE id = ?');
+                $saveEmail = league_db()->prepare('UPDATE mfl_owners SET email = ? WHERE id = ?');
                 foreach ((array) ($_POST['real_name'] ?? []) as $id => $name) {
                     $saveName->execute([mb_substr(trim((string) $name), 0, 120), (string) $id]);
                     $email = trim((string) ($_POST['email'][$id] ?? ''));
@@ -295,7 +295,7 @@ function mfl_admin_route(string $route): void
                 $saved = true;
             }
             render_admin('mfl/owners', ['saved' => $saved, 'bad' => $bad, 'franchises' => mfl_franchises(),
-                'emails' => db()->query('SELECT id, email FROM mfl_owners')->fetchAll(PDO::FETCH_KEY_PAIR), 'title' => 'Owners']);
+                'emails' => league_db()->query('SELECT id, email FROM mfl_owners')->fetchAll(PDO::FETCH_KEY_PAIR), 'title' => 'Owners']);
             break;
 
         // The editors ping this to keep a long writing session alive, to notice
@@ -311,4 +311,23 @@ function mfl_admin_route(string $route): void
             http_response_code(404);
             exit('Not found.');
     }
+}
+
+/**
+ * The last few syncs with who ran them. Accounts live in the main database and
+ * a league's tables may not, so the names are looked up separately.
+ */
+function mfl_recent_syncs(): array
+{
+    $syncs = league_db()->query('SELECT * FROM mfl_sync_log ORDER BY id DESC LIMIT 8')->fetchAll();
+    $ids = array_values(array_unique(array_filter(array_map('intval', array_column($syncs, 'user_id')))));
+    $users = [];
+    if ($ids) {
+        $stmt = db()->prepare('SELECT id, display_name, email FROM users WHERE id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')');
+        $stmt->execute($ids);
+        foreach ($stmt as $u) $users[(int) $u['id']] = $u;
+    }
+    foreach ($syncs as &$s) $s += $users[(int) $s['user_id']] ?? ['display_name' => null, 'email' => null];
+    unset($s);
+    return $syncs;
 }

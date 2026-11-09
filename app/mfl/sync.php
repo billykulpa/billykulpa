@@ -13,18 +13,22 @@ require_once __DIR__ . '/values.php';
 function mfl_sync(string $trigger, ?int $userId = null, bool $full = false, bool $forceValues = false): array
 {
     // Cron and the button can collide, and two runs would race on tenures.
-    if (!(int) db()->query("SELECT GET_LOCK('mfl_sync', 0)")->fetchColumn()) {
+    // MySQL locks are server-wide, so the name carries the league.
+    $lock = 'mfl_sync_' . mfl_league()['key'];
+    $stmt = league_db()->prepare('SELECT GET_LOCK(?, 0)');
+    $stmt->execute([$lock]);
+    if (!(int) $stmt->fetchColumn()) {
         return ['status' => 'busy', 'summary' => 'A sync is already running.'];
     }
 
-    $stmt = db()->prepare('INSERT INTO mfl_sync_log (started_at, trigger_source, user_id) VALUES (?, ?, ?)');
+    $stmt = league_db()->prepare('INSERT INTO mfl_sync_log (started_at, trigger_source, user_id) VALUES (?, ?, ?)');
     $stmt->execute([date('Y-m-d H:i:s'), $trigger, $userId]);
-    $logId = (int) db()->lastInsertId();
+    $logId = (int) league_db()->lastInsertId();
 
     try {
         // Columns added after a season finished are empty until it's re-imported.
-        $full = $full || (int) db()->query('SELECT COUNT(*) FROM mfl_matchups WHERE player_points_json IS NULL')->fetchColumn() > 0;
-        $stored = db()->query('SELECT season, status FROM mfl_seasons')->fetchAll(PDO::FETCH_KEY_PAIR);
+        $full = $full || (int) league_db()->query('SELECT COUNT(*) FROM mfl_matchups WHERE player_points_json IS NULL')->fetchColumn() > 0;
+        $stored = league_db()->query('SELECT season, status FROM mfl_seasons')->fetchAll(PDO::FETCH_KEY_PAIR);
         $done = [];
         $chain = mfl_league_chain();
         foreach ($chain as $league) {
@@ -39,7 +43,7 @@ function mfl_sync(string $trigger, ?int $userId = null, bool $full = false, bool
         try {
             foreach ($chain as $league) mfl_sync_player_weeks($league);
         } catch (Throwable $e) {
-            if (db()->inTransaction()) db()->rollBack();
+            if (league_db()->inTransaction()) league_db()->rollBack();
             $statsNote = ' Season totals not updated.';
         }
         $players = mfl_sync_players();
@@ -54,28 +58,28 @@ function mfl_sync(string $trigger, ?int $userId = null, bool $full = false, bool
             $valued = mfl_sync_values($forceValues || $trigger === 'cron');
             if ($valued) $valuesNote = " Valued {$valued} players.";
         } catch (Throwable $e) {
-            if (db()->inTransaction()) db()->rollBack();
+            if (league_db()->inTransaction()) league_db()->rollBack();
             $valuesNote = ' Trade values not updated.';
         }
         $summary = 'Synced ' . ($done ? implode(', ', $done) : 'nothing new') . '.'
                  . ($players ? " Added {$players} player names." : '') . $statsNote . $valuesNote;
         $result = ['status' => 'ok', 'summary' => $summary];
     } catch (Throwable $e) {
-        if (db()->inTransaction()) db()->rollBack();
+        if (league_db()->inTransaction()) league_db()->rollBack();
         $result = ['status' => 'error', 'summary' => substr($e->getMessage(), 0, 500)];
     }
 
-    $stmt = db()->prepare('UPDATE mfl_sync_log SET finished_at = ?, status = ?, summary = ? WHERE id = ?');
+    $stmt = league_db()->prepare('UPDATE mfl_sync_log SET finished_at = ?, status = ?, summary = ? WHERE id = ?');
     $stmt->execute([date('Y-m-d H:i:s'), $result['status'], $result['summary'], $logId]);
-    db()->query("SELECT RELEASE_LOCK('mfl_sync')");
+    league_db()->prepare('SELECT RELEASE_LOCK(?)')->execute([$lock]);
     return $result;
 }
 
 /** Every season's league object, oldest first. */
 function mfl_league_chain(): array
 {
-    $newest = db()->query('SELECT league_id FROM mfl_seasons ORDER BY season DESC LIMIT 1')->fetchColumn()
-        ?: MFL_SEED_LEAGUE_ID;
+    $newest = league_db()->query('SELECT league_id FROM mfl_seasons ORDER BY season DESC LIMIT 1')->fetchColumn()
+        ?: mfl_league()['seed_league_id'];
 
     $chain = [];
     for ($id = $newest; $id; $id = $league['previous_league_id'] ?? null) {
@@ -90,7 +94,7 @@ function mfl_league_chain(): array
     while (true) {
         $last = end($chain);
         $next = null;
-        foreach (sleeper_get('/user/' . MFL_COMMISSIONER_ID . '/leagues/nfl/' . ((int) $last['season'] + 1)) ?? [] as $l) {
+        foreach (sleeper_get('/user/' . mfl_league()['tracker_user_id'] . '/leagues/nfl/' . ((int) $last['season'] + 1)) ?? [] as $l) {
             if (($l['previous_league_id'] ?? '') === $last['league_id']) $next = $l;
         }
         if (!$next) return $chain;
@@ -134,7 +138,7 @@ function mfl_sync_season(array $league): void
     $winners = $data['winners'] ?: [];
     $title = current(array_filter($winners, fn($m) => (int) ($m['p'] ?? 0) === 1)) ?: [];
 
-    $db = db();
+    $db = league_db();
     $db->beginTransaction();
 
     mfl_upsert('mfl_seasons', [
@@ -268,7 +272,7 @@ function mfl_sync_season(array $league): void
  */
 function mfl_sync_tenure(int $franchise, string $owner, int $season, array $league): void
 {
-    $stmt = db()->prepare('SELECT * FROM mfl_tenures WHERE franchise_id = ? AND end_season IS NULL');
+    $stmt = league_db()->prepare('SELECT * FROM mfl_tenures WHERE franchise_id = ? AND end_season IS NULL');
     $stmt->execute([$franchise]);
     $open = $stmt->fetch();
 
@@ -280,14 +284,14 @@ function mfl_sync_tenure(int $franchise, string $owner, int $season, array $leag
         $week = $live ? max(1, (int) ($league['settings']['leg'] ?? 1)) : 1;
         // Handed over twice in one week: the earlier handover never played.
         if ((int) $open['start_season'] === $season && (int) $open['start_week'] === $week) {
-            $stmt = db()->prepare('UPDATE mfl_tenures SET owner_id = ? WHERE id = ?');
+            $stmt = league_db()->prepare('UPDATE mfl_tenures SET owner_id = ? WHERE id = ?');
             $stmt->execute([$owner, $open['id']]);
             return;
         }
-        $stmt = db()->prepare('UPDATE mfl_tenures SET end_season = ?, end_week = ? WHERE id = ?');
+        $stmt = league_db()->prepare('UPDATE mfl_tenures SET end_season = ?, end_week = ? WHERE id = ?');
         $stmt->execute($week > 1 ? [$season, $week - 1, $open['id']] : [$season - 1, null, $open['id']]);
     }
-    $stmt = db()->prepare('INSERT INTO mfl_tenures (franchise_id, owner_id, start_season, start_week) VALUES (?, ?, ?, ?)');
+    $stmt = league_db()->prepare('INSERT INTO mfl_tenures (franchise_id, owner_id, start_season, start_week) VALUES (?, ?, ?, ?)');
     $stmt->execute([$franchise, $owner, $season, $week]);
 }
 
@@ -303,7 +307,7 @@ function mfl_sync_player_weeks(array $league): void
     $last = (int) ($league['settings']['last_scored_leg'] ?? 0);
     if ($last < 1) return;
 
-    $stmt = db()->prepare('SELECT DISTINCT week FROM mfl_player_weeks WHERE season = ?');
+    $stmt = league_db()->prepare('SELECT DISTINCT week FROM mfl_player_weeks WHERE season = ?');
     $stmt->execute([$season]);
     $stored = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     $weeks = array_diff(range(1, $last), $stored);
@@ -323,13 +327,13 @@ function mfl_sync_player_weeks(array $league): void
                 }
                 if (round($points, 2) != 0) $rows[] = [$season, $week, (string) $pid, round($points, 2)];
             }
-            db()->beginTransaction();
-            db()->prepare('DELETE FROM mfl_player_weeks WHERE season = ? AND week = ?')->execute([$season, $week]);
+            league_db()->beginTransaction();
+            league_db()->prepare('DELETE FROM mfl_player_weeks WHERE season = ? AND week = ?')->execute([$season, $week]);
             foreach (array_chunk($rows, 300) as $chunk) {
-                db()->prepare('INSERT INTO mfl_player_weeks (season, week, player_id, points) VALUES '
+                league_db()->prepare('INSERT INTO mfl_player_weeks (season, week, player_id, points) VALUES '
                     . implode(',', array_fill(0, count($chunk), '(?,?,?,?)')))->execute(array_merge(...$chunk));
             }
-            db()->commit();
+            league_db()->commit();
         }
     }
 }
@@ -342,22 +346,22 @@ function mfl_sync_player_weeks(array $league): void
 function mfl_sync_players(): int
 {
     $ids = [];
-    foreach (db()->query('SELECT roster_json FROM mfl_team_seasons')->fetchAll(PDO::FETCH_COLUMN) as $json) {
+    foreach (league_db()->query('SELECT roster_json FROM mfl_team_seasons')->fetchAll(PDO::FETCH_COLUMN) as $json) {
         foreach (json_decode((string) $json, true) ?: [] as $pid) $ids[$pid] = true;
     }
-    foreach (db()->query('SELECT adds_json, drops_json FROM mfl_transactions') as $row) {
+    foreach (league_db()->query('SELECT adds_json, drops_json FROM mfl_transactions') as $row) {
         foreach ([$row['adds_json'], $row['drops_json']] as $json) {
             foreach (array_keys(json_decode((string) $json, true) ?: []) as $pid) $ids[$pid] = true;
         }
     }
-    foreach (db()->query('SELECT player_id FROM mfl_draft_picks')->fetchAll(PDO::FETCH_COLUMN) as $pid) $ids[$pid] = true;
-    foreach (db()->query('SELECT DISTINCT player_id FROM mfl_player_weeks')->fetchAll(PDO::FETCH_COLUMN) as $pid) $ids[$pid] = true;
+    foreach (league_db()->query('SELECT player_id FROM mfl_draft_picks')->fetchAll(PDO::FETCH_COLUMN) as $pid) $ids[$pid] = true;
+    foreach (league_db()->query('SELECT DISTINCT player_id FROM mfl_player_weeks')->fetchAll(PDO::FETCH_COLUMN) as $pid) $ids[$pid] = true;
 
-    $known = array_flip(db()->query('SELECT id FROM mfl_players')->fetchAll(PDO::FETCH_COLUMN));
+    $known = array_flip(league_db()->query('SELECT id FROM mfl_players')->fetchAll(PDO::FETCH_COLUMN));
     $missing = array_diff_key($ids, $known);
     if (!$missing) return 0;
 
-    $lastFetch = (string) db()->query("SELECT MAX(started_at) FROM mfl_sync_log WHERE status = 'ok' AND summary LIKE '%player names%'")->fetchColumn();
+    $lastFetch = (string) league_db()->query("SELECT MAX(started_at) FROM mfl_sync_log WHERE status = 'ok' AND summary LIKE '%player names%'")->fetchColumn();
     // One new name can wait for tomorrow's download. A big gap can't.
     if (count($missing) < 50 && $lastFetch !== '' && strtotime($lastFetch) > time() - 86400) return 0;
 
@@ -408,7 +412,7 @@ function mfl_upsert(string $table, array $row, array $keys): void
         $updates = array_map(fn($c) => "$c = VALUES($c)", array_diff($cols, $keys));
         // A table of only key columns has nothing to update.
         $tail = $updates ? implode(', ', $updates) : "{$keys[0]} = {$keys[0]}";
-        $statements[$sig] = db()->prepare(
+        $statements[$sig] = league_db()->prepare(
             "INSERT INTO $table (" . implode(', ', $cols) . ') VALUES ('
             . implode(', ', array_fill(0, count($cols), '?')) . ") ON DUPLICATE KEY UPDATE $tail"
         );

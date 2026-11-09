@@ -24,7 +24,7 @@ function mfl_award_best(array $items, callable $value, bool $highest = true): ar
 
 function mfl_awards(int $season): array
 {
-    $db = db();
+    $db = league_db();
     $stmt = $db->prepare('SELECT * FROM mfl_team_seasons WHERE season = ?');
     $stmt->execute([$season]);
     $teams = $stmt->fetchAll();
@@ -199,7 +199,7 @@ function mfl_awards(int $season): array
 /** [award_key => comment] for a season. */
 function mfl_award_notes(int $season): array
 {
-    $stmt = db()->prepare('SELECT award_key, note_md FROM mfl_award_notes WHERE season = ?');
+    $stmt = league_db()->prepare('SELECT award_key, note_md FROM mfl_award_notes WHERE season = ?');
     $stmt->execute([$season]);
     return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 }

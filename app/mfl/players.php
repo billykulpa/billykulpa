@@ -54,7 +54,7 @@ function mfl_player_data(): array
         }
     }
 
-    foreach (db()->query('SELECT w.season, w.week, w.player_id, w.points FROM mfl_player_weeks w
+    foreach (league_db()->query('SELECT w.season, w.week, w.player_id, w.points FROM mfl_player_weeks w
                           JOIN mfl_seasons s ON s.season = w.season WHERE w.week <= s.last_scored_week') as $w) {
         $pid = (string) $w['player_id'];
         $season = (int) $w['season'];
@@ -78,7 +78,7 @@ function mfl_player_data(): array
     }
 
     $names = [];
-    foreach (db()->query('SELECT * FROM mfl_players') as $p) $names[$p['id']] = $p;
+    foreach (league_db()->query('SELECT * FROM mfl_players') as $p) $names[$p['id']] = $p;
     foreach ($players as $pid => &$p) {
         $p['name'] = $names[$pid]['full_name'] ?? '';
         $p['position'] = $names[$pid]['position'] ?? '';
@@ -165,9 +165,9 @@ function mfl_players_th(array $f, string $key, string $label, string $class = 'n
 /** Draft picks and transactions for one player, oldest first, as text with optional links. */
 function mfl_player_timeline(string $id): array
 {
-    $names = db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
+    $names = league_db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
     $events = [];
-    $stmt = db()->prepare('SELECT p.*, d.season, d.started_at, s.num_teams FROM mfl_draft_picks p
+    $stmt = league_db()->prepare('SELECT p.*, d.season, d.started_at, s.num_teams FROM mfl_draft_picks p
                              JOIN mfl_drafts d ON d.id = p.draft_id JOIN mfl_seasons s ON s.season = d.season
                             WHERE p.player_id = ?');
     $stmt->execute([$id]);

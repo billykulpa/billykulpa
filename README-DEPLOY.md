@@ -62,6 +62,45 @@ Apache — no docroot or vhost changes, and it coexists with other MAMP projects
 5. Open http://127.0.0.1:8090 — first visit http://127.0.0.1:8090/admin/setup
    to create your admin account (12+ char password). Ctrl-C stops the server.
 
+## League sites: one engine, one database per league
+
+`app/mfl/` runs every league site. `app/mfl/league.php` lists the leagues
+(name, address, Sleeper IDs, which database, which value model). Scoring,
+lineup, team count and playoff format come from each league's Sleeper settings,
+so they need no entry. MFL's tables sit in the main database; every other
+league has its own database with `league-schema.sql` imported, named under
+`league_db` in `config.php` (see `config.sample.php`). CMS accounts stay in the
+main database for all leagues.
+
+CLI scripts take `--league=<key>` (default `mfl`):
+```
+php app/mfl/sync-cli.php --league=ssffl
+php app/mfl/model-build.php --league=ssffl
+```
+
+**SSFFL (ssffl.billykulpa.com)** has its own entry point, `public/ssffl/`
+(deployed to `public_html/ssffl/`). It has no logo yet, so the header shows its
+name; `logo` in `league.php` turns logo files in `public/ssffl/assets` on. The
+shared CSS, JS and fonts stay in `public/mfl/assets` and `public/ssffl/index.php`
+serves them. Its CMS tab is `/admin/ssffl`, admin-only for now. Locally: database
+`ssffl_dev`, preview with `router-ssffl.php` on port 8093.
+
+SSFFL server setup, in this order:
+
+1. hPanel → Databases: create a database and user for SSFFL.
+2. phpMyAdmin, with that database selected: Import → `league-schema.sql`.
+3. Add its `league_db` block (see `config.sample.php`) to the server's
+   `app/config.php`. Until this exists, only the SSFFL site errors; MFL and
+   the main site don't read it.
+4. Push to `main`.
+5. hPanel → Domains → Subdomains: create `ssffl`, custom folder `ssffl`.
+6. Cloudflare → DNS: proxied `CNAME` `ssffl` → `billykulpa.com`.
+7. `/admin/ssffl` → **Sync now** (all seasons since 2022, then trade values).
+8. hPanel → Cron Jobs, once a day:
+   ```
+   /usr/bin/php /home/YOURUSER/domains/billykulpa.com/public_html/app/mfl/sync-cli.php --league=ssffl
+   ```
+
 ## Midwest Football League (mfl.billykulpa.com)
 
 The league site shares this repo, the database and the CMS. Its entry point is
@@ -119,8 +158,9 @@ updated." Run `php app/mfl/sync-cli.php --values` to recompute on demand.
 The trade machine at the top of `/trades` (owners only) runs in the browser
 (`public/mfl/assets/trade-machine.js`) from the values the page embeds, so it
 needs nothing beyond the daily values. The slow-moving part, aging curves and what each rookie draft slot has
-produced, lives in `app/mfl/model.json`. Rebuild it locally once a year, after
-the NFL season, with `php app/mfl/model-build.php`, then commit it.
+produced, lives in `app/mfl/model.json` (`model-ssffl.json` for SSFFL). Rebuild
+each locally once a year, after the NFL season, with `php app/mfl/model-build.php`
+(add `--league=ssffl` for SSFFL, after syncing it locally), then commit it.
 
 **Poll voting:** only signed-in owners can vote, one vote per owner on any device.
 Owners sign in with an emailed link (`app/mfl/owners.php`), which needs league

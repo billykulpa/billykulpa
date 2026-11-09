@@ -68,10 +68,10 @@ function mfl_writeup_html(?string $md): string
 /** Published rankings, oldest first, each with its [franchise_id => rank] map. */
 function mfl_rank_history(): array
 {
-    $history = db()->query("SELECT * FROM mfl_rankings WHERE status = 'published' ORDER BY season, week")->fetchAll();
+    $history = league_db()->query("SELECT * FROM mfl_rankings WHERE status = 'published' ORDER BY season, week")->fetchAll();
     if (!$history) return [];
     $ranks = [];
-    foreach (db()->query("SELECT e.ranking_id, e.franchise_id, e.rank_no FROM mfl_ranking_entries e
+    foreach (league_db()->query("SELECT e.ranking_id, e.franchise_id, e.rank_no FROM mfl_ranking_entries e
                           JOIN mfl_rankings r ON r.id = e.ranking_id WHERE r.status = 'published'") as $e) {
         $ranks[$e['ranking_id']][$e['franchise_id']] = (int) $e['rank_no'];
     }
@@ -82,7 +82,7 @@ function mfl_rank_history(): array
 /** A ranking's rows, with movement since the set before it and the rank history so far. */
 function mfl_ranking_rows(array $ranking, array $history): array
 {
-    $stmt = db()->prepare(
+    $stmt = league_db()->prepare(
         'SELECT e.*, o.display_name AS owner_name, o.real_name
            FROM mfl_ranking_entries e
            LEFT JOIN mfl_owners o ON o.id = e.owner_id
@@ -117,7 +117,7 @@ function mfl_ranking_rows(array $ranking, array $history): array
  */
 function mfl_records_before(int $season, int $week): array
 {
-    $stmt = db()->prepare(
+    $stmt = league_db()->prepare(
         "SELECT franchise_id, SUM(result = 'W') w, SUM(result = 'L') l, SUM(result = 'T') t
            FROM mfl_matchups
           WHERE season = ? AND week < ? AND is_playoff = 0
@@ -135,7 +135,7 @@ function mfl_records_before(int $season, int $week): array
 function mfl_ranking_team_stats(array $history): array
 {
     if (!$history) return [];
-    $names = db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
+    $names = league_db()->query('SELECT id, name FROM mfl_franchises')->fetchAll(PDO::FETCH_KEY_PAIR);
     $latest = end($history);
     $teams = [];
     foreach ($names as $fid => $name) {
@@ -206,7 +206,7 @@ function mfl_sparkline(array $trail, int $teams): string
 /** Load a ranking the signed-in user may change. Authors edit their own; the admin edits all. */
 function mfl_ranking_for_edit(int $id, array $user): array
 {
-    $stmt = db()->prepare('SELECT * FROM mfl_rankings WHERE id = ?');
+    $stmt = league_db()->prepare('SELECT * FROM mfl_rankings WHERE id = ?');
     $stmt->execute([$id]);
     $ranking = $stmt->fetch();
     if (!$ranking) { http_response_code(404); exit('Not found.'); }
@@ -220,7 +220,7 @@ function mfl_ranking_for_edit(int $id, array $user): array
 /** Start a draft in the last published order, or the standings if there is none. NULL if the week is taken. */
 function mfl_ranking_create(int $season, int $week, array $user): ?int
 {
-    $db = db();
+    $db = league_db();
     try {
         $stmt = $db->prepare('INSERT INTO mfl_rankings (season, week, author_user_id, author_name, created_at) VALUES (?, ?, ?, ?, ?)');
         $stmt->execute([$season, $week, $user['id'], mfl_user_name($user), date('Y-m-d H:i:s')]);
@@ -253,10 +253,10 @@ function mfl_user_name(array $user): string
 /** A set of rankings as it stands now, in the same shape the editor's form posts. */
 function mfl_ranking_snapshot(int $id): array
 {
-    $stmt = db()->prepare('SELECT week, title, intro_md FROM mfl_rankings WHERE id = ?');
+    $stmt = league_db()->prepare('SELECT week, title, intro_md FROM mfl_rankings WHERE id = ?');
     $stmt->execute([$id]);
     $r = $stmt->fetch();
-    $stmt = db()->prepare('SELECT franchise_id, writeup_md FROM mfl_ranking_entries WHERE ranking_id = ? ORDER BY rank_no');
+    $stmt = league_db()->prepare('SELECT franchise_id, writeup_md FROM mfl_ranking_entries WHERE ranking_id = ? ORDER BY rank_no');
     $stmt->execute([$id]);
     $order = $writeups = [];
     foreach ($stmt as $e) {
@@ -283,14 +283,14 @@ function mfl_ranking_diff(array $before, array $after): string
 
 function mfl_ranking_log(int $id, string $action, string $name, string $summary, array $snapshot, ?string $at = null): void
 {
-    $stmt = db()->prepare('INSERT INTO mfl_ranking_revisions (ranking_id, action, user_name, summary, snapshot_json, created_at) VALUES (?, ?, ?, ?, ?, ?)');
+    $stmt = league_db()->prepare('INSERT INTO mfl_ranking_revisions (ranking_id, action, user_name, summary, snapshot_json, created_at) VALUES (?, ?, ?, ?, ?, ?)');
     $stmt->execute([$id, $action, $name, $summary, json_encode($snapshot, JSON_UNESCAPED_UNICODE), $at ?? date('Y-m-d H:i:s')]);
 }
 
 /** Save history for the editor, newest first. */
 function mfl_ranking_revisions(int $id): array
 {
-    $stmt = db()->prepare('SELECT id, action, user_name, summary, created_at FROM mfl_ranking_revisions WHERE ranking_id = ? ORDER BY id DESC');
+    $stmt = league_db()->prepare('SELECT id, action, user_name, summary, created_at FROM mfl_ranking_revisions WHERE ranking_id = ? ORDER BY id DESC');
     $stmt->execute([$id]);
     return $stmt->fetchAll();
 }
@@ -298,7 +298,7 @@ function mfl_ranking_revisions(int $id): array
 /** One saved version's snapshot and date, only if it belongs to this ranking. */
 function mfl_ranking_revision(int $rankingId, int $revisionId): ?array
 {
-    $stmt = db()->prepare('SELECT * FROM mfl_ranking_revisions WHERE id = ? AND ranking_id = ?');
+    $stmt = league_db()->prepare('SELECT * FROM mfl_ranking_revisions WHERE id = ? AND ranking_id = ?');
     $stmt->execute([$revisionId, $rankingId]);
     $row = $stmt->fetch();
     if (!$row) return null;
@@ -320,7 +320,7 @@ function mfl_revision_label(string $action): string
 /** Rows for the editor, in saved order, or in the posted order after a rejected save. */
 function mfl_editor_rows(array $ranking, ?array $posted): array
 {
-    $stmt = db()->prepare(
+    $stmt = league_db()->prepare(
         'SELECT e.*, ts.team_name AS current_name
            FROM mfl_ranking_entries e
            LEFT JOIN mfl_team_seasons ts ON ts.season = ? AND ts.franchise_id = e.franchise_id
@@ -356,7 +356,7 @@ function mfl_editor_rows(array $ranking, ?array $posted): array
  */
 function mfl_ranking_save(array $ranking, array $in, string $action, array $user): ?string
 {
-    $db = db();
+    $db = league_db();
     $stmt = $db->prepare('SELECT franchise_id, team_name, owner_id FROM mfl_team_seasons WHERE season = ?');
     $stmt->execute([$ranking['season']]);
     $teams = [];

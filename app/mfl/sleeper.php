@@ -4,16 +4,9 @@
  * https://docs.sleeper.com
  */
 
+require_once __DIR__ . '/league.php';
+
 const SLEEPER_API = 'https://api.sleeper.app/v1';
-
-/**
- * Where the league chain starts on a fresh database. After the first sync the
- * newest stored league takes over, and each renewal is found automatically.
- */
-const MFL_SEED_LEAGUE_ID = '1312119304191238144';
-
-/** Billy's Sleeper user id, used to find next season's renewed league. */
-const MFL_COMMISSIONER_ID = '1175642773426860032';
 
 function sleeper_get(string $path): mixed
 {

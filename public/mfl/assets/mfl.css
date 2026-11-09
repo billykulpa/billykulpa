@@ -49,10 +49,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .header-grid { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 72px; flex-wrap: wrap; padding-block: 12px; }
 .wordmark { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; letter-spacing: -0.01em; }
 .wordmark-logo { display: block; height: 50px; width: auto; }
-.wordmark-name { font-weight: 700; color: var(--ink); font-size: 15px; }
-/* A league without a logo shows its name alone, set larger to carry the header. */
-.wordmark--text { min-height: 50px; }
-.wordmark--text .wordmark-name { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.wordmark { min-height: 50px; }   /* the same header height with or without a logo */
+.wordmark-name { color: var(--ink); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+/* "Last updated" sits just under the header's rule, left-aligned. */
+.updated { padding-top: 10px; }
 
 .hero { padding: clamp(48px, 8vw, 96px) 0 clamp(32px, 5vw, 56px); }
 h1 { font-size: clamp(38px, 6vw, 68px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-top: 12px; }

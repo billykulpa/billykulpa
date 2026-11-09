@@ -24,7 +24,7 @@ $league = mfl_league(); ?>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap header-grid">
-      <a class="wordmark<?= $league['logo'] ? '' : ' wordmark--text' ?>" href="/" aria-label="<?= esc($league['name']) ?> home"<?= $nav === 'home' ? ' aria-current="page"' : '' ?>><?php if ($league['logo']): ?><img class="wordmark-logo" src="<?= esc(mfl_asset('logo.svg')) ?>" alt="" width="64" height="50"><?php endif; ?><span class="wordmark-name"><?= esc($league['name']) ?></span></a>
+      <a class="wordmark" href="/" aria-label="<?= esc($league['name']) ?> home"<?= $nav === 'home' ? ' aria-current="page"' : '' ?>><?php if ($league['logo']): ?><img class="wordmark-logo" src="<?= esc(mfl_asset('logo.svg')) ?>" alt="" width="64" height="50"><?php endif; ?><span class="wordmark-name"><?= esc($league['short']) ?></span></a>
       <nav class="site-nav" aria-label="Primary">
         <a href="/rankings" <?= $nav === 'rankings' ? 'aria-current="page"' : '' ?>>Power Rankings</a>
         <a href="/polls" <?= $nav === 'polls' ? 'aria-current="page"' : '' ?>>Polls</a>
@@ -37,12 +37,14 @@ $league = mfl_league(); ?>
         <a href="/records" <?= $nav === 'records' ? 'aria-current="page"' : '' ?>>Records</a>
         <a href="/awards" <?= $nav === 'awards' ? 'aria-current="page"' : '' ?>>Awards</a>
       </nav>
-      <p class="updated mono-label">
-        <?php if ($updated): ?>Last updated <time datetime="<?= esc(date('c', strtotime($updated))) ?>"><?= esc(central_time($updated, 'M j, g:i a')) ?> CT</time>
-        <?php else: ?>Not synced yet<?php endif; ?>
-      </p>
     </div>
   </header>
+  <div class="wrap">
+    <p class="updated mono-label">
+      <?php if ($updated): ?>Last updated <time datetime="<?= esc(date('c', strtotime($updated))) ?>"><?= esc(central_time($updated, 'M j, g:i a')) ?> CT</time>
+      <?php else: ?>Not synced yet<?php endif; ?>
+    </p>
+  </div>
   <main id="main" class="wrap"><?= $content ?></main>
   <footer class="site-footer">
     <div class="wrap"><p class="mono-label">League data from Sleeper</p></div>

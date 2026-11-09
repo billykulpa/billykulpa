@@ -313,7 +313,11 @@ function mfl_compute_values(array $o): array
 function mfl_sync_values(bool $force = false): int
 {
     $run = mfl_value_meta('run');
-    if (!$force && $run && strtotime($run['computed_at']) > time() - 20 * 3600) return 0;
+    // Within a day of the last run, skip, unless a trade is still waiting to
+    // be valued (a new trade, or the first run after scorecards shipped).
+    $waiting = (int) db()->query("SELECT COUNT(*) FROM mfl_transactions t WHERE t.type = 'trade' AND t.status = 'complete'
+                                  AND NOT EXISTS (SELECT 1 FROM mfl_trade_values v WHERE v.trade_id = t.id)")->fetchColumn();
+    if (!$force && !$waiting && $run && strtotime($run['computed_at']) > time() - 20 * 3600) return 0;
 
     ini_set('memory_limit', '512M');
     $w = mfl_value_window();

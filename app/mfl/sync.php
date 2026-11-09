@@ -48,8 +48,9 @@ function mfl_sync(string $trigger, ?int $userId = null, bool $full = false, bool
         $valuesNote = '';
         try {
             // The daily cron always recomputes. A "Sync now" click only does if
-            // the last run is a day old, since it downloads Sleeper's full
-            // player list, which Sleeper asks to fetch at most daily.
+            // the last run is a day old or a trade hasn't been valued yet,
+            // since it downloads Sleeper's full player list, which Sleeper
+            // asks to fetch at most daily.
             $valued = mfl_sync_values($forceValues || $trigger === 'cron');
             if ($valued) $valuesNote = " Valued {$valued} players.";
         } catch (Throwable $e) {

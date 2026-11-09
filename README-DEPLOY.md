@@ -110,6 +110,16 @@ has a test send and a deliberate resend.
 current. MFL → Awards adds a comment to any award. The page reads Midseason
 Awards during a season and "<year> Season Awards" once it's complete.
 
+**Trade values** (`/trades/values`, signed-in owners only): the daily sync
+values every player and pick two ways (`app/mfl/values.php`). The model is
+points above a replacement starter for this season and the next four. The
+market is FantasyCalc's dynasty values. Both feeds are unofficial, so a
+failure leaves yesterday's values, and the sync summary says "Trade values not
+updated." Run `php app/mfl/sync-cli.php --values` to recompute on demand.
+The slow-moving part, aging curves and what each rookie draft slot has
+produced, lives in `app/mfl/model.json`. Rebuild it locally once a year, after
+the NFL season, with `php app/mfl/model-build.php`, then commit it.
+
 **Poll voting:** only signed-in owners can vote, one vote per owner on any device.
 Owners sign in with an emailed link (`app/mfl/owners.php`), which needs league
 email set up and their address under MFL → Owners. Everyone else sees the poll,

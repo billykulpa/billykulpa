@@ -2,6 +2,7 @@
 <section class="hero hero--tight">
   <p class="mono-label"><?= count($trades) ?> <?= count($trades) === 1 ? 'trade' : 'trades' ?> in <?= $season ?></p>
   <h1>Trades</h1>
+  <p class="hero-link"><a class="link" href="/trades/values">Trade values</a>: what every player and pick is worth, by our model and by the market · <a class="link" href="/trades/values/how">How trade values are calculated</a></p>
 </section>
 <nav class="era-tabs" aria-label="Seasons">
   <?php foreach ($seasons as $s): ?><a href="/trades?season=<?= (int) $s ?>"<?= (int) $s === $season ? ' aria-current="page"' : '' ?>><?= (int) $s ?></a><?php endforeach; ?>

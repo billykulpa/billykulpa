@@ -396,3 +396,25 @@ CREATE TABLE IF NOT EXISTS mfl_owner_sessions (
   KEY idx_owner (owner_id),
   FOREIGN KEY (owner_id) REFERENCES mfl_owners(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Trade values, refreshed daily by the sync (app/mfl/values.php). Rebuilt in
+-- full each time, so nothing here needs to survive.
+CREATE TABLE IF NOT EXISTS mfl_values (
+  player_id VARCHAR(16) PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  position VARCHAR(8) NOT NULL,
+  nfl_team VARCHAR(8) NOT NULL DEFAULT '',
+  birth_date DATE NULL,
+  injury VARCHAR(20) NOT NULL DEFAULT '',
+  ppg DECIMAL(5,2) NOT NULL DEFAULT 0,          -- current scoring rate the model starts from
+  par_json TEXT NOT NULL,                       -- points above replacement: this season, then the next four
+  model_value DECIMAL(7,1) NOT NULL DEFAULT 0,
+  market_value INT NULL,                        -- FantasyCalc, NULL when the player is not listed
+  market_trend INT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mfl_value_meta (
+  name VARCHAR(32) PRIMARY KEY,
+  value_json MEDIUMTEXT NOT NULL,
+  updated_at DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

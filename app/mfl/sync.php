@@ -7,9 +7,10 @@
  */
 
 require_once __DIR__ . '/sleeper.php';
+require_once __DIR__ . '/values.php';
 
 /** Returns ['status' => ok|error|busy, 'summary' => string]. */
-function mfl_sync(string $trigger, ?int $userId = null, bool $full = false): array
+function mfl_sync(string $trigger, ?int $userId = null, bool $full = false, bool $forceValues = false): array
 {
     // Cron and the button can collide, and two runs would race on tenures.
     if (!(int) db()->query("SELECT GET_LOCK('mfl_sync', 0)")->fetchColumn()) {
@@ -42,8 +43,18 @@ function mfl_sync(string $trigger, ?int $userId = null, bool $full = false): arr
             $statsNote = ' Season totals not updated.';
         }
         $players = mfl_sync_players();
+        // Trade values lean on two unofficial feeds, so like the stats above,
+        // a failure here leaves yesterday's values and doesn't fail the sync.
+        $valuesNote = '';
+        try {
+            $valued = mfl_sync_values($forceValues);
+            if ($valued) $valuesNote = " Valued {$valued} players.";
+        } catch (Throwable $e) {
+            if (db()->inTransaction()) db()->rollBack();
+            $valuesNote = ' Trade values not updated.';
+        }
         $summary = 'Synced ' . ($done ? implode(', ', $done) : 'nothing new') . '.'
-                 . ($players ? " Added {$players} player names." : '') . $statsNote;
+                 . ($players ? " Added {$players} player names." : '') . $statsNote . $valuesNote;
         $result = ['status' => 'ok', 'summary' => $summary];
     } catch (Throwable $e) {
         if (db()->inTransaction()) db()->rollBack();

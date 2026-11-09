@@ -11,6 +11,7 @@ require_once __DIR__ . '/players.php';
 require_once __DIR__ . '/awards.php';
 require_once __DIR__ . '/email.php';
 require_once __DIR__ . '/owners.php';
+require_once __DIR__ . '/values.php';
 
 function mfl_site_route(string $path): void
 {
@@ -66,6 +67,24 @@ function mfl_site_route(string $path): void
                 mfl_sign_out();
             }
             header('Location: /polls', true, 303);
+            break;
+
+        case 'trades/values/how':
+            mfl_render('values-faq', ['nav' => 'trades', 'title' => 'How trade values are calculated', 'run' => mfl_value_meta('run')]);
+            break;
+
+        case 'trades/values':
+            // Owners only, so the page differs per visitor.
+            header('Cache-Control: no-store');
+            $owner = mfl_current_owner();
+            $f = mfl_values_filters($_GET);
+            mfl_render('values', [
+                'nav' => 'trades', 'title' => 'Trade Values', 'script' => true, 'owner' => $owner, 'f' => $f,
+                'run' => $owner ? mfl_value_meta('run') : null,
+                'rows' => $owner && $f['view'] === 'players' ? mfl_values_rows($f) : [],
+                'picks' => $owner && $f['view'] === 'picks' ? mfl_pick_values() : [],
+                'names' => array_column(mfl_franchises(), 'name', 'id'),
+            ]);
             break;
 
         case 'polls/vote':

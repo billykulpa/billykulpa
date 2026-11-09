@@ -24,7 +24,7 @@ $league = mfl_league(); ?>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap header-grid">
-      <a class="wordmark" href="/" aria-label="<?= esc($league['name']) ?> home"<?= $nav === 'home' ? ' aria-current="page"' : '' ?>><?php if ($league['logo']): ?><img class="wordmark-logo" src="<?= esc(mfl_asset('logo.svg')) ?>" alt="" width="64" height="50"><?php endif; ?><span class="wordmark-name"><?= esc($league['short']) ?></span></a>
+      <a class="wordmark" href="/" aria-label="<?= esc($league['name']) ?> home"<?= $nav === 'home' ? ' aria-current="page"' : '' ?>><?php if ($league['logo']): ?><img class="wordmark-logo" src="<?= esc(mfl_asset('logo.svg')) ?>" alt="" width="64" height="50"><?php endif; ?><span class="wordmark-name"><span class="wordmark-full"><?= esc($league['name']) ?></span><span class="wordmark-short" aria-hidden="true"><?= esc($league['short']) ?></span></span></a>
       <nav class="site-nav" aria-label="Primary">
         <a href="/rankings" <?= $nav === 'rankings' ? 'aria-current="page"' : '' ?>>Power Rankings</a>
         <a href="/polls" <?= $nav === 'polls' ? 'aria-current="page"' : '' ?>>Polls</a>

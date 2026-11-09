@@ -115,37 +115,27 @@ SSFFL server setup, in this order:
 
 ## Midwest Football League (mfl.billykulpa.com)
 
-The league site shares this repo, the database and the CMS. Its entry point is
-`public/mfl/`, which the normal deploy lands in `public_html/mfl/`. League data
-is copied from Sleeper's public API by `app/mfl/sync.php`; no API key is needed.
+The league site shares this repo and the league engine in `app/mfl/` (see
+"League sites" above). Its entry point is `public/mfl/`, which the normal
+deploy lands in `public_html/mfl/`; its data is in `u908084654_mfl`, and its
+admin and accounts are at `mfl.billykulpa.com/admin`. League data is copied
+from Sleeper's public API by `app/mfl/sync.php`; no API key is needed. The
+daily cron runs `app/mfl/sync-cli.php` at 11:15 server time (SSFFL's, with
+`--league=ssffl`, at 11:20).
 
-**First deploy, in this order:**
+**Schema changes** go in `league-schema.sql` as new `CREATE TABLE IF NOT
+EXISTS` statements (re-importing the file only adds what's missing); changes to
+an existing table also need an `ALTER` run in each league's database before
+pushing.
 
-1. Run `add-mfl-phase1.sql` in phpMyAdmin *before* pushing. The new login code
-   reads `users.role`, so pushing first takes the CMS down until it's run.
-2. Push to `main`.
-3. hPanel → Domains → Subdomains: create `mfl`, using the custom folder `mfl`
-   so its document root is `public_html/mfl`.
-4. Cloudflare → DNS: add a proxied `CNAME` for `mfl` pointing at `billykulpa.com`.
-5. `/admin/mfl` → **Sync now** for the first import.
-6. hPanel → Advanced → Cron Jobs: run this once a day. Replace the path if
-   File Manager shows a different one.
-   ```
-   /usr/bin/php /home/YOURUSER/domains/billykulpa.com/public_html/app/mfl/sync-cli.php
-   ```
-
-**Accounts:** `/admin/users` creates MFL Members, who can only open the MFL tab
-and their own password page. New CMS routes are admin-only unless they pass
-`ROLES_ALL` to `require_login()`.
-
-**Power rankings:** the MFL tab's Power Rankings screen starts a set for a week
+**Power rankings:** the league admin's Power Rankings screen starts a set for a week
 in the last published order. Save draft keeps it private; Publish rankings puts
 it on `/rankings`. Authors edit their own sets and the admin can edit any. There
 is one set per week. Records shown are through the week before the set's week.
 Every change is logged under Save history in the editor, and Load puts any
 earlier version back in the form; it only takes effect when saved.
 
-**Polls:** MFL → Polls creates them with a title, answers and a closing time in
+**Polls:** Admin → Polls creates them with a title, answers and a closing time in
 Central. Anyone can vote without an account, one vote per browser, held by a
 random cookie; clearing cookies allows a second vote. Results appear after
 voting, and to everyone once the poll closes. Answers lock at the first vote.
@@ -154,11 +144,11 @@ voting, and to everyone once the poll closes. Answers lock at the first vote.
 `billykulpa.com` in Resend with its DNS-only records in Cloudflare, and don't
 enable Resend's Receiving, because its MX would take over inbound mail. Then add
 the `mfl_email` block from `config.sample.php` to the server's `config.php`, and
-enter addresses under MFL → Owners. Each set emails once on publish; the editor
+enter addresses under Admin → Owners. Each set emails once on publish; the editor
 has a test send and a deliberate resend.
 
 **Awards:** `/awards` calculates its winners in `app/mfl/awards.php`, so it stays
-current. MFL → Awards adds a comment to any award. The page reads Midseason
+current. Admin → Awards adds a comment to any award. The page reads Midseason
 Awards during a season and "<year> Season Awards" once it's complete.
 
 **Trade values** (`/trades/values`, signed-in owners only): the daily sync
@@ -176,13 +166,11 @@ each locally once a year, after the NFL season, with `php app/mfl/model-build.ph
 
 **Poll voting:** only signed-in owners can vote, one vote per owner on any device.
 Owners sign in with an emailed link (`app/mfl/owners.php`), which needs league
-email set up and their address under MFL → Owners. Everyone else sees the poll,
+email set up and their address under Admin → Owners. Everyone else sees the poll,
 and results once it closes.
 
-**Real names:** Sleeper doesn't share them. Enter them under MFL → Owners
+**Real names:** Sleeper doesn't share them. Enter them under Admin → Owners
 (admin only). The site shows Username (First Last), or the username if blank.
-
-**Each later phase** ships an `add-mfl-phaseN.sql`. Run it before pushing.
 
 **History pages:** `/teams`, `/owners/<username>`, `/standings`, `/drafts` and
 `/records` are worked out from the synced data in `app/mfl/history.php`. Records

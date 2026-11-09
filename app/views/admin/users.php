@@ -11,7 +11,7 @@
     <tr>
       <td><?= esc($a['display_name'] ?: '—') ?></td>
       <td><?= esc($a['email']) ?></td>
-      <td><span class="a-pill a-pill--draft"><?= $a['role'] === 'admin' ? 'Admin' : 'Old MFL Member (moved to the MFL admin)' ?></span></td>
+      <td><span class="a-pill a-pill--draft">Admin</span></td>
     </tr>
   <?php endforeach; ?>
   </tbody>

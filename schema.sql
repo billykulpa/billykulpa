@@ -4,10 +4,10 @@
 CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(190) NOT NULL UNIQUE,
-  display_name VARCHAR(80) NOT NULL DEFAULT '',  -- author credit on MFL rankings
+  display_name VARCHAR(80) NOT NULL DEFAULT '',
   password_hash VARCHAR(255) NOT NULL,
-  -- Defaults to the least-privileged role; /admin/setup sets 'admin' explicitly.
-  role ENUM('admin','mfl_member') NOT NULL DEFAULT 'mfl_member',
+  -- Site admins only. League sites keep their own accounts (league-schema.sql).
+  role ENUM('admin') NOT NULL DEFAULT 'admin',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

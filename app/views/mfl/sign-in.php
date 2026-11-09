@@ -8,7 +8,7 @@ $where = ['/polls' => 'the polls', '/trades' => 'the trade machine', '/trades/va
   <?php if ($owner): ?>
   <p>You're signed in as <?= esc(mfl_owner_label($owner['display_name'], $owner['real_name'])) ?>. <a class="link" href="<?= esc($next) ?>">Go to <?= esc($where) ?></a></p>
   <?php elseif ($sent): ?>
-  <p><b>Check your email.</b> If that address belongs to an MFL owner, a sign-in link is on its way. It works for <?= MFL_LINK_MINUTES ?> minutes.</p>
+  <p><b>Check your email.</b> If that address belongs to an <?= esc(mfl_league()['short']) ?> owner, a sign-in link is on its way. It works for <?= MFL_LINK_MINUTES ?> minutes.</p>
   <p class="note">Nothing yet? Check your spam folder, or ask the commissioner which email is on file.</p>
   <?php else: ?>
   <?php if ($failed): ?><p class="sign-in-error">That link has expired. Enter your email for a new one.</p><?php endif; ?>

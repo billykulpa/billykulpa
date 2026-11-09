@@ -39,6 +39,8 @@ const MFL_LEAGUES = [
         // backs much earlier, tight ends a bit later. Wide receivers are 1, 0.
         'rookie_order' => ['QB' => [3, 24], 'RB' => [0.5, 0], 'TE' => [1.5, 0]],
         // How the trade values FAQ describes that order.
+        // The season MVP award's name on the Awards page.
+        'mvp_award'  => 'The Golden Cob',
         'rookie_order_note' => 'adjusted the way 1-QB rookie drafts go: quarterbacks much later, running backs much earlier, tight ends a little later. That order matches Sleeper\'s 2021-25 rookie rankings closely.',
     ],
     'ssffl' => [
@@ -64,6 +66,7 @@ const MFL_LEAGUES = [
         // Superflex: quarterbacks go about where the NFL takes them, running
         // backs well before, tight ends after.
         'rookie_order' => ['QB' => [1.5, 12], 'RB' => [0.8, -17], 'TE' => [2.3, -20]],
+        'mvp_award'  => 'The Golden Roll',   // softest league, softest trophy
         'rookie_order_note' => 'adjusted the way this league\'s own rookie drafts have gone since 2023: quarterbacks about where the NFL takes them, running backs well before that, tight ends after. That order matches the league\'s 2023-26 drafts closely.',
     ],
 ];

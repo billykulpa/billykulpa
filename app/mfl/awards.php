@@ -43,7 +43,7 @@ function mfl_awards(int $season): array
     // Player of the season so far.
     $players = array_filter(mfl_player_data(), fn($p) => $p['name'] !== '' && ($p['seasons'][$season]['starts'] ?? 0) > 0);
     $mvp = mfl_award_best($players, fn($p) => $p['seasons'][$season]['starter']);
-    $add('mvp', 'The Golden Cob', 'MVP: most points as a starter',
+    $add('mvp', mfl_league()['mvp_award'], 'MVP: most points as a starter',
         array_map(fn($p) => mfl_player_link($p['id'], $p['name']), $mvp),
         $mvp ? $points($mvp[0]['seasons'][$season]['starter']) : '', $mvp ? $mvp[0]['position'] : '');
 
